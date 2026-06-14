@@ -27,7 +27,6 @@ import {
 } from "@/color-models/color-space-models"
 import type {
   ColorSpaceAxis,
-  ColorSpaceModelDefinition,
   ColorSpaceModelId,
 } from "@/color-models/color-space-models"
 import { SolidColorSpaceModelCanvas } from "@/color-models/SolidColorSpaceModelCanvas"
@@ -42,14 +41,6 @@ const MODEL_ICONS = {
   lch: CylinderIcon,
   oklch: OrbitIcon,
 } satisfies Record<ColorSpaceModelId, ElementType>
-
-const MODEL_DIFFERENCES = {
-  hsl: "명도 50%에서 가장 넓고 흑백으로 갈수록 반지름이 접힙니다.",
-  hsv: "Value가 커질수록 색상 원판이 넓어지는 단일 원뿔입니다.",
-  lch: "선형 원통이 아니라 색역 경계를 부드럽게 감싼 CIE LCH 껍질입니다.",
-  oklch: "OKLab 기반 lightness 축에서 smoothed max-chroma 외피가 드러납니다.",
-  rgb: "세 채널의 0-1 범위가 여섯 면의 직육면체로 닫힙니다.",
-} satisfies Record<ColorSpaceModelId, string>
 
 function AxisLegendItem({ axis }: { readonly axis: ColorSpaceAxis }) {
   return (
@@ -81,39 +72,6 @@ function CoordinateLegendDock({
         ))}
       </ul>
     </div>
-  )
-}
-
-function ModelDetailPanel({
-  model,
-  shapeLabel,
-}: {
-  readonly model: ColorSpaceModelDefinition
-  readonly shapeLabel: string
-}) {
-  return (
-    <aside className="grid gap-3 rounded-md border border-border bg-background/90 p-4 shadow-sm backdrop-blur">
-      <div className="flex items-center justify-between gap-3">
-        <span className="font-mono text-[0.65rem] font-semibold text-muted-foreground uppercase">
-          Solid Model
-        </span>
-        <Badge variant="outline">{shapeLabel}</Badge>
-      </div>
-      <div>
-        <h2 className="text-sm font-semibold">{model.title}</h2>
-        <p className="mt-1 text-xs leading-5 text-muted-foreground">
-          {model.summary}
-        </p>
-      </div>
-      <div className="grid gap-2">
-        <Badge variant="secondary" className="w-fit">
-          {model.coordinate}
-        </Badge>
-        <p className="text-xs leading-5 text-muted-foreground">
-          {MODEL_DIFFERENCES[model.id]}
-        </p>
-      </div>
-    </aside>
   )
 }
 
@@ -168,9 +126,6 @@ export function ColorSpaceSolidModelsPage() {
 
   return (
     <PlaygroundStage
-      endPanel={
-        <ModelDetailPanel model={selectedModel} shapeLabel={mesh.shapeLabel} />
-      }
       topStart={
         <div className="max-w-sm rounded-md border border-border bg-background/90 p-4 shadow-sm backdrop-blur">
           <code className="text-sm font-bold">색 공간을 실제 3D 표면으로 보기</code>
