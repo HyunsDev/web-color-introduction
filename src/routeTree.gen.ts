@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from "./routes/__root"
+import { Route as PerceptualColorStepsRouteImport } from "./routes/perceptual-color-steps"
 import { Route as CssColorNotationsRouteImport } from "./routes/css-color-notations"
 import { Route as ColorSpaceUnwrappedRouteImport } from "./routes/color-space-unwrapped"
 import { Route as ColorSpaceSolidModelsRouteImport } from "./routes/color-space-solid-models"
@@ -21,6 +22,11 @@ import { Route as Cie1931XyRouteImport } from "./routes/cie-1931-xy"
 import { Route as Cie1931ProjectionRouteImport } from "./routes/cie-1931-projection"
 import { Route as IndexRouteImport } from "./routes/index"
 
+const PerceptualColorStepsRoute = PerceptualColorStepsRouteImport.update({
+  id: "/perceptual-color-steps",
+  path: "/perceptual-color-steps",
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CssColorNotationsRoute = CssColorNotationsRouteImport.update({
   id: "/css-color-notations",
   path: "/css-color-notations",
@@ -89,6 +95,7 @@ export interface FileRoutesByFullPath {
   "/color-space-solid-models": typeof ColorSpaceSolidModelsRoute
   "/color-space-unwrapped": typeof ColorSpaceUnwrappedRoute
   "/css-color-notations": typeof CssColorNotationsRoute
+  "/perceptual-color-steps": typeof PerceptualColorStepsRoute
 }
 export interface FileRoutesByTo {
   "/": typeof IndexRoute
@@ -102,6 +109,7 @@ export interface FileRoutesByTo {
   "/color-space-solid-models": typeof ColorSpaceSolidModelsRoute
   "/color-space-unwrapped": typeof ColorSpaceUnwrappedRoute
   "/css-color-notations": typeof CssColorNotationsRoute
+  "/perceptual-color-steps": typeof PerceptualColorStepsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -116,6 +124,7 @@ export interface FileRoutesById {
   "/color-space-solid-models": typeof ColorSpaceSolidModelsRoute
   "/color-space-unwrapped": typeof ColorSpaceUnwrappedRoute
   "/css-color-notations": typeof CssColorNotationsRoute
+  "/perceptual-color-steps": typeof PerceptualColorStepsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -131,6 +140,7 @@ export interface FileRouteTypes {
     | "/color-space-solid-models"
     | "/color-space-unwrapped"
     | "/css-color-notations"
+    | "/perceptual-color-steps"
   fileRoutesByTo: FileRoutesByTo
   to:
     | "/"
@@ -144,6 +154,7 @@ export interface FileRouteTypes {
     | "/color-space-solid-models"
     | "/color-space-unwrapped"
     | "/css-color-notations"
+    | "/perceptual-color-steps"
   id:
     | "__root__"
     | "/"
@@ -157,6 +168,7 @@ export interface FileRouteTypes {
     | "/color-space-solid-models"
     | "/color-space-unwrapped"
     | "/css-color-notations"
+    | "/perceptual-color-steps"
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -171,10 +183,18 @@ export interface RootRouteChildren {
   ColorSpaceSolidModelsRoute: typeof ColorSpaceSolidModelsRoute
   ColorSpaceUnwrappedRoute: typeof ColorSpaceUnwrappedRoute
   CssColorNotationsRoute: typeof CssColorNotationsRoute
+  PerceptualColorStepsRoute: typeof PerceptualColorStepsRoute
 }
 
 declare module "@tanstack/react-router" {
   interface FileRoutesByPath {
+    "/perceptual-color-steps": {
+      id: "/perceptual-color-steps"
+      path: "/perceptual-color-steps"
+      fullPath: "/perceptual-color-steps"
+      preLoaderRoute: typeof PerceptualColorStepsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     "/css-color-notations": {
       id: "/css-color-notations"
       path: "/css-color-notations"
@@ -267,6 +287,7 @@ const rootRouteChildren: RootRouteChildren = {
   ColorSpaceSolidModelsRoute: ColorSpaceSolidModelsRoute,
   ColorSpaceUnwrappedRoute: ColorSpaceUnwrappedRoute,
   CssColorNotationsRoute: CssColorNotationsRoute,
+  PerceptualColorStepsRoute: PerceptualColorStepsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

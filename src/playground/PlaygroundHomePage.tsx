@@ -6,6 +6,7 @@ import {
   Code2Icon,
   CrosshairIcon,
   CylinderIcon,
+  EyeIcon,
   PaletteIcon,
   PanelTopIcon,
   ScissorsIcon,
@@ -60,6 +61,11 @@ export function PlaygroundHomePage() {
             icon={ScissorsIcon}
             label="Gamut Clipping"
             path="/color-gamut-clipping"
+          />
+          <PlaygroundRouteFeature
+            icon={EyeIcon}
+            label="Perceptual Steps"
+            path="/perceptual-color-steps"
           />
           <PlaygroundRouteFeature
             icon={CircleDotIcon}

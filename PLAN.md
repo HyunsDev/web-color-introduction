@@ -22,7 +22,7 @@
 - [x] 색 보간 경로 비교
 - [x] CSS 색상 표기 실험실
 - [x] 색역과 Clipping
-- [ ] 같은 숫자, 다른 체감
+- [x] 같은 숫자, 다른 체감
 
 ## 0. CIE 1931 visible locus를 3D Solid Models reference 색역으로 추가
 
@@ -384,6 +384,11 @@ feat(fe): add gamut clipping visualization
 
 - `pnpm typecheck`
 - 데스크톱/모바일에서 swatch, 라벨, 수치 겹침 확인
+
+진행 로그:
+
+- 2026-06-15: `/perceptual-color-steps` 라우트와 홈 링크를 추가하고, RGB/HSL/OKLCH lightness ramp, RGB mix/HSL saturation/OKLCH chroma brand ramp, step count slider, 인접 ΔE 표시를 구현했다.
+- 2026-06-15: ramp 생성 모델과 테스트를 추가했다. `pnpm test`, `pnpm typecheck`, `pnpm lint`, `pnpm build` 통과. Playwright/Chrome으로 step slider 조작, 데스크톱/390px 모바일 swatch/라벨 overflow 없음, 콘솔 warning/error 없음 확인.
 
 커밋 예시:
 
