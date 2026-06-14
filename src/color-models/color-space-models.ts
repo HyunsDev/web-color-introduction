@@ -4,6 +4,7 @@ export type ColorSpaceModelId =
   | "hsv"
   | "hwb"
   | "xyz"
+  | "xyy"
   | "lab"
   | "lch"
   | "oklab"
@@ -133,6 +134,25 @@ export const COLOR_SPACE_MODEL_BY_ID = {
     notes: [
       "Y 축은 상대 휘도에 대응해 색의 밝기 기여를 가장 직접적으로 보여줍니다.",
       "같은 RGB 색역도 XYZ로 옮기면 원색 좌표와 백색점 때문에 비스듬한 입체가 됩니다.",
+    ],
+  },
+  xyy: {
+    id: "xyy",
+    name: "xyY",
+    title: "CIE xyY Chromaticity Volume",
+    geometry: "xy chromaticity base + Y luminance height",
+    coordinate: "x, y, Y",
+    notation: "xyY(0.42 0.32 0.21)",
+    summary: "XYZ를 색도 x/y와 휘도 Y로 나누어, xy 색도도 위에 밝기 축을 세운 형태로 봅니다.",
+    pointSize: 0.04,
+    accent: "#0ea5e9",
+    axes: [
+      { label: "X", value: "Chromaticity x", color: "#0ea5e9" },
+      { label: "Y", value: "Luminance Y", color: "#22c55e" },
+      { label: "Z", value: "Chromaticity y", color: "#6366f1" },
+    ],
+    notes: [
+      "검정처럼 XYZ 합이 0이면 x/y 색도 좌표는 정의되지 않습니다.",
     ],
   },
   lab: {

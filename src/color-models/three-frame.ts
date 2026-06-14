@@ -236,6 +236,7 @@ export function createModelFrame(
       group.add(createHsvFrame(theme))
       return group
     case "xyz":
+    case "xyy":
       group.add(createCubeFrame(theme))
       return group
     case "lab":

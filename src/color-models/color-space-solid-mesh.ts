@@ -8,6 +8,7 @@ import { createColorSampleRenderOptions } from "@/color-models/color-sample-rend
 import { buildPerceptualSolidMesh } from "@/color-models/color-space-solid-perceptual-mesh"
 import type { SolidColorSpaceMesh } from "@/color-models/color-space-solid-mesh-builder"
 import { buildXyzSolidMesh } from "@/color-models/color-space-solid-xyz-mesh"
+import { buildXyySolidMesh } from "@/color-models/color-space-solid-xyy-mesh"
 
 export type { SolidColorSpaceMesh }
 
@@ -26,6 +27,8 @@ export function buildSolidColorSpaceMesh(
       return buildBasicSolidMesh(modelId, options)
     case "xyz":
       return buildXyzSolidMesh(options)
+    case "xyy":
+      return buildXyySolidMesh(options)
     case "lab":
     case "lch":
     case "oklab":

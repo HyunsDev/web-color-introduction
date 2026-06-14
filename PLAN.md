@@ -13,7 +13,7 @@
 
 ## 전체 진행 상태
 
-- [ ] xyY 좌표계를 3D Solid Models에 추가
+- [x] xyY 좌표계를 3D Solid Models에 추가
 - [ ] 공통 색 좌표/표기/색역 기반 정리
 - [ ] 색 좌표 2D 단면 조절기
 - [ ] 3D Solid Models 단면 보기
@@ -329,3 +329,4 @@ feat(fe): add perceptual color step comparison
 
 - 2026-06-15: 구현 후보와 작업 단위 계획을 `PLAN.md`로 정리했다.
 - 2026-06-15: `xyY` 좌표계 추가를 첫 번째 작업 후보로 올렸다.
+- 2026-06-15: `xyY` 좌표계를 3D Solid Models에 추가하고 검증했다.

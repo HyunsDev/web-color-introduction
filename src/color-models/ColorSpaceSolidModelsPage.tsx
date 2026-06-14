@@ -24,10 +24,8 @@ import type {
   ColorGamutCapabilities,
   ColorGamutModeId,
 } from "@/color-models/color-gamut"
-import {
-  COLOR_SPACE_MODEL_BY_ID,
-  COLOR_SPACE_MODELS,
-} from "@/color-models/color-space-models"
+import { COLOR_SPACE_MODEL_BY_ID } from "@/color-models/color-space-models"
+import { COLOR_SPACE_SOLID_MODELS } from "@/color-models/color-space-solid-models"
 import type {
   ColorSpaceAxis,
   ColorSpaceModelId,
@@ -43,6 +41,7 @@ const MODEL_ICONS = {
   hsv: ConeIcon,
   hwb: BlendIcon,
   xyz: Axis3dIcon,
+  xyy: CircleDotIcon,
   lab: Axis3dIcon,
   lch: CylinderIcon,
   oklab: Scale3dIcon,
@@ -108,7 +107,7 @@ export function ColorSpaceSolidModelsPage() {
   const ActiveIcon = MODEL_ICONS[selectedModel.id]
   const modelTabs = useMemo(
     () =>
-      COLOR_SPACE_MODELS.map((model) => {
+      COLOR_SPACE_SOLID_MODELS.map((model) => {
         const ModelIcon = MODEL_ICONS[model.id]
         const isSelected = model.id === selectedModel.id
 
@@ -139,8 +138,8 @@ export function ColorSpaceSolidModelsPage() {
             색 공간을 실제 3D 표면으로 보기
           </code>
           <p className="mt-1 hidden text-xs leading-5 text-muted-foreground sm:block">
-            점군 대신 닫힌 표면 mesh로 RGB, HSL, HSV, HWB, XYZ, Lab, LCH, OKLab,
-            OKLCH의 형태 차이를 비교합니다.
+            점군 대신 닫힌 표면 mesh로 RGB, HSL, HSV, HWB, XYZ, xyY, Lab,
+            LCH, OKLab, OKLCH의 형태 차이를 비교합니다.
           </p>
           <div className="mt-3 flex flex-wrap items-center gap-2">
             <Badge variant="outline" className="gap-1">
@@ -170,7 +169,7 @@ export function ColorSpaceSolidModelsPage() {
       }
       bottomStart={<CoordinateLegendDock axes={selectedModel.axes} />}
       bottomCenter={
-        <div className="grid w-full max-w-[min(100%,54rem)] grid-cols-2 gap-2 rounded-md border border-border bg-background/90 p-3 shadow-sm backdrop-blur sm:grid-cols-4 xl:grid-cols-9">
+        <div className="grid w-full max-w-[min(100%,58rem)] grid-cols-2 gap-2 rounded-md border border-border bg-background/90 p-3 shadow-sm backdrop-blur sm:grid-cols-4 xl:grid-cols-5">
           {modelTabs}
         </div>
       }

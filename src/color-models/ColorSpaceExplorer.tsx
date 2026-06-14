@@ -41,6 +41,7 @@ const MODEL_ICONS = {
   hsv: ConeIcon,
   hwb: BlendIcon,
   xyz: Axis3dIcon,
+  xyy: CircleDotIcon,
   lab: Axis3dIcon,
   lch: CylinderIcon,
   oklab: Scale3dIcon,
