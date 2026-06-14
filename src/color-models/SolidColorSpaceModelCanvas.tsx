@@ -9,9 +9,7 @@ import {
 } from "three"
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js"
 
-import {
-  ColorSpaceAxisLabelLayer,
-} from "@/color-models/ColorSpaceAxisLabelLayer"
+import { ColorSpaceAxisLabelLayer } from "@/color-models/ColorSpaceAxisLabelLayer"
 import { createAxisLabelProjector } from "@/color-models/color-space-axis-label-projection"
 import { getColorSpaceAxisLabels } from "@/color-models/color-space-axis-labels"
 import type { SolidColorSpaceMesh } from "@/color-models/color-space-solid-mesh"
@@ -106,7 +104,11 @@ export function SolidColorSpaceModelCanvas({
     scene.add(frame)
     scene.add(solid)
 
-    const updateAxisLabels = createAxisLabelProjector(labelLayer, axisLabels)
+    const updateAxisLabels = createAxisLabelProjector(labelLayer, axisLabels, {
+      occludeTicksOnly: true,
+      occlusionPadding: 0.34,
+      occluders: [solid],
+    })
 
     let resizeFrameId = 0
     let renderWidth = 1
