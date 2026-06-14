@@ -1,23 +1,6 @@
-import {
-  createRootRoute,
-  createRoute,
-  createRouter,
-  Outlet,
-} from "@tanstack/react-router"
+import { createRouter } from "@tanstack/react-router"
 
-import { App } from "@/App.tsx"
-
-const rootRoute = createRootRoute({
-  component: () => <Outlet />,
-})
-
-const indexRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: "/",
-  component: App,
-})
-
-const routeTree = rootRoute.addChildren([indexRoute])
+import { routeTree } from "@/routeTree.gen"
 
 export const router = createRouter({ routeTree })
 
