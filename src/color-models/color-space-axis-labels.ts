@@ -20,6 +20,8 @@ const BLUE_AXIS = "#3b82f6"
 const HUE_AXIS = "#f59e0b"
 const RADIUS_AXIS = "#06b6d4"
 const HEIGHT_AXIS = "#94a3b8"
+const WHITE_AXIS = "#64748b"
+const BLACK_AXIS = "#0f172a"
 const LAB_A_AXIS = "#db2777"
 const LAB_B_AXIS = "#eab308"
 const CHROMA_AXIS = "#10b981"
@@ -65,6 +67,20 @@ const HSV_AXIS_LABELS = [
   tick("S 1", "#a855f7", TICK_OFFSET, 1, 0),
   tick("V 0", HEIGHT_AXIS, 0, -TICK_OFFSET, 0),
   tick("V 1", HEIGHT_AXIS, 0, TICK_OFFSET, 0),
+] as const satisfies readonly ColorSpaceAxisLabel[]
+
+const HWB_AXIS_LABELS = [
+  axis("Hue", HUE_AXIS, AXIS_OFFSET, 0.18, 0),
+  axis("White", WHITE_AXIS, 0.12, AXIS_OFFSET, 0),
+  axis("Black", BLACK_AXIS, 0.12, -AXIS_OFFSET, 0),
+  tick("H 0deg", HUE_AXIS, HUE_OFFSET, -0.16, 0),
+  tick("H 90deg", HUE_AXIS, 0, -0.16, HUE_OFFSET),
+  tick("H 180deg", HUE_AXIS, -HUE_OFFSET, -0.16, 0),
+  tick("H 270deg", HUE_AXIS, 0, -0.16, -HUE_OFFSET),
+  tick("W 0", WHITE_AXIS, TICK_OFFSET, 0.1, 0),
+  tick("W 1", WHITE_AXIS, 0, TICK_OFFSET, 0),
+  tick("B 0", BLACK_AXIS, -TICK_OFFSET, -0.1, 0),
+  tick("B 1", BLACK_AXIS, 0, -TICK_OFFSET, 0),
 ] as const satisfies readonly ColorSpaceAxisLabel[]
 
 const XYZ_AXIS_LABELS = [
@@ -139,6 +155,8 @@ export function getColorSpaceAxisLabels(modelId: ColorSpaceModelId) {
       return HSL_AXIS_LABELS
     case "hsv":
       return HSV_AXIS_LABELS
+    case "hwb":
+      return HWB_AXIS_LABELS
     case "xyz":
       return XYZ_AXIS_LABELS
     case "lab":

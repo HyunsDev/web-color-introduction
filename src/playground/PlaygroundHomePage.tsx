@@ -1,4 +1,10 @@
-import { BoxIcon, CircleDotIcon, CylinderIcon, PaletteIcon } from "lucide-react"
+import {
+  ArrowDownToLineIcon,
+  BoxIcon,
+  CircleDotIcon,
+  CylinderIcon,
+  PaletteIcon,
+} from "lucide-react"
 
 import {
   PlaygroundIndexPage,
@@ -27,8 +33,18 @@ export function PlaygroundHomePage() {
           />
           <PlaygroundRouteFeature
             icon={CircleDotIcon}
+            label="CIE 1931 xy"
+            path="/cie-1931-xy"
+          />
+          <PlaygroundRouteFeature
+            icon={BoxIcon}
             label="CIE 1931 XYZ"
             path="/cie-1931-xyz"
+          />
+          <PlaygroundRouteFeature
+            icon={ArrowDownToLineIcon}
+            label="XYZ to xy Projection"
+            path="/cie-1931-projection"
           />
         </PlaygroundRouteGroup>
       </PlaygroundRouteColumn>

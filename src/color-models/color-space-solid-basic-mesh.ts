@@ -17,11 +17,16 @@ const HUE_SEGMENTS = 72
 const HSL_LIGHTNESS_SEGMENTS = 48
 const HSV_VALUE_SEGMENTS = 42
 const HSV_CAP_SEGMENTS = 18
+const HWB_RATIO_SEGMENTS = 42
 const CUBE_WIREFRAME_STEP = 6
 const POLAR_WIREFRAME_COLUMN_STEP = 12
 const POLAR_WIREFRAME_ROW_STEP = 8
 
-type BasicSolidModelId = Extract<ColorSpaceModelId, "hsl" | "hsv" | "rgb">
+type BasicSolidModelId = Extract<
+  ColorSpaceModelId,
+  "hsl" | "hsv" | "hwb" | "rgb"
+>
+type HwbConeChannel = "blackness" | "whiteness"
 
 function toGamutRgbColor(
   gamut: CuloriSampleGamut,
@@ -158,6 +163,53 @@ function buildHsvMesh(options: ColorSampleRenderOptions) {
   return finalizeMesh(builder, "HSV cone with value cap")
 }
 
+function appendHwbCone(
+  builder: ReturnType<typeof createBuilder>,
+  channel: HwbConeChannel,
+  options: ColorSampleRenderOptions
+) {
+  appendGridSurface(
+    builder,
+    HWB_RATIO_SEGMENTS,
+    HUE_SEGMENTS,
+    (row, column) => {
+      const amount = row / HWB_RATIO_SEGMENTS
+      const hue = (column / HUE_SEGMENTS) * 360
+      const radius = 1 - amount
+      const y = channel === "whiteness" ? amount : -amount
+
+      if (channel === "whiteness") {
+        return appendVertex(
+          builder,
+          polarToPoint(hue, radius, y),
+          { mode: "hwb", h: hue, w: amount, b: 0 },
+          options
+        )
+      }
+
+      return appendVertex(
+        builder,
+        polarToPoint(hue, radius, y),
+        { mode: "hwb", h: hue, w: 0, b: amount },
+        options
+      )
+    },
+    {
+      columnStep: POLAR_WIREFRAME_COLUMN_STEP,
+      rowStep: POLAR_WIREFRAME_ROW_STEP,
+    }
+  )
+}
+
+function buildHwbMesh(options: ColorSampleRenderOptions) {
+  const builder = createBuilder()
+
+  appendHwbCone(builder, "whiteness", options)
+  appendHwbCone(builder, "blackness", options)
+
+  return finalizeMesh(builder, "HWB white/black bicone surface")
+}
+
 export function buildBasicSolidMesh(
   modelId: BasicSolidModelId,
   options: ColorSampleRenderOptions
@@ -169,6 +221,8 @@ export function buildBasicSolidMesh(
       return buildHslMesh(options)
     case "hsv":
       return buildHsvMesh(options)
+    case "hwb":
+      return buildHwbMesh(options)
     default:
       return assertNeverBasicModel(modelId)
   }

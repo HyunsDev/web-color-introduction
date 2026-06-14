@@ -9,9 +9,8 @@ import {
 } from "three"
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js"
 
-import {
-  ColorSpaceAxisLabelLayer,
-} from "@/color-models/ColorSpaceAxisLabelLayer"
+import { ColorSpaceAxisLabelLayer } from "@/color-models/ColorSpaceAxisLabelLayer"
+import { getResponsiveCameraScale } from "@/color-models/color-space-camera"
 import { createAxisLabelProjector } from "@/color-models/color-space-axis-label-projection"
 import { getColorSpaceAxisLabels } from "@/color-models/color-space-axis-labels"
 import {
@@ -32,6 +31,8 @@ import {
 } from "@/color-models/three-scene"
 import { useTheme } from "@/components/theme-provider"
 import { cn } from "@/lib/utils"
+
+const BASE_CAMERA_POSITION = { x: 3.1, y: 2.35, z: 3.1 } as const
 
 export function ColorSpaceModelCanvas({
   className,
@@ -91,7 +92,11 @@ export function ColorSpaceModelCanvas({
 
     const scene = new Scene()
     const camera = new PerspectiveCamera(42, 1, 0.1, 100)
-    camera.position.set(3.1, 2.35, 3.1)
+    camera.position.set(
+      BASE_CAMERA_POSITION.x,
+      BASE_CAMERA_POSITION.y,
+      BASE_CAMERA_POSITION.z
+    )
     camera.lookAt(0, 0, 0)
 
     const controls = new OrbitControls(camera, canvas)
@@ -123,8 +128,16 @@ export function ColorSpaceModelCanvas({
       renderHeight = Math.max(1, Math.floor(host.clientHeight))
 
       renderer.setSize(renderWidth, renderHeight, false)
+      const cameraScale = getResponsiveCameraScale(renderWidth, renderHeight)
+      camera.position.set(
+        BASE_CAMERA_POSITION.x * cameraScale,
+        BASE_CAMERA_POSITION.y * cameraScale,
+        BASE_CAMERA_POSITION.z * cameraScale
+      )
+      camera.lookAt(0, 0, 0)
       camera.aspect = renderWidth / renderHeight
       camera.updateProjectionMatrix()
+      controls.update()
       updateAxisLabels(camera, renderWidth, renderHeight)
     }
     const queueResize = () => {

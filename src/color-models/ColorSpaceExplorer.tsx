@@ -2,6 +2,7 @@ import { useMemo, useState } from "react"
 import type { ElementType } from "react"
 import {
   Axis3dIcon,
+  BlendIcon,
   BoxIcon,
   CircleDotIcon,
   ConeIcon,
@@ -38,6 +39,7 @@ const MODEL_ICONS = {
   rgb: BoxIcon,
   hsl: CircleDotIcon,
   hsv: ConeIcon,
+  hwb: BlendIcon,
   xyz: Axis3dIcon,
   lab: Axis3dIcon,
   lch: CylinderIcon,
@@ -124,8 +126,8 @@ export function ColorSpaceExplorer() {
             색 좌표계를 3D 모델로 비교하기
           </code>
           <p className="mt-1 hidden text-xs leading-5 text-muted-foreground sm:block">
-            RGB, HSL, HSV, XYZ, Lab, LCH, OKLab, OKLCH를 같은 무대에서 점군과
-            좌표축으로 비교합니다.
+            RGB, HSL, HSV, HWB, XYZ, Lab, LCH, OKLab, OKLCH를 같은 무대에서
+            점군과 좌표축으로 비교합니다.
           </p>
           <div className="mt-3 grid gap-2 lg:hidden">
             <div className="flex items-center gap-2 text-xs font-semibold">
@@ -150,7 +152,7 @@ export function ColorSpaceExplorer() {
       }
       bottomStart={<CoordinateLegendDock axes={selectedModel.axes} />}
       bottomCenter={
-        <div className="grid w-full max-w-[min(100%,48rem)] grid-cols-2 gap-2 rounded-md border border-border bg-background/90 p-3 shadow-sm backdrop-blur sm:grid-cols-4 xl:grid-cols-8">
+        <div className="grid w-full max-w-[min(100%,54rem)] grid-cols-2 gap-2 rounded-md border border-border bg-background/90 p-3 shadow-sm backdrop-blur sm:grid-cols-4 xl:grid-cols-9">
           {modelTabs}
         </div>
       }

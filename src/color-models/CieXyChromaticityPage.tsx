@@ -1,10 +1,11 @@
 import { useMemo, useState } from "react"
-import { BoxIcon, CircleDotIcon, OrbitIcon, PaletteIcon } from "lucide-react"
+import { BoxIcon, CircleDotIcon, Grid3X3Icon, PaletteIcon } from "lucide-react"
 
 import {
   CieXyzGamutCanvas,
   type CieXyzViewMode,
 } from "@/color-models/CieXyzGamutCanvas"
+import { CiePageLinks } from "@/color-models/CiePageLinks"
 import { CIE_XYZ_GAMUTS } from "@/color-models/cie-xyz-gamut-data"
 import type { CieXyzGamutId } from "@/color-models/cie-xyz-gamut-data"
 import { buildCieXyzGamutMeshes } from "@/color-models/cie-xyz-gamut-mesh"
@@ -22,47 +23,6 @@ const DEFAULT_GAMUT_VISIBILITY = {
   "display-p3": false,
   bt2020: false,
 } satisfies CieXyzGamutVisibility
-
-function getViewModeLabel(viewMode: CieXyzViewMode) {
-  switch (viewMode) {
-    case "3d":
-      return "3D 회전"
-    case "xy":
-      return "xy 정면"
-    default:
-      return assertNeverViewMode(viewMode)
-  }
-}
-
-function XyzAxisLegend() {
-  return (
-    <div className="rounded-md border border-border bg-background/90 p-2.5 shadow-sm backdrop-blur">
-      <ul className="grid min-w-32 gap-1.5">
-        {[
-          { label: "X", value: "tristimulus", color: "#ef4444" },
-          { label: "Y", value: "luminance", color: "#22c55e" },
-          { label: "Z", value: "tristimulus", color: "#3b82f6" },
-        ].map((axis) => (
-          <li
-            key={axis.label}
-            className="grid grid-cols-[auto_1fr] items-center gap-x-2 rounded-md border border-border bg-background/75 px-2.5 py-2"
-          >
-            <span
-              className="row-span-2 size-2 rounded-full"
-              style={{ backgroundColor: axis.color }}
-            />
-            <span className="font-mono text-[0.62rem] leading-none text-muted-foreground">
-              {axis.label}
-            </span>
-            <span className="mt-1 text-xs leading-none font-medium">
-              {axis.value}
-            </span>
-          </li>
-        ))}
-      </ul>
-    </div>
-  )
-}
 
 function GamutToggleButton({
   gamutId,
@@ -118,28 +78,22 @@ function ViewModeButton({
       onClick={() => onSelect(targetViewMode)}
     >
       <Icon />
-      {getViewModeLabel(targetViewMode)}
+      {targetViewMode === "3d" ? "3D 단면" : "xy 정면"}
     </Button>
   )
 }
 
-export function CieXyzGamutPage() {
-  const [viewMode, setViewMode] = useState<CieXyzViewMode>("3d")
+export function CieXyChromaticityPage() {
+  const [viewMode, setViewMode] = useState<CieXyzViewMode>("xy")
   const [visibleGamuts, setVisibleGamuts] = useState<CieXyzGamutVisibility>(
     DEFAULT_GAMUT_VISIBILITY
   )
-  const [showChromaticity, setShowChromaticity] = useState(true)
-  const [showVisibleCone, setShowVisibleCone] = useState(true)
   const [showWireframe, setShowWireframe] = useState(true)
   const gamutMeshes = useMemo(() => buildCieXyzGamutMeshes(), [])
   const reference = useMemo(() => buildCieXyzReferenceMesh(), [])
   const visibleGamutCount = CIE_XYZ_GAMUTS.filter(
     (gamut) => visibleGamuts[gamut.id]
   ).length
-  const triangleCount = gamutMeshes.reduce(
-    (total, mesh) => total + mesh.triangleCount,
-    0
-  )
 
   const toggleGamut = (gamutId: CieXyzGamutId) => {
     setVisibleGamuts((current) => ({
@@ -154,34 +108,30 @@ export function CieXyzGamutPage() {
         <div className="max-w-sm rounded-md border border-border bg-background/90 p-4 shadow-sm backdrop-blur">
           <div className="mb-2 flex items-center gap-2 font-mono text-xs font-semibold">
             <PaletteIcon className="size-4" />
-            CIE 1931 XYZ
+            CIE 1931 xy
           </div>
           <h1 className="text-xl leading-tight font-semibold tracking-normal sm:text-2xl">
-            말발굽을 원점까지 확장한 visible cone
+            정규화된 색도 말발굽
           </h1>
           <p className="mt-2 hidden text-xs leading-5 text-muted-foreground sm:block">
-            X+Y+Z=1 색도 단면의 말발굽이 검정 원점에서 어떤 방향으로 뻗는지 먼저
-            보고, xy 정면에서는 x 0.0-0.8 / y 0.0-0.9 색도표로 확인합니다.
+            X, Y, Z의 크기를 합으로 나눈 x/y 좌표입니다. 밝기 크기는 버리고,
+            파장 방향과 디스플레이 primary 삼각형을 한 평면에서 비교합니다.
           </p>
           <div className="mt-3 flex flex-wrap items-center gap-2">
             <Badge variant="outline" className="gap-1">
-              <OrbitIcon className="size-3" />
-              {getViewModeLabel(viewMode)}
+              <Grid3X3Icon className="size-3" />x 0.0-0.8 / y 0.0-0.9
             </Badge>
             <Badge variant="secondary">
               {visibleGamutCount === 0
                 ? "display gamuts off"
                 : `${visibleGamutCount} gamuts`}
             </Badge>
-            {showVisibleCone && <Badge variant="outline">visible cone</Badge>}
-            <Badge variant="outline">
-              {triangleCount.toLocaleString()} tris
-            </Badge>
           </div>
         </div>
       }
-      topEnd={
-        <div className="grid w-full max-w-[min(100%,42rem)] grid-cols-1 gap-2 rounded-md border border-border bg-background/90 p-3 shadow-sm backdrop-blur sm:grid-cols-3">
+      topEnd={<CiePageLinks current="xy" />}
+      bottomStart={
+        <div className="grid gap-2 rounded-md border border-border bg-background/90 p-3 shadow-sm backdrop-blur sm:grid-cols-3">
           {CIE_XYZ_GAMUTS.map((gamut) => (
             <GamutToggleButton
               key={gamut.id}
@@ -192,37 +142,18 @@ export function CieXyzGamutPage() {
           ))}
         </div>
       }
-      bottomStart={<XyzAxisLegend />}
       bottomCenter={
-        <div className="grid gap-2 rounded-md border border-border bg-background/90 p-3 shadow-sm backdrop-blur sm:grid-cols-[auto_auto_auto_auto_auto]">
-          <ViewModeButton
-            currentViewMode={viewMode}
-            targetViewMode="3d"
-            onSelect={setViewMode}
-          />
+        <div className="grid gap-2 rounded-md border border-border bg-background/90 p-3 shadow-sm backdrop-blur sm:grid-cols-[auto_auto_auto]">
           <ViewModeButton
             currentViewMode={viewMode}
             targetViewMode="xy"
             onSelect={setViewMode}
           />
-          <label className="flex h-9 items-center justify-between gap-3 rounded-md border border-border bg-background/75 px-3 text-xs">
-            <span className="font-medium">Cone</span>
-            <Switch
-              size="sm"
-              checked={showVisibleCone}
-              onCheckedChange={setShowVisibleCone}
-              aria-label="Toggle visible cone"
-            />
-          </label>
-          <label className="flex h-9 items-center justify-between gap-3 rounded-md border border-border bg-background/75 px-3 text-xs">
-            <span className="font-medium">색도 단면</span>
-            <Switch
-              size="sm"
-              checked={showChromaticity}
-              onCheckedChange={setShowChromaticity}
-              aria-label="Toggle CIE spectral locus"
-            />
-          </label>
+          <ViewModeButton
+            currentViewMode={viewMode}
+            targetViewMode="3d"
+            onSelect={setViewMode}
+          />
           <label className="flex h-9 items-center justify-between gap-3 rounded-md border border-border bg-background/75 px-3 text-xs">
             <span className="font-medium">Wire</span>
             <Switch
@@ -239,8 +170,8 @@ export function CieXyzGamutPage() {
       <CieXyzGamutCanvas
         gamutMeshes={gamutMeshes}
         reference={reference}
-        showChromaticity={showChromaticity}
-        showVisibleCone={showVisibleCone}
+        showChromaticity={true}
+        showVisibleCone={false}
         showWireframe={showWireframe}
         viewMode={viewMode}
         visibleGamuts={visibleGamuts}
@@ -248,8 +179,4 @@ export function CieXyzGamutPage() {
       />
     </PlaygroundStage>
   )
-}
-
-function assertNeverViewMode(viewMode: never): never {
-  throw new RangeError(`Unknown CIE XYZ view mode: ${viewMode}`)
 }

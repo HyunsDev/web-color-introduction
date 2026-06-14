@@ -22,6 +22,7 @@ export function buildSolidColorSpaceMesh(
     case "rgb":
     case "hsl":
     case "hsv":
+    case "hwb":
       return buildBasicSolidMesh(modelId, options)
     case "xyz":
       return buildXyzSolidMesh(options)

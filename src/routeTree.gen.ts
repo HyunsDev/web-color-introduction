@@ -12,6 +12,8 @@ import { Route as rootRouteImport } from "./routes/__root"
 import { Route as ColorSpaceSolidModelsRouteImport } from "./routes/color-space-solid-models"
 import { Route as ColorSpaceModelsRouteImport } from "./routes/color-space-models"
 import { Route as Cie1931XyzRouteImport } from "./routes/cie-1931-xyz"
+import { Route as Cie1931XyRouteImport } from "./routes/cie-1931-xy"
+import { Route as Cie1931ProjectionRouteImport } from "./routes/cie-1931-projection"
 import { Route as IndexRouteImport } from "./routes/index"
 
 const ColorSpaceSolidModelsRoute = ColorSpaceSolidModelsRouteImport.update({
@@ -29,6 +31,16 @@ const Cie1931XyzRoute = Cie1931XyzRouteImport.update({
   path: "/cie-1931-xyz",
   getParentRoute: () => rootRouteImport,
 } as any)
+const Cie1931XyRoute = Cie1931XyRouteImport.update({
+  id: "/cie-1931-xy",
+  path: "/cie-1931-xy",
+  getParentRoute: () => rootRouteImport,
+} as any)
+const Cie1931ProjectionRoute = Cie1931ProjectionRouteImport.update({
+  id: "/cie-1931-projection",
+  path: "/cie-1931-projection",
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: "/",
   path: "/",
@@ -37,12 +49,16 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   "/": typeof IndexRoute
+  "/cie-1931-projection": typeof Cie1931ProjectionRoute
+  "/cie-1931-xy": typeof Cie1931XyRoute
   "/cie-1931-xyz": typeof Cie1931XyzRoute
   "/color-space-models": typeof ColorSpaceModelsRoute
   "/color-space-solid-models": typeof ColorSpaceSolidModelsRoute
 }
 export interface FileRoutesByTo {
   "/": typeof IndexRoute
+  "/cie-1931-projection": typeof Cie1931ProjectionRoute
+  "/cie-1931-xy": typeof Cie1931XyRoute
   "/cie-1931-xyz": typeof Cie1931XyzRoute
   "/color-space-models": typeof ColorSpaceModelsRoute
   "/color-space-solid-models": typeof ColorSpaceSolidModelsRoute
@@ -50,6 +66,8 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   "/": typeof IndexRoute
+  "/cie-1931-projection": typeof Cie1931ProjectionRoute
+  "/cie-1931-xy": typeof Cie1931XyRoute
   "/cie-1931-xyz": typeof Cie1931XyzRoute
   "/color-space-models": typeof ColorSpaceModelsRoute
   "/color-space-solid-models": typeof ColorSpaceSolidModelsRoute
@@ -58,18 +76,24 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | "/"
+    | "/cie-1931-projection"
+    | "/cie-1931-xy"
     | "/cie-1931-xyz"
     | "/color-space-models"
     | "/color-space-solid-models"
   fileRoutesByTo: FileRoutesByTo
   to:
     | "/"
+    | "/cie-1931-projection"
+    | "/cie-1931-xy"
     | "/cie-1931-xyz"
     | "/color-space-models"
     | "/color-space-solid-models"
   id:
     | "__root__"
     | "/"
+    | "/cie-1931-projection"
+    | "/cie-1931-xy"
     | "/cie-1931-xyz"
     | "/color-space-models"
     | "/color-space-solid-models"
@@ -77,6 +101,8 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  Cie1931ProjectionRoute: typeof Cie1931ProjectionRoute
+  Cie1931XyRoute: typeof Cie1931XyRoute
   Cie1931XyzRoute: typeof Cie1931XyzRoute
   ColorSpaceModelsRoute: typeof ColorSpaceModelsRoute
   ColorSpaceSolidModelsRoute: typeof ColorSpaceSolidModelsRoute
@@ -105,6 +131,20 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof Cie1931XyzRouteImport
       parentRoute: typeof rootRouteImport
     }
+    "/cie-1931-xy": {
+      id: "/cie-1931-xy"
+      path: "/cie-1931-xy"
+      fullPath: "/cie-1931-xy"
+      preLoaderRoute: typeof Cie1931XyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    "/cie-1931-projection": {
+      id: "/cie-1931-projection"
+      path: "/cie-1931-projection"
+      fullPath: "/cie-1931-projection"
+      preLoaderRoute: typeof Cie1931ProjectionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     "/": {
       id: "/"
       path: "/"
@@ -117,6 +157,8 @@ declare module "@tanstack/react-router" {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  Cie1931ProjectionRoute: Cie1931ProjectionRoute,
+  Cie1931XyRoute: Cie1931XyRoute,
   Cie1931XyzRoute: Cie1931XyzRoute,
   ColorSpaceModelsRoute: ColorSpaceModelsRoute,
   ColorSpaceSolidModelsRoute: ColorSpaceSolidModelsRoute,

@@ -158,6 +158,32 @@ function buildHsvSamples(options: ColorSampleRenderOptions) {
   return samples
 }
 
+function buildHwbSamples(options: ColorSampleRenderOptions) {
+  const samples: ColorSpaceSample[] = []
+
+  for (const whiteness of UNIT_STEPS) {
+    for (const blackness of UNIT_STEPS) {
+      if (whiteness + blackness > 1) {
+        continue
+      }
+
+      const radius = 1 - whiteness - blackness
+      const y = whiteness - blackness
+
+      for (const hue of getHueStepsForRadius(radius)) {
+        appendSample(
+          samples,
+          polarToPoint(hue, radius, y),
+          { mode: "hwb", h: hue, w: whiteness, b: blackness },
+          options
+        )
+      }
+    }
+  }
+
+  return samples
+}
+
 function assertNeverModel(modelId: never): never {
   throw new RangeError(`Unknown color model: ${modelId}`)
 }
@@ -176,6 +202,8 @@ export function buildColorSpaceSamples(
       return buildHslSamples(options)
     case "hsv":
       return buildHsvSamples(options)
+    case "hwb":
+      return buildHwbSamples(options)
     case "xyz":
       return buildXyzSamples(options)
     case "lab":

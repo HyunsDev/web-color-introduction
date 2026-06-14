@@ -2,6 +2,7 @@ export type ColorSpaceModelId =
   | "rgb"
   | "hsl"
   | "hsv"
+  | "hwb"
   | "xyz"
   | "lab"
   | "lch"
@@ -90,6 +91,27 @@ export const COLOR_SPACE_MODEL_BY_ID = {
     notes: [
       "아래 꼭짓점은 검정이고, 위쪽 원판에서 가장 선명한 색이 펼쳐집니다.",
       "색 선택에는 편하지만 같은 거리 변화가 같은 시각 변화는 아닙니다.",
+    ],
+  },
+  hwb: {
+    id: "hwb",
+    name: "HWB",
+    title: "HWB White/Black Bicone",
+    geometry: "Hue ring + whiteness tip + blackness tip",
+    coordinate: "H, W, B",
+    notation: "hwb(24 12% 8%)",
+    summary:
+      "색상환에서 시작해 흰색과 검정 비율을 더하는 CSS 색 모델로, 순색 고리는 중앙에 두고 위아래 꼭짓점으로 흰색과 검정을 분리합니다.",
+    pointSize: 0.042,
+    accent: "#64748b",
+    axes: [
+      { label: "Angle", value: "Hue", color: "#f59e0b" },
+      { label: "Top", value: "Whiteness", color: "#cbd5e1" },
+      { label: "Bottom", value: "Blackness", color: "#0f172a" },
+    ],
+    notes: [
+      "W와 B가 모두 0이면 중앙 고리의 가장 선명한 hue가 됩니다.",
+      "W와 B가 커질수록 반지름이 접히며 흰색 또는 검정 축으로 수렴합니다.",
     ],
   },
   xyz: {
@@ -203,6 +225,7 @@ export const COLOR_SPACE_MODELS = [
   COLOR_SPACE_MODEL_BY_ID.rgb,
   COLOR_SPACE_MODEL_BY_ID.hsl,
   COLOR_SPACE_MODEL_BY_ID.hsv,
+  COLOR_SPACE_MODEL_BY_ID.hwb,
   COLOR_SPACE_MODEL_BY_ID.xyz,
   COLOR_SPACE_MODEL_BY_ID.lab,
   COLOR_SPACE_MODEL_BY_ID.lch,

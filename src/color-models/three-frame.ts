@@ -229,6 +229,7 @@ export function createModelFrame(
       group.add(createCubeFrame(theme))
       return group
     case "hsl":
+    case "hwb":
       group.add(createHslFrame(theme))
       return group
     case "hsv":
