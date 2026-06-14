@@ -2,7 +2,6 @@ export const COLOR_GAMUT_MODE_IDS = [
   "srgb",
   "display-p3",
   "bt2020",
-  "ideal",
 ] as const
 
 export const COLOR_OUTPUT_GAMUT_IDS = ["srgb", "display-p3"] as const
@@ -11,7 +10,7 @@ export type ColorGamutModeId = (typeof COLOR_GAMUT_MODE_IDS)[number]
 export type ColorOutputGamutId = (typeof COLOR_OUTPUT_GAMUT_IDS)[number]
 export type CuloriSampleGamut = "rgb" | "p3" | "rec2020"
 export type CuloriOutputGamut = "rgb" | "p3"
-export type ColorGamutRenderStatus = "actual" | "simulated" | "theoretical"
+export type ColorGamutRenderStatus = "actual" | "simulated"
 
 export type ColorGamutModeDefinition = {
   readonly id: ColorGamutModeId
@@ -80,20 +79,12 @@ export const COLOR_GAMUT_MODE_BY_ID = {
     description: "영상 표준에서 쓰는 매우 넓은 색역입니다. 현재 웹 출력은 보통 시뮬레이션됩니다.",
     sampleGamut: "rec2020",
   },
-  ideal: {
-    id: "ideal",
-    label: "Ideal Display",
-    shortLabel: "Ideal",
-    description: "색역 제한 없이 이론상 좌표를 모두 보여주는 coverage 모드입니다.",
-    sampleGamut: null,
-  },
 } satisfies Record<ColorGamutModeId, ColorGamutModeDefinition>
 
 export const COLOR_GAMUT_MODES = [
   COLOR_GAMUT_MODE_BY_ID.srgb,
   COLOR_GAMUT_MODE_BY_ID["display-p3"],
   COLOR_GAMUT_MODE_BY_ID.bt2020,
-  COLOR_GAMUT_MODE_BY_ID.ideal,
 ] as const
 
 function canUseDisplayP3DrawingBuffer() {
@@ -164,12 +155,6 @@ export function resolveColorGamutRendering(
         status: "simulated",
         actualOutput: bestOutput,
       }
-    case "ideal":
-      return {
-        mode,
-        status: "theoretical",
-        actualOutput: bestOutput,
-      }
     default:
       return assertNeverGamutMode(modeId)
   }
@@ -181,8 +166,6 @@ export function getColorGamutStatusLabel(status: ColorGamutRenderStatus) {
       return "Actual"
     case "simulated":
       return "Simulated"
-    case "theoretical":
-      return "Theoretical"
     default:
       return assertNeverRenderStatus(status)
   }
@@ -194,8 +177,6 @@ export function getColorGamutRenderLabel(rendering: ColorGamutRendering) {
       return `${rendering.mode.label} · actual`
     case "simulated":
       return `${rendering.mode.label} · simulated via ${rendering.actualOutput.label}`
-    case "theoretical":
-      return `${rendering.mode.label} · mapped via ${rendering.actualOutput.label}`
     default:
       return assertNeverRenderStatus(rendering.status)
   }

@@ -148,7 +148,7 @@ export function ColorSpaceExplorer() {
           capabilities={gamutCapabilities}
           selectedGamutId={selectedGamutId}
           onSelect={setSelectedGamutId}
-          className="max-w-[min(100%,56rem)] p-3 sm:p-4"
+          className="max-w-[min(100%,42rem)] p-3 sm:p-4"
         />
       }
       bottomStart={

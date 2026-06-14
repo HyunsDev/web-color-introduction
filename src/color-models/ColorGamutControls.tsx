@@ -1,5 +1,5 @@
 import type { ElementType } from "react"
-import { BlendIcon, BoxIcon, OrbitIcon, SparklesIcon } from "lucide-react"
+import { BlendIcon, BoxIcon, OrbitIcon } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -21,7 +21,6 @@ const GAMUT_ICONS = {
   srgb: BoxIcon,
   "display-p3": BlendIcon,
   bt2020: OrbitIcon,
-  ideal: SparklesIcon,
 } satisfies Record<ColorGamutModeId, ElementType>
 
 function getStatusBadgeClass(
@@ -37,8 +36,6 @@ function getStatusBadgeClass(
       return "border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300"
     case "simulated":
       return "border-amber-500/35 bg-amber-500/10 text-amber-700 dark:text-amber-300"
-    case "theoretical":
-      return "border-sky-500/35 bg-sky-500/10 text-sky-700 dark:text-sky-300"
     default:
       return assertNeverStatus(status)
   }
@@ -109,7 +106,7 @@ export function ColorGamutControls({
   return (
     <div
       className={cn(
-        "grid grid-cols-1 gap-2 rounded-md border border-border bg-background/85 p-4 shadow-sm backdrop-blur sm:grid-cols-2 lg:grid-cols-4",
+        "grid grid-cols-1 gap-2 rounded-md border border-border bg-background/85 p-4 shadow-sm backdrop-blur sm:grid-cols-3",
         className
       )}
     >
