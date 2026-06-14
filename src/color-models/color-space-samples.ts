@@ -13,6 +13,12 @@ import type {
   LinearDisplayColor,
 } from "@/color-models/color-sample-rendering"
 import type { ColorSpaceModelId } from "@/color-models/color-space-models"
+import {
+  buildLabSamples,
+  buildLchSamples,
+  buildOklabSamples,
+  buildOklchSamples,
+} from "@/color-models/color-space-perceptual-samples"
 
 export type Vector3Point = {
   readonly x: number
@@ -32,15 +38,7 @@ const HUE_STEPS = [
 ] as const
 const LIGHTNESS_STEPS = [0, 0.125, 0.25, 0.375, 0.5, 0.625, 0.75, 0.875, 1]
 const VALUE_STEPS = [0, 0.16, 0.32, 0.48, 0.64, 0.8, 1] as const
-const LCH_LIGHTNESS_STEPS = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
-const LCH_CHROMA_STEPS = [0, 18, 36, 54, 72, 90, 108, 126, 144]
-const OKLCH_LIGHTNESS_STEPS = [
-  0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1,
-]
-const OKLCH_CHROMA_STEPS = [0, 0.045, 0.09, 0.135, 0.18, 0.225, 0.27, 0.315]
 const ZERO_HUE = [0] as const
-const LCH_MAX_CHROMA = 144
-const OKLCH_MAX_CHROMA = 0.315
 
 function normalizeUnit(value: number) {
   return value * 2 - 1
@@ -159,62 +157,6 @@ function buildHsvSamples(options: ColorSampleRenderOptions) {
   return samples
 }
 
-function buildLchSamples(options: ColorSampleRenderOptions) {
-  const samples: ColorSpaceSample[] = []
-
-  for (const lightness of LCH_LIGHTNESS_STEPS) {
-    const y = normalizeUnit(lightness / 100)
-
-    for (const chroma of LCH_CHROMA_STEPS) {
-      const radius = chroma / LCH_MAX_CHROMA
-
-      for (const hue of getHueStepsForRadius(radius)) {
-        appendSample(
-          samples,
-          polarToPoint(hue, radius, y),
-          {
-            mode: "lch",
-            l: lightness,
-            c: chroma,
-            h: hue,
-          },
-          options
-        )
-      }
-    }
-  }
-
-  return samples
-}
-
-function buildOklchSamples(options: ColorSampleRenderOptions) {
-  const samples: ColorSpaceSample[] = []
-
-  for (const lightness of OKLCH_LIGHTNESS_STEPS) {
-    const y = normalizeUnit(lightness)
-
-    for (const chroma of OKLCH_CHROMA_STEPS) {
-      const radius = chroma / OKLCH_MAX_CHROMA
-
-      for (const hue of getHueStepsForRadius(radius)) {
-        appendSample(
-          samples,
-          polarToPoint(hue, radius, y),
-          {
-            mode: "oklch",
-            l: lightness,
-            c: chroma,
-            h: hue,
-          },
-          options
-        )
-      }
-    }
-  }
-
-  return samples
-}
-
 function assertNeverModel(modelId: never): never {
   throw new RangeError(`Unknown color model: ${modelId}`)
 }
@@ -233,8 +175,12 @@ export function buildColorSpaceSamples(
       return buildHslSamples(options)
     case "hsv":
       return buildHsvSamples(options)
+    case "lab":
+      return buildLabSamples(options)
     case "lch":
       return buildLchSamples(options)
+    case "oklab":
+      return buildOklabSamples(options)
     case "oklch":
       return buildOklchSamples(options)
     default:

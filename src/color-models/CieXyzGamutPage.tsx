@@ -161,7 +161,7 @@ export function CieXyzGamutPage() {
           </h1>
           <p className="mt-2 hidden text-xs leading-5 text-muted-foreground sm:block">
             X+Y+Z=1 색도 단면의 말발굽이 검정 원점에서 어떤 방향으로 뻗는지 먼저
-            보고, xy 정면에서는 익숙한 0-1 색도표로 확인합니다.
+            보고, xy 정면에서는 x 0.0-0.8 / y 0.0-0.9 색도표로 확인합니다.
           </p>
           <div className="mt-3 flex flex-wrap items-center gap-2">
             <Badge variant="outline" className="gap-1">

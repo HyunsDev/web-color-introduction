@@ -22,7 +22,9 @@ export function buildSolidColorSpaceMesh(
     case "hsl":
     case "hsv":
       return buildBasicSolidMesh(modelId, options)
+    case "lab":
     case "lch":
+    case "oklab":
     case "oklch":
       return buildPerceptualSolidMesh(modelId, options)
     default:

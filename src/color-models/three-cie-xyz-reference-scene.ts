@@ -10,6 +10,7 @@ import {
   SphereGeometry,
 } from "three"
 
+import type { CieXyChartGeometry } from "@/color-models/cie-xy-chart-geometry"
 import type { CieXyzReferenceMesh } from "@/color-models/cie-xyz-reference-mesh"
 import { createCieXyzTextLabel } from "@/color-models/three-cie-xyz-label"
 import { CIE_XYZ_SCENE_PALETTE } from "@/color-models/three-cie-xyz-palette"
@@ -23,7 +24,7 @@ function createLineSegments(
   const geometry = new BufferGeometry()
   geometry.setAttribute("position", new BufferAttribute(positions, 3))
 
-  return new LineSegments(
+  const line = new LineSegments(
     geometry,
     new LineBasicMaterial({
       color,
@@ -32,6 +33,9 @@ function createLineSegments(
       transparent: true,
     })
   )
+  line.renderOrder = 2
+
+  return line
 }
 
 function createVisibleConeObject({
@@ -73,45 +77,46 @@ function createVisibleConeObject({
   return group
 }
 
-function createChromaticityColorObject(reference: CieXyzReferenceMesh) {
+function createChromaticityColorObject(chart: CieXyChartGeometry) {
   const geometry = new BufferGeometry()
   geometry.setAttribute(
     "position",
-    new BufferAttribute(reference.chromaticityColorPositions, 3)
+    new BufferAttribute(chart.colorPositions, 3)
   )
-  geometry.setAttribute(
-    "color",
-    new BufferAttribute(reference.chromaticityColorRgb, 3)
-  )
-  geometry.setIndex(new BufferAttribute(reference.chromaticityColorIndices, 1))
+  geometry.setAttribute("color", new BufferAttribute(chart.colorRgb, 3))
+  geometry.setIndex(new BufferAttribute(chart.colorIndices, 1))
 
-  return new Mesh(
+  const mesh = new Mesh(
     geometry,
     new MeshBasicMaterial({
       depthWrite: false,
       opacity: 0.92,
+      polygonOffset: true,
+      polygonOffsetFactor: 1,
+      polygonOffsetUnits: 1,
       side: DoubleSide,
       transparent: true,
       vertexColors: true,
     })
   )
+  mesh.renderOrder = 0
+
+  return mesh
 }
 
-function createXyChartObject({
-  reference,
+function createChartObject({
+  chart,
   theme,
 }: {
-  readonly reference: CieXyzReferenceMesh
+  readonly chart: CieXyChartGeometry
   readonly theme: CieXyzSceneTheme
 }) {
   const palette = CIE_XYZ_SCENE_PALETTE[theme]
   const group = new Group()
 
-  group.add(createChromaticityColorObject(reference))
-  group.add(
-    createLineSegments(reference.xyGridLinePositions, palette.xyGrid, 0.38)
-  )
-  reference.xyLabels.forEach((label) => {
+  group.add(createChromaticityColorObject(chart))
+  group.add(createLineSegments(chart.gridLinePositions, palette.xyGrid, 0.38))
+  chart.labels.forEach((label) => {
     group.add(
       createCieXyzTextLabel({
         color: palette.textColor,
@@ -154,63 +159,25 @@ export function createCieXyzReferenceObject({
   }
 
   if (showChromaticity) {
-    if (showXyChart) {
-      group.add(createXyChartObject({ reference, theme }))
-      group.add(
-        createLineSegments(
-          reference.xyLocusPositions,
-          palette.spectralLocus,
-          0.9
-        )
+    const chart = showXyChart ? reference.xyChart : reference.chromaticityChart
+
+    group.add(createChartObject({ chart, theme }))
+    group.add(
+      createLineSegments(chart.locusPositions, palette.spectralLocus, 0.9)
+    )
+    group.add(
+      createLineSegments(
+        chart.purpleBoundaryPositions,
+        palette.purpleBoundary,
+        0.88
       )
-      group.add(
-        createLineSegments(
-          reference.xyPurpleBoundaryPositions,
-          palette.purpleBoundary,
-          0.88
-        )
-      )
-      whitePoint.position.set(
-        reference.xyWhitePointPosition[0] ?? 0,
-        reference.xyWhitePointPosition[1] ?? 0,
-        reference.xyWhitePointPosition[2] ?? 0
-      )
-    } else {
-      whitePoint.position.set(
-        reference.whitePointPosition[0] ?? 0,
-        reference.whitePointPosition[1] ?? 0,
-        reference.whitePointPosition[2] ?? 0
-      )
-      const planeGeometry = new BufferGeometry()
-      planeGeometry.setAttribute(
-        "position",
-        new BufferAttribute(reference.chromaticityPlanePositions, 3)
-      )
-      planeGeometry.setIndex(
-        new BufferAttribute(reference.chromaticityPlaneIndices, 1)
-      )
-      const plane = new Mesh(
-        planeGeometry,
-        new MeshBasicMaterial({
-          color: palette.planeColor,
-          depthWrite: false,
-          opacity: palette.planeOpacity,
-          side: DoubleSide,
-          transparent: true,
-        })
-      )
-      group.add(plane)
-      group.add(
-        createLineSegments(reference.locusPositions, palette.spectralLocus, 0.9)
-      )
-      group.add(
-        createLineSegments(
-          reference.purpleBoundaryPositions,
-          palette.purpleBoundary,
-          0.88
-        )
-      )
-    }
+    )
+    whitePoint.position.set(
+      chart.whitePointPosition[0] ?? 0,
+      chart.whitePointPosition[1] ?? 0,
+      chart.whitePointPosition[2] ?? 0
+    )
+    group.add(whitePoint)
   }
 
   originPoint.position.set(
@@ -221,7 +188,6 @@ export function createCieXyzReferenceObject({
   if (!showXyChart) {
     group.add(originPoint)
   }
-  group.add(whitePoint)
 
   return group
 }

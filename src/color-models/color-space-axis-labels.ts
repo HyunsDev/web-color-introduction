@@ -20,7 +20,11 @@ const BLUE_AXIS = "#3b82f6"
 const HUE_AXIS = "#f59e0b"
 const RADIUS_AXIS = "#06b6d4"
 const HEIGHT_AXIS = "#94a3b8"
+const LAB_A_AXIS = "#db2777"
+const LAB_B_AXIS = "#eab308"
 const CHROMA_AXIS = "#10b981"
+const OKLAB_A_AXIS = "#0f766e"
+const OKLAB_B_AXIS = "#8b5cf6"
 const OK_CHROMA_AXIS = "#e11d48"
 
 const RGB_AXIS_LABELS = [
@@ -63,6 +67,18 @@ const HSV_AXIS_LABELS = [
   tick("V 1", HEIGHT_AXIS, 0, TICK_OFFSET, 0),
 ] as const satisfies readonly ColorSpaceAxisLabel[]
 
+const LAB_AXIS_LABELS = [
+  axis("a", LAB_A_AXIS, AXIS_OFFSET, 0.12, 0),
+  axis("Light", HEIGHT_AXIS, 0.12, AXIS_OFFSET, 0),
+  axis("b", LAB_B_AXIS, 0, 0.12, AXIS_OFFSET),
+  tick("a -144", LAB_A_AXIS, -TICK_OFFSET, -0.1, 0),
+  tick("a 144", LAB_A_AXIS, TICK_OFFSET, -0.1, 0),
+  tick("L 0", HEIGHT_AXIS, 0.1, -TICK_OFFSET, 0),
+  tick("L 100", HEIGHT_AXIS, 0.1, TICK_OFFSET, 0),
+  tick("b -144", LAB_B_AXIS, 0, -0.1, -TICK_OFFSET),
+  tick("b 144", LAB_B_AXIS, 0, -0.1, TICK_OFFSET),
+] as const satisfies readonly ColorSpaceAxisLabel[]
+
 const LCH_AXIS_LABELS = [
   axis("Hue", HUE_AXIS, AXIS_OFFSET, 0.18, 0),
   axis("Chroma", CHROMA_AXIS, AXIS_OFFSET, -0.12, 0),
@@ -75,6 +91,18 @@ const LCH_AXIS_LABELS = [
   tick("C 144", CHROMA_AXIS, TICK_OFFSET, 0, 0),
   tick("L 0", HEIGHT_AXIS, 0, -TICK_OFFSET, 0),
   tick("L 100", HEIGHT_AXIS, 0, TICK_OFFSET, 0),
+] as const satisfies readonly ColorSpaceAxisLabel[]
+
+const OKLAB_AXIS_LABELS = [
+  axis("a", OKLAB_A_AXIS, AXIS_OFFSET, 0.12, 0),
+  axis("OKL", HEIGHT_AXIS, 0.12, AXIS_OFFSET, 0),
+  axis("b", OKLAB_B_AXIS, 0, 0.12, AXIS_OFFSET),
+  tick("a -.315", OKLAB_A_AXIS, -TICK_OFFSET, -0.1, 0),
+  tick("a .315", OKLAB_A_AXIS, TICK_OFFSET, -0.1, 0),
+  tick("OKL 0", HEIGHT_AXIS, 0.1, -TICK_OFFSET, 0),
+  tick("OKL 1", HEIGHT_AXIS, 0.1, TICK_OFFSET, 0),
+  tick("b -.315", OKLAB_B_AXIS, 0, -0.1, -TICK_OFFSET),
+  tick("b .315", OKLAB_B_AXIS, 0, -0.1, TICK_OFFSET),
 ] as const satisfies readonly ColorSpaceAxisLabel[]
 
 const OKLCH_AXIS_LABELS = [
@@ -99,8 +127,12 @@ export function getColorSpaceAxisLabels(modelId: ColorSpaceModelId) {
       return HSL_AXIS_LABELS
     case "hsv":
       return HSV_AXIS_LABELS
+    case "lab":
+      return LAB_AXIS_LABELS
     case "lch":
       return LCH_AXIS_LABELS
+    case "oklab":
+      return OKLAB_AXIS_LABELS
     case "oklch":
       return OKLCH_AXIS_LABELS
     default:

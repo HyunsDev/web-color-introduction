@@ -1,4 +1,11 @@
-export type ColorSpaceModelId = "rgb" | "hsl" | "hsv" | "lch" | "oklch"
+export type ColorSpaceModelId =
+  | "rgb"
+  | "hsl"
+  | "hsv"
+  | "lab"
+  | "lch"
+  | "oklab"
+  | "oklch"
 
 export type ColorSpaceAxis = {
   readonly label: string
@@ -84,6 +91,27 @@ export const COLOR_SPACE_MODEL_BY_ID = {
       "색 선택에는 편하지만 같은 거리 변화가 같은 시각 변화는 아닙니다.",
     ],
   },
+  lab: {
+    id: "lab",
+    name: "Lab",
+    title: "CIE Lab Cartesian Volume",
+    geometry: "Lightness height + a/b opponent axes",
+    coordinate: "L, a, b",
+    notation: "lab(62% 42 58)",
+    summary:
+      "밝기 L과 빨강-초록 a, 노랑-파랑 b 축으로 색을 놓아 지각 차이를 RGB보다 직접적으로 봅니다.",
+    pointSize: 0.04,
+    accent: "#db2777",
+    axes: [
+      { label: "X", value: "a red-green", color: "#db2777" },
+      { label: "Y", value: "Lightness", color: "#64748b" },
+      { label: "Z", value: "b yellow-blue", color: "#eab308" },
+    ],
+    notes: [
+      "a/b 평면의 격자를 실제 표시 가능한 색만 남기면 불규칙한 지각 색역이 보입니다.",
+      "CSS 색 표기와 색차 계산의 역사적 기준을 이해하기 좋은 좌표계입니다.",
+    ],
+  },
   lch: {
     id: "lch",
     name: "LCH",
@@ -103,6 +131,27 @@ export const COLOR_SPACE_MODEL_BY_ID = {
     notes: [
       "sRGB에서 표현할 수 없는 바깥쪽 좌표는 모델에서 제외했습니다.",
       "명도 중심 설계와 팔레트 단계화에 강한 좌표계입니다.",
+    ],
+  },
+  oklab: {
+    id: "oklab",
+    name: "OKLab",
+    title: "OKLab Cartesian Volume",
+    geometry: "OK lightness height + a/b opponent axes",
+    coordinate: "OKL, a, b",
+    notation: "oklab(70% 0.12 0.14)",
+    summary:
+      "OKL 밝기와 a/b 상대색 축으로 최신 CSS 색 설계에서 더 균일한 거리감을 보여줍니다.",
+    pointSize: 0.042,
+    accent: "#0f766e",
+    axes: [
+      { label: "X", value: "a green-red", color: "#0f766e" },
+      { label: "Y", value: "OK lightness", color: "#64748b" },
+      { label: "Z", value: "b blue-yellow", color: "#8b5cf6" },
+    ],
+    notes: [
+      "OKL이 같을 때 a/b 좌표 변화가 색상과 채도 변화를 더 안정적으로 드러냅니다.",
+      "OKLCH는 이 a/b 평면을 chroma와 hue로 다시 읽은 극좌표 표현입니다.",
     ],
   },
   oklch: {
@@ -132,6 +181,8 @@ export const COLOR_SPACE_MODELS = [
   COLOR_SPACE_MODEL_BY_ID.rgb,
   COLOR_SPACE_MODEL_BY_ID.hsl,
   COLOR_SPACE_MODEL_BY_ID.hsv,
+  COLOR_SPACE_MODEL_BY_ID.lab,
   COLOR_SPACE_MODEL_BY_ID.lch,
+  COLOR_SPACE_MODEL_BY_ID.oklab,
   COLOR_SPACE_MODEL_BY_ID.oklch,
 ] as const

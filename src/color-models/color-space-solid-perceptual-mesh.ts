@@ -18,11 +18,45 @@ const COLOR_SMOOTHING_PASSES = 3
 const SHAPE_SMOOTHING_PASSES = 8
 const WIREFRAME_COLUMN_STEP = 16
 const WIREFRAME_ROW_STEP = 8
-const LCH_MAX_CHROMA = 200
-const OKLCH_MAX_CHROMA = 0.48
+const LAB_MAX_CHROMA = 200
+const OKLAB_MAX_CHROMA = 0.48
 
-type PerceptualSolidModelId = "lch" | "oklch"
+type PerceptualSolidModelId = "lab" | "lch" | "oklab" | "oklch"
 type ChromaSmoothingMode = "color" | "shape"
+
+const PERCEPTUAL_SOLID_MODEL_SETTINGS = {
+  lab: {
+    shapeLabel: "smooth Lab a/b gamut shell",
+    upperChroma: LAB_MAX_CHROMA,
+  },
+  lch: {
+    shapeLabel: "smooth LCH gamut shell",
+    upperChroma: LAB_MAX_CHROMA,
+  },
+  oklab: {
+    shapeLabel: "smooth OKLab a/b gamut shell",
+    upperChroma: OKLAB_MAX_CHROMA,
+  },
+  oklch: {
+    shapeLabel: "smooth OKLCH gamut shell",
+    upperChroma: OKLAB_MAX_CHROMA,
+  },
+} as const satisfies Record<
+  PerceptualSolidModelId,
+  {
+    readonly shapeLabel: string
+    readonly upperChroma: number
+  }
+>
+
+function chromaHueToComponents(chroma: number, hue: number) {
+  const radians = (hue / 180) * Math.PI
+
+  return {
+    a: Math.cos(radians) * chroma,
+    b: Math.sin(radians) * chroma,
+  }
+}
 
 function getPerceptualColor(
   modelId: PerceptualSolidModelId,
@@ -30,11 +64,43 @@ function getPerceptualColor(
   chroma: number,
   hue: number
 ): Color {
+  const { a, b } = chromaHueToComponents(chroma, hue)
+
   switch (modelId) {
+    case "lab":
+      return { mode: "lab", l: lightness * 100, a, b }
     case "lch":
       return { mode: "lch", l: lightness * 100, c: chroma, h: hue }
+    case "oklab":
+      return { mode: "oklab", l: lightness, a, b }
     case "oklch":
       return { mode: "oklch", l: lightness, c: chroma, h: hue }
+    default:
+      return assertNeverPerceptualModel(modelId)
+  }
+}
+
+function getPerceptualPoint(
+  modelId: PerceptualSolidModelId,
+  lightness: number,
+  chroma: number,
+  hue: number,
+  upperChroma: number
+) {
+  switch (modelId) {
+    case "lab":
+    case "oklab": {
+      const { a, b } = chromaHueToComponents(chroma, hue)
+
+      return {
+        x: a / upperChroma,
+        y: normalizeUnit(lightness),
+        z: b / upperChroma,
+      }
+    }
+    case "lch":
+    case "oklch":
+      return polarToPoint(hue, chroma / upperChroma, normalizeUnit(lightness))
     default:
       return assertNeverPerceptualModel(modelId)
   }
@@ -163,13 +229,9 @@ function readChroma(
   row: number,
   column: number
 ) {
-  const clampedRow = Math.min(
-    PERCEPTUAL_LIGHTNESS_SEGMENTS,
-    Math.max(0, row)
-  )
+  const clampedRow = Math.min(PERCEPTUAL_LIGHTNESS_SEGMENTS, Math.max(0, row))
   const values = grid[clampedRow]
-  const wrappedColumn =
-    ((column % HUE_SEGMENTS) + HUE_SEGMENTS) % HUE_SEGMENTS
+  const wrappedColumn = ((column % HUE_SEGMENTS) + HUE_SEGMENTS) % HUE_SEGMENTS
 
   return values?.[wrappedColumn] ?? 0
 }
@@ -179,7 +241,8 @@ export function buildPerceptualSolidMesh(
   options: ColorSampleRenderOptions
 ) {
   const builder = createBuilder()
-  const upperChroma = modelId === "lch" ? LCH_MAX_CHROMA : OKLCH_MAX_CHROMA
+  const modelSettings = PERCEPTUAL_SOLID_MODEL_SETTINGS[modelId]
+  const upperChroma = modelSettings.upperChroma
   const maxChromaGrid = buildMaxChromaGrid(modelId, upperChroma, options)
   const colorChromaGrid = smoothChromaGrid(maxChromaGrid, "color")
   const shapeChromaGrid = smoothChromaGrid(maxChromaGrid, "shape")
@@ -199,11 +262,7 @@ export function buildPerceptualSolidMesh(
 
       return appendVertex(
         builder,
-        polarToPoint(
-          hue,
-          shapeChroma / upperChroma,
-          normalizeUnit(lightness)
-        ),
+        getPerceptualPoint(modelId, lightness, shapeChroma, hue, upperChroma),
         getPerceptualColor(modelId, lightness, colorChroma, hue),
         options
       )
@@ -211,7 +270,7 @@ export function buildPerceptualSolidMesh(
     { columnStep: WIREFRAME_COLUMN_STEP, rowStep: WIREFRAME_ROW_STEP }
   )
 
-  return finalizeMesh(builder, `smooth ${modelId.toUpperCase()} gamut shell`)
+  return finalizeMesh(builder, modelSettings.shapeLabel)
 }
 
 function assertNeverPerceptualModel(modelId: never): never {

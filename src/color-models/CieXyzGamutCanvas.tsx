@@ -10,6 +10,7 @@ import {
 } from "three"
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js"
 
+import { XY_AXIS_MAX } from "@/color-models/cie-xy-chart-geometry"
 import type { CieXyzGamutMesh } from "@/color-models/cie-xyz-gamut-mesh"
 import type { CieXyzReferenceMesh } from "@/color-models/cie-xyz-reference-mesh"
 import {
@@ -58,6 +59,26 @@ function createCamera(viewMode: CieXyzViewMode) {
     default:
       return assertNeverViewMode(viewMode)
   }
+}
+
+function getOverlayScopeLabel({
+  showVisibleCone,
+  viewMode,
+  visibleCount,
+}: {
+  readonly showVisibleCone: boolean
+  readonly viewMode: CieXyzViewMode
+  readonly visibleCount: number
+}) {
+  if (viewMode === "xy") {
+    return `x: 0-${XY_AXIS_MAX.x} / y: 0-${XY_AXIS_MAX.y}`
+  }
+
+  if (showVisibleCone && visibleCount === 0) {
+    return "visible cone"
+  }
+
+  return "XYZ volume"
 }
 
 export function CieXyzGamutCanvas({
@@ -112,7 +133,7 @@ export function CieXyzGamutCanvas({
     controls.autoRotateSpeed = 0.42
     controls.enableDamping = true
     controls.enablePan = false
-    controls.enableRotate = viewMode === "3d"
+    controls.enableRotate = true
     controls.minDistance = 2.1
     controls.maxDistance = viewMode === "xy" ? 10 : 6
 
@@ -208,11 +229,7 @@ export function CieXyzGamutCanvas({
           {visibleCount} gamuts
         </span>
         <span className="rounded-md border border-border bg-background/85 px-2 py-1 font-mono text-[0.65rem] text-muted-foreground shadow-sm backdrop-blur">
-          {showVisibleCone && visibleCount === 0
-            ? "visible cone"
-            : viewMode === "xy"
-              ? "x: 0-0.9 / y: 0-0.8"
-              : "XYZ volume"}
+          {getOverlayScopeLabel({ showVisibleCone, viewMode, visibleCount })}
         </span>
       </div>
     </div>

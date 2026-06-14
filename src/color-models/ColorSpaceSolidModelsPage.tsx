@@ -1,11 +1,13 @@
 import { useMemo, useState } from "react"
 import type { ElementType } from "react"
 import {
+  Axis3dIcon,
   BoxIcon,
   CircleDotIcon,
   ConeIcon,
   CylinderIcon,
   OrbitIcon,
+  Scale3dIcon,
 } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
@@ -38,7 +40,9 @@ const MODEL_ICONS = {
   rgb: BoxIcon,
   hsl: CircleDotIcon,
   hsv: ConeIcon,
+  lab: Axis3dIcon,
   lch: CylinderIcon,
+  oklab: Scale3dIcon,
   oklch: OrbitIcon,
 } satisfies Record<ColorSpaceModelId, ElementType>
 
@@ -81,8 +85,8 @@ export function ColorSpaceSolidModelsPage() {
   const [selectedGamutId, setSelectedGamutId] =
     useState<ColorGamutModeId>("srgb")
   const [showWireframe, setShowWireframe] = useState(true)
-  const [gamutCapabilities] = useState<ColorGamutCapabilities>(
-    () => detectColorGamutCapabilities()
+  const [gamutCapabilities] = useState<ColorGamutCapabilities>(() =>
+    detectColorGamutCapabilities()
   )
   const selectedModel = COLOR_SPACE_MODEL_BY_ID[selectedModelId]
   const gamutRendering = useMemo(
@@ -128,10 +132,12 @@ export function ColorSpaceSolidModelsPage() {
     <PlaygroundStage
       topStart={
         <div className="max-w-sm rounded-md border border-border bg-background/90 p-4 shadow-sm backdrop-blur">
-          <code className="text-sm font-bold">색 공간을 실제 3D 표면으로 보기</code>
+          <code className="text-sm font-bold">
+            색 공간을 실제 3D 표면으로 보기
+          </code>
           <p className="mt-1 hidden text-xs leading-5 text-muted-foreground sm:block">
-            점군 대신 닫힌 표면 mesh로 RGB, HSL, HSV, LCH, OKLCH의 형태 차이를
-            비교합니다.
+            점군 대신 닫힌 표면 mesh로 RGB, HSL, HSV, Lab, LCH, OKLab, OKLCH의
+            형태 차이를 비교합니다.
           </p>
           <div className="mt-3 flex flex-wrap items-center gap-2">
             <Badge variant="outline" className="gap-1">
@@ -161,7 +167,7 @@ export function ColorSpaceSolidModelsPage() {
       }
       bottomStart={<CoordinateLegendDock axes={selectedModel.axes} />}
       bottomCenter={
-        <div className="grid grid-cols-2 gap-2 rounded-md border border-border bg-background/90 p-3 shadow-sm backdrop-blur sm:grid-cols-5">
+        <div className="grid w-full max-w-[min(100%,44rem)] grid-cols-2 gap-2 rounded-md border border-border bg-background/90 p-3 shadow-sm backdrop-blur sm:grid-cols-4 xl:grid-cols-7">
           {modelTabs}
         </div>
       }

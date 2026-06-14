@@ -6,24 +6,8 @@ export type CieXyDisplayRgb = {
   readonly r: number
 }
 
-const SRGB_EPSILON = 0.0031308
-
 function clamp01(value: number) {
   return Math.min(1, Math.max(0, value))
-}
-
-function encodeSrgb(channel: number) {
-  const clamped = clamp01(channel)
-
-  return clamped <= SRGB_EPSILON
-    ? clamped * 12.92
-    : 1.055 * clamped ** (1 / 2.4) - 0.055
-}
-
-function toHexByte(channel: number) {
-  return Math.round(encodeSrgb(channel) * 255)
-    .toString(16)
-    .padStart(2, "0")
 }
 
 function normalizeDisplayRgb(rgb: CieXyDisplayRgb): CieXyDisplayRgb | null {
@@ -80,11 +64,4 @@ export function chromaticityToDisplayRgb({
   const distanceFromWhite = Math.hypot(x - 0.3127, y - 0.329)
   const saturation = clamp01(distanceFromWhite / 0.42)
   return mixWithWhite(rgb, 0.28 + saturation * 0.72)
-}
-
-export function chromaticityToDisplayHex(chromaticity: CieXyzChromaticity) {
-  const displayRgb = chromaticityToDisplayRgb(chromaticity)
-  return `#${toHexByte(displayRgb.r)}${toHexByte(displayRgb.g)}${toHexByte(
-    displayRgb.b
-  )}`
 }
