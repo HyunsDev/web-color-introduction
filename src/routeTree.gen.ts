@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from "./routes/__root"
 import { Route as ColorSpaceSolidModelsRouteImport } from "./routes/color-space-solid-models"
 import { Route as ColorSpaceModelsRouteImport } from "./routes/color-space-models"
+import { Route as Cie1931XyzRouteImport } from "./routes/cie-1931-xyz"
 import { Route as IndexRouteImport } from "./routes/index"
 
 const ColorSpaceSolidModelsRoute = ColorSpaceSolidModelsRouteImport.update({
@@ -23,6 +24,11 @@ const ColorSpaceModelsRoute = ColorSpaceModelsRouteImport.update({
   path: "/color-space-models",
   getParentRoute: () => rootRouteImport,
 } as any)
+const Cie1931XyzRoute = Cie1931XyzRouteImport.update({
+  id: "/cie-1931-xyz",
+  path: "/cie-1931-xyz",
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: "/",
   path: "/",
@@ -31,30 +37,47 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   "/": typeof IndexRoute
+  "/cie-1931-xyz": typeof Cie1931XyzRoute
   "/color-space-models": typeof ColorSpaceModelsRoute
   "/color-space-solid-models": typeof ColorSpaceSolidModelsRoute
 }
 export interface FileRoutesByTo {
   "/": typeof IndexRoute
+  "/cie-1931-xyz": typeof Cie1931XyzRoute
   "/color-space-models": typeof ColorSpaceModelsRoute
   "/color-space-solid-models": typeof ColorSpaceSolidModelsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   "/": typeof IndexRoute
+  "/cie-1931-xyz": typeof Cie1931XyzRoute
   "/color-space-models": typeof ColorSpaceModelsRoute
   "/color-space-solid-models": typeof ColorSpaceSolidModelsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: "/" | "/color-space-models" | "/color-space-solid-models"
+  fullPaths:
+    | "/"
+    | "/cie-1931-xyz"
+    | "/color-space-models"
+    | "/color-space-solid-models"
   fileRoutesByTo: FileRoutesByTo
-  to: "/" | "/color-space-models" | "/color-space-solid-models"
-  id: "__root__" | "/" | "/color-space-models" | "/color-space-solid-models"
+  to:
+    | "/"
+    | "/cie-1931-xyz"
+    | "/color-space-models"
+    | "/color-space-solid-models"
+  id:
+    | "__root__"
+    | "/"
+    | "/cie-1931-xyz"
+    | "/color-space-models"
+    | "/color-space-solid-models"
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  Cie1931XyzRoute: typeof Cie1931XyzRoute
   ColorSpaceModelsRoute: typeof ColorSpaceModelsRoute
   ColorSpaceSolidModelsRoute: typeof ColorSpaceSolidModelsRoute
 }
@@ -75,6 +98,13 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof ColorSpaceModelsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    "/cie-1931-xyz": {
+      id: "/cie-1931-xyz"
+      path: "/cie-1931-xyz"
+      fullPath: "/cie-1931-xyz"
+      preLoaderRoute: typeof Cie1931XyzRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     "/": {
       id: "/"
       path: "/"
@@ -87,6 +117,7 @@ declare module "@tanstack/react-router" {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  Cie1931XyzRoute: Cie1931XyzRoute,
   ColorSpaceModelsRoute: ColorSpaceModelsRoute,
   ColorSpaceSolidModelsRoute: ColorSpaceSolidModelsRoute,
 }

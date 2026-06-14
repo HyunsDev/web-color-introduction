@@ -1,4 +1,4 @@
-import { BoxIcon, CylinderIcon, PaletteIcon } from "lucide-react"
+import { BoxIcon, CircleDotIcon, CylinderIcon, PaletteIcon } from "lucide-react"
 
 import {
   PlaygroundIndexPage,
@@ -24,6 +24,11 @@ export function PlaygroundHomePage() {
             icon={CylinderIcon}
             label="3D Solid Models"
             path="/color-space-solid-models"
+          />
+          <PlaygroundRouteFeature
+            icon={CircleDotIcon}
+            label="CIE 1931 XYZ"
+            path="/cie-1931-xyz"
           />
         </PlaygroundRouteGroup>
       </PlaygroundRouteColumn>
