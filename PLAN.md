@@ -15,7 +15,7 @@
 
 - [x] CIE 1931 visible locus를 3D Solid Models reference 색역으로 추가
 - [x] xyY 좌표계를 3D Solid Models에 추가
-- [ ] 공통 색 좌표/표기/색역 기반 정리
+- [x] 공통 색 좌표/표기/색역 기반 정리
 - [ ] 색 좌표 2D 단면 조절기
 - [ ] 3D Solid Models 단면 보기
 - [ ] 원통형 색 공간 펼쳐 보기
@@ -124,6 +124,11 @@ feat(fe): add xyY solid color model
 
 - `pnpm typecheck`
 - 유틸 로직은 가능하면 작은 테스트 추가
+
+진행 로그:
+
+- 2026-06-15: RGB/HSL/HSV/LCH/OKLCH 축 스펙, 기본 좌표, `culori` 변환, CSS formatter, gamut 판정, canvas 픽셀 샘플링 helper를 공통 유틸로 추가했다.
+- 2026-06-15: Node 내장 test runner 기반 `pnpm test`를 추가하고 유틸 단위 테스트 5개를 작성했다. `pnpm test`, `pnpm typecheck`, `pnpm lint`, `pnpm build` 통과.
 
 커밋 예시:
 
