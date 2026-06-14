@@ -1,16 +1,25 @@
 import { useEffect, useMemo, useRef } from "react"
 import {
   AmbientLight,
+  ColorManagement,
   DirectionalLight,
   PerspectiveCamera,
   Scene,
-  SRGBColorSpace,
   WebGLRenderer,
 } from "three"
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js"
 
+import {
+  getColorGamutRenderLabel,
+  type ColorGamutRendering,
+} from "@/color-models/color-gamut"
 import type { ColorSpaceModelDefinition } from "@/color-models/color-space-models"
 import { buildColorSpaceSamples } from "@/color-models/color-space-samples"
+import {
+  getThreeOutputColorSpace,
+  getThreeWorkingColorSpace,
+  registerWideGamutColorSpaces,
+} from "@/color-models/three-color-spaces"
 import { createModelFrame } from "@/color-models/three-frame"
 import {
   createColorPointCloud,
@@ -18,13 +27,24 @@ import {
 } from "@/color-models/three-scene"
 
 export function ColorSpaceModelCanvas({
+  gamutRendering,
   model,
 }: {
+  readonly gamutRendering: ColorGamutRendering
   readonly model: ColorSpaceModelDefinition
 }) {
   const hostRef = useRef<HTMLDivElement | null>(null)
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
-  const samples = useMemo(() => buildColorSpaceSamples(model.id), [model.id])
+  const samples = useMemo(
+    () =>
+      buildColorSpaceSamples(
+        model.id,
+        gamutRendering.mode.id,
+        gamutRendering.actualOutput.id
+      ),
+    [gamutRendering.actualOutput.id, gamutRendering.mode.id, model.id]
+  )
+  const gamutRenderLabel = getColorGamutRenderLabel(gamutRendering)
 
   useEffect(() => {
     const host = hostRef.current
@@ -34,13 +54,21 @@ export function ColorSpaceModelCanvas({
       return
     }
 
+    registerWideGamutColorSpaces()
+    const previousWorkingColorSpace = ColorManagement.workingColorSpace
+    ColorManagement.workingColorSpace = getThreeWorkingColorSpace(
+      gamutRendering.actualOutput.id
+    )
+
     const renderer = new WebGLRenderer({
       canvas,
       antialias: true,
       alpha: true,
       powerPreference: "high-performance",
     })
-    renderer.outputColorSpace = SRGBColorSpace
+    renderer.outputColorSpace = getThreeOutputColorSpace(
+      gamutRendering.actualOutput.id
+    )
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
 
     const scene = new Scene()
@@ -66,7 +94,9 @@ export function ColorSpaceModelCanvas({
     scene.add(frame)
     scene.add(points)
 
+    let resizeFrameId = 0
     const resize = () => {
+      resizeFrameId = 0
       const width = Math.max(1, Math.floor(host.clientWidth))
       const height = Math.max(1, Math.floor(host.clientHeight))
 
@@ -74,9 +104,16 @@ export function ColorSpaceModelCanvas({
       camera.aspect = width / height
       camera.updateProjectionMatrix()
     }
-    const resizeObserver = new ResizeObserver(resize)
+    const queueResize = () => {
+      if (resizeFrameId !== 0) {
+        return
+      }
+
+      resizeFrameId = window.requestAnimationFrame(resize)
+    }
+    const resizeObserver = new ResizeObserver(queueResize)
     resizeObserver.observe(host)
-    resize()
+    queueResize()
 
     let animationFrameId = 0
     const render = () => {
@@ -88,13 +125,17 @@ export function ColorSpaceModelCanvas({
 
     return () => {
       window.cancelAnimationFrame(animationFrameId)
+      if (resizeFrameId !== 0) {
+        window.cancelAnimationFrame(resizeFrameId)
+      }
       resizeObserver.disconnect()
       controls.dispose()
       disposeObjectTree(frame)
       disposeObjectTree(points)
       renderer.dispose()
+      ColorManagement.workingColorSpace = previousWorkingColorSpace
     }
-  }, [model.id, model.pointSize, samples])
+  }, [gamutRendering.actualOutput.id, model.id, model.pointSize, samples])
 
   return (
     <div
@@ -109,6 +150,9 @@ export function ColorSpaceModelCanvas({
       <div className="pointer-events-none absolute top-3 left-3 flex flex-wrap items-center gap-2">
         <span className="rounded-md border border-border bg-background/85 px-2 py-1 font-mono text-[0.65rem] text-foreground shadow-sm backdrop-blur">
           {samples.length.toLocaleString()} samples
+        </span>
+        <span className="rounded-md border border-border bg-background/85 px-2 py-1 font-mono text-[0.65rem] text-foreground shadow-sm backdrop-blur">
+          {gamutRenderLabel}
         </span>
         <span className="rounded-md border border-border bg-background/85 px-2 py-1 font-mono text-[0.65rem] text-muted-foreground shadow-sm backdrop-blur">
           {model.geometry}

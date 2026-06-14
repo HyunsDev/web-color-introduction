@@ -11,7 +11,17 @@ import {
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { ColorGamutControls } from "@/color-models/ColorGamutControls"
 import { ColorSpaceModelCanvas } from "@/color-models/ColorSpaceModelCanvas"
+import {
+  detectColorGamutCapabilities,
+  getColorGamutStatusLabel,
+  resolveColorGamutRendering,
+} from "@/color-models/color-gamut"
+import type {
+  ColorGamutCapabilities,
+  ColorGamutModeId,
+} from "@/color-models/color-gamut"
 import {
   COLOR_SPACE_MODEL_BY_ID,
   COLOR_SPACE_MODELS,
@@ -49,7 +59,16 @@ function AxisRow({ axis }: { readonly axis: ColorSpaceAxis }) {
 export function ColorSpaceExplorer() {
   const [selectedModelId, setSelectedModelId] =
     useState<ColorSpaceModelId>("rgb")
+  const [selectedGamutId, setSelectedGamutId] =
+    useState<ColorGamutModeId>("srgb")
+  const [gamutCapabilities] = useState<ColorGamutCapabilities>(
+    () => detectColorGamutCapabilities()
+  )
   const selectedModel = COLOR_SPACE_MODEL_BY_ID[selectedModelId]
+  const gamutRendering = useMemo(
+    () => resolveColorGamutRendering(selectedGamutId, gamutCapabilities),
+    [gamutCapabilities, selectedGamutId]
+  )
   const ActiveIcon = MODEL_ICONS[selectedModel.id]
   const modelTabs = useMemo(
     () =>
@@ -75,7 +94,6 @@ export function ColorSpaceExplorer() {
       }),
     [selectedModel.id]
   )
-
   return (
     <PlaygroundCenter
       title="색 좌표계를 3D 모델로 비교하기"
@@ -87,8 +105,17 @@ export function ColorSpaceExplorer() {
           {modelTabs}
         </div>
 
+        <ColorGamutControls
+          capabilities={gamutCapabilities}
+          selectedGamutId={selectedGamutId}
+          onSelect={setSelectedGamutId}
+        />
+
         <section className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_360px]">
-          <ColorSpaceModelCanvas model={selectedModel} />
+          <ColorSpaceModelCanvas
+            gamutRendering={gamutRendering}
+            model={selectedModel}
+          />
 
           <aside className="grid content-start gap-4">
             <div className="rounded-md border border-border bg-background p-4 shadow-sm">
@@ -111,6 +138,12 @@ export function ColorSpaceExplorer() {
               <div className="mb-4 flex flex-wrap gap-2">
                 <Badge variant="outline">{selectedModel.coordinate}</Badge>
                 <Badge variant="secondary">{selectedModel.geometry}</Badge>
+                <Badge variant="outline">
+                  {gamutRendering.mode.shortLabel}
+                </Badge>
+                <Badge variant="secondary">
+                  {getColorGamutStatusLabel(gamutRendering.status)}
+                </Badge>
               </div>
 
               <div className="rounded-md border border-border bg-muted/40 px-3 py-2 font-mono text-xs">

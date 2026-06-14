@@ -1,6 +1,17 @@
-import { converter, displayable } from "culori"
-import type { Color, Rgb } from "culori"
+import type { Color } from "culori"
 
+import type {
+  ColorGamutModeId,
+  ColorOutputGamutId,
+} from "@/color-models/color-gamut"
+import {
+  createColorSampleRenderOptions,
+  toColorSampleRenderColor,
+} from "@/color-models/color-sample-rendering"
+import type {
+  ColorSampleRenderOptions,
+  LinearDisplayColor,
+} from "@/color-models/color-sample-rendering"
 import type { ColorSpaceModelId } from "@/color-models/color-space-models"
 
 export type Vector3Point = {
@@ -11,7 +22,7 @@ export type Vector3Point = {
 
 export type ColorSpaceSample = {
   readonly position: Vector3Point
-  readonly color: Rgb
+  readonly color: LinearDisplayColor
 }
 
 const UNIT_STEPS = [0, 0.2, 0.4, 0.6, 0.8, 1] as const
@@ -31,14 +42,8 @@ const ZERO_HUE = [0] as const
 const LCH_MAX_CHROMA = 144
 const OKLCH_MAX_CHROMA = 0.315
 
-const toRgb = converter("rgb")
-
 function normalizeUnit(value: number) {
   return value * 2 - 1
-}
-
-function clampRgbChannel(value: number) {
-  return Math.min(1, Math.max(0, value))
 }
 
 function degreesToRadians(degrees: number) {
@@ -59,57 +64,37 @@ function polarToPoint(hue: number, radius: number, y: number): Vector3Point {
   }
 }
 
-function toDisplayableRgb(color: Color): Rgb | null {
-  if (!displayable(color)) {
-    return null
-  }
-
-  const rgb = toRgb(color)
-
-  if (
-    !Number.isFinite(rgb.r) ||
-    !Number.isFinite(rgb.g) ||
-    !Number.isFinite(rgb.b)
-  ) {
-    return null
-  }
-
-  return {
-    mode: "rgb",
-    r: clampRgbChannel(rgb.r),
-    g: clampRgbChannel(rgb.g),
-    b: clampRgbChannel(rgb.b),
-  }
-}
-
 function appendSample(
   samples: ColorSpaceSample[],
   position: Vector3Point,
-  color: Color
+  color: Color,
+  options: ColorSampleRenderOptions
 ) {
-  const rgb = toDisplayableRgb(color)
+  const linearRgb = toColorSampleRenderColor(color, options)
 
-  if (!rgb) {
+  if (!linearRgb) {
     return
   }
 
-  samples.push({ position, color: rgb })
+  samples.push({ position, color: linearRgb })
 }
 
-function buildRgbSamples() {
+function buildRgbSamples(options: ColorSampleRenderOptions) {
   const samples: ColorSpaceSample[] = []
 
   for (const r of UNIT_STEPS) {
     for (const g of UNIT_STEPS) {
       for (const b of UNIT_STEPS) {
-        samples.push({
-          position: {
+        appendSample(
+          samples,
+          {
             x: normalizeUnit(r),
             y: normalizeUnit(g),
             z: normalizeUnit(b),
           },
-          color: { mode: "rgb", r, g, b },
-        })
+          { mode: "rgb", r, g, b },
+          options
+        )
       }
     }
   }
@@ -117,7 +102,7 @@ function buildRgbSamples() {
   return samples
 }
 
-function buildHslSamples() {
+function buildHslSamples(options: ColorSampleRenderOptions) {
   const samples: ColorSpaceSample[] = []
 
   for (const lightness of LIGHTNESS_STEPS) {
@@ -128,12 +113,17 @@ function buildHslSamples() {
       const radius = saturation * lightnessRadius
 
       for (const hue of getHueStepsForRadius(radius)) {
-        appendSample(samples, polarToPoint(hue, radius, y), {
-          mode: "hsl",
-          h: hue,
-          s: saturation,
-          l: lightness,
-        })
+        appendSample(
+          samples,
+          polarToPoint(hue, radius, y),
+          {
+            mode: "hsl",
+            h: hue,
+            s: saturation,
+            l: lightness,
+          },
+          options
+        )
       }
     }
   }
@@ -141,7 +131,7 @@ function buildHslSamples() {
   return samples
 }
 
-function buildHsvSamples() {
+function buildHsvSamples(options: ColorSampleRenderOptions) {
   const samples: ColorSpaceSample[] = []
 
   for (const value of VALUE_STEPS) {
@@ -151,12 +141,17 @@ function buildHsvSamples() {
       const radius = saturation * value
 
       for (const hue of getHueStepsForRadius(radius)) {
-        appendSample(samples, polarToPoint(hue, radius, y), {
-          mode: "hsv",
-          h: hue,
-          s: saturation,
-          v: value,
-        })
+        appendSample(
+          samples,
+          polarToPoint(hue, radius, y),
+          {
+            mode: "hsv",
+            h: hue,
+            s: saturation,
+            v: value,
+          },
+          options
+        )
       }
     }
   }
@@ -164,7 +159,7 @@ function buildHsvSamples() {
   return samples
 }
 
-function buildLchSamples() {
+function buildLchSamples(options: ColorSampleRenderOptions) {
   const samples: ColorSpaceSample[] = []
 
   for (const lightness of LCH_LIGHTNESS_STEPS) {
@@ -174,12 +169,17 @@ function buildLchSamples() {
       const radius = chroma / LCH_MAX_CHROMA
 
       for (const hue of getHueStepsForRadius(radius)) {
-        appendSample(samples, polarToPoint(hue, radius, y), {
-          mode: "lch",
-          l: lightness,
-          c: chroma,
-          h: hue,
-        })
+        appendSample(
+          samples,
+          polarToPoint(hue, radius, y),
+          {
+            mode: "lch",
+            l: lightness,
+            c: chroma,
+            h: hue,
+          },
+          options
+        )
       }
     }
   }
@@ -187,7 +187,7 @@ function buildLchSamples() {
   return samples
 }
 
-function buildOklchSamples() {
+function buildOklchSamples(options: ColorSampleRenderOptions) {
   const samples: ColorSpaceSample[] = []
 
   for (const lightness of OKLCH_LIGHTNESS_STEPS) {
@@ -197,12 +197,17 @@ function buildOklchSamples() {
       const radius = chroma / OKLCH_MAX_CHROMA
 
       for (const hue of getHueStepsForRadius(radius)) {
-        appendSample(samples, polarToPoint(hue, radius, y), {
-          mode: "oklch",
-          l: lightness,
-          c: chroma,
-          h: hue,
-        })
+        appendSample(
+          samples,
+          polarToPoint(hue, radius, y),
+          {
+            mode: "oklch",
+            l: lightness,
+            c: chroma,
+            h: hue,
+          },
+          options
+        )
       }
     }
   }
@@ -214,18 +219,24 @@ function assertNeverModel(modelId: never): never {
   throw new RangeError(`Unknown color model: ${modelId}`)
 }
 
-export function buildColorSpaceSamples(modelId: ColorSpaceModelId) {
+export function buildColorSpaceSamples(
+  modelId: ColorSpaceModelId,
+  gamutModeId: ColorGamutModeId,
+  outputGamutId: ColorOutputGamutId
+) {
+  const options = createColorSampleRenderOptions(gamutModeId, outputGamutId)
+
   switch (modelId) {
     case "rgb":
-      return buildRgbSamples()
+      return buildRgbSamples(options)
     case "hsl":
-      return buildHslSamples()
+      return buildHslSamples(options)
     case "hsv":
-      return buildHsvSamples()
+      return buildHsvSamples(options)
     case "lch":
-      return buildLchSamples()
+      return buildLchSamples(options)
     case "oklch":
-      return buildOklchSamples()
+      return buildOklchSamples(options)
     default:
       return assertNeverModel(modelId)
   }
