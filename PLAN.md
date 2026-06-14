@@ -13,6 +13,7 @@
 
 ## 전체 진행 상태
 
+- [ ] CIE 1931 visible locus를 3D Solid Models reference 색역으로 추가
 - [x] xyY 좌표계를 3D Solid Models에 추가
 - [ ] 공통 색 좌표/표기/색역 기반 정리
 - [ ] 색 좌표 2D 단면 조절기
@@ -23,7 +24,44 @@
 - [ ] 색역과 Clipping
 - [ ] 같은 숫자, 다른 체감
 
-## 0. xyY 좌표계를 3D Solid Models에 추가
+## 0. CIE 1931 visible locus를 3D Solid Models reference 색역으로 추가
+
+위치: 기존 `/color-space-solid-models`
+
+목적: sRGB, Display P3, BT.2020 같은 device gamut과 구분되는 CIE 1931 기준 가시 색 경계를 reference 색역으로 보여준다.
+
+구현 범위:
+
+- `ColorGamutControls`에 device gamut과 reference gamut 그룹 분리
+- reference 옵션으로 `CIE 1931 visible locus` 추가
+- CIE 1931 spectral locus/xy 말발굽 데이터를 기반으로 boundary geometry 생성
+- `xyY` 모델에서는 xy 색도도 위에 휘도 `Y` 축을 세운 visible volume으로 표시
+- `XYZ` 모델에서는 CIE 1931 기준 visible boundary를 XYZ 방향/정규화 구조와 연결해 표시
+- RGB/HSL/HSV/LCH/OKLCH 등 device-gamut 기반 모델에서 CIE reference 선택 시 지원 범위와 fallback 정책 정의
+- 현재 출력 장치가 표현하지 못하는 색은 clipped/simulated 색과 out-of-gamut 패턴 또는 반투명 표시로 구분
+- 설명 문구에 CIE 1931은 display gamut이 아니라 standard observer/reference boundary라는 점 명시
+
+구현 판단:
+
+- sRGB, Display P3, BT.2020과 같은 줄에 단순 추가하지 않고 `Device gamuts`와 `Reference`를 UI에서 분리한다.
+- 첫 구현은 `xyY`와 가장 강하게 연결하고, 다른 모델은 이후 확장 가능하도록 명시적 fallback을 둔다.
+- “CIE 1931 자체 색 공간”이라는 표현보다 “CIE 1931 visible locus/reference gamut”으로 라벨링한다.
+
+검증:
+
+- `pnpm typecheck`
+- `pnpm build`
+- 데스크톱에서 CIE reference 선택 시 visible locus/volume이 nonblank로 렌더링되는지 확인
+- 모바일 폭에서 색역 그룹, reference 설명, 모델 선택 버튼이 겹치지 않는지 확인
+- out-of-gamut 표시가 현재 출력 색역과 혼동되지 않는지 확인
+
+커밋 예시:
+
+```text
+feat(fe): add CIE 1931 reference gamut
+```
+
+## 1. xyY 좌표계를 3D Solid Models에 추가
 
 위치: 기존 `/color-space-solid-models`
 
@@ -64,7 +102,7 @@
 feat(fe): add xyY solid color model
 ```
 
-## 1. 공통 색 좌표/표기/색역 기반 정리
+## 2. 공통 색 좌표/표기/색역 기반 정리
 
 목적: 이후 페이지들이 색 좌표, CSS 표기, gamut 판정, canvas 샘플링을 같은 방식으로 사용하게 만든다.
 
@@ -88,7 +126,7 @@ feat(fe): add xyY solid color model
 feat(fe): add shared color coordinate utilities
 ```
 
-## 2. 색 좌표 2D 단면 조절기
+## 3. 색 좌표 2D 단면 조절기
 
 추천 라우트: `/color-coordinate-planes`
 
@@ -134,7 +172,7 @@ feat(fe): add shared color coordinate utilities
 feat(fe): add color coordinate plane picker
 ```
 
-## 3. 3D Solid Models 단면 보기
+## 4. 3D Solid Models 단면 보기
 
 위치: 기존 `/color-space-solid-models`
 
@@ -175,7 +213,7 @@ feat(fe): add color coordinate plane picker
 feat(fe): add slice mode to solid color models
 ```
 
-## 4. 원통형 색 공간 펼쳐 보기
+## 5. 원통형 색 공간 펼쳐 보기
 
 추천 라우트: `/color-space-unwrapped`
 
@@ -208,7 +246,7 @@ feat(fe): add slice mode to solid color models
 feat(fe): add unwrapped cylindrical color spaces
 ```
 
-## 5. 색 보간 경로 비교
+## 6. 색 보간 경로 비교
 
 추천 라우트: `/color-interpolation`
 
@@ -235,7 +273,7 @@ feat(fe): add unwrapped cylindrical color spaces
 feat(fe): add color interpolation comparison
 ```
 
-## 6. CSS 색상 표기 실험실
+## 7. CSS 색상 표기 실험실
 
 추천 라우트: `/css-color-notations`
 
@@ -262,7 +300,7 @@ feat(fe): add color interpolation comparison
 feat(fe): add css color notation lab
 ```
 
-## 7. 색역과 Clipping
+## 8. 색역과 Clipping
 
 추천 라우트: `/color-gamut-clipping`
 
@@ -288,7 +326,7 @@ feat(fe): add css color notation lab
 feat(fe): add gamut clipping visualization
 ```
 
-## 8. 같은 숫자, 다른 체감
+## 9. 같은 숫자, 다른 체감
 
 추천 라우트: `/perceptual-color-steps`
 
@@ -315,18 +353,20 @@ feat(fe): add perceptual color step comparison
 
 ## 추천 진행 순서
 
-1. xyY 좌표계를 3D Solid Models에 추가
-2. 공통 색 좌표/표기/색역 기반 정리
-3. 색 좌표 2D 단면 조절기
-4. 3D Solid Models 단면 보기
-5. 원통형 색 공간 펼쳐 보기
-6. 색 보간 경로 비교
-7. CSS 색상 표기 실험실
-8. 색역과 Clipping
-9. 같은 숫자, 다른 체감
+1. CIE 1931 visible locus를 3D Solid Models reference 색역으로 추가
+2. xyY 좌표계를 3D Solid Models에 추가
+3. 공통 색 좌표/표기/색역 기반 정리
+4. 색 좌표 2D 단면 조절기
+5. 3D Solid Models 단면 보기
+6. 원통형 색 공간 펼쳐 보기
+7. 색 보간 경로 비교
+8. CSS 색상 표기 실험실
+9. 색역과 Clipping
+10. 같은 숫자, 다른 체감
 
 ## 작업 로그
 
 - 2026-06-15: 구현 후보와 작업 단위 계획을 `PLAN.md`로 정리했다.
 - 2026-06-15: `xyY` 좌표계 추가를 첫 번째 작업 후보로 올렸다.
 - 2026-06-15: `xyY` 좌표계를 3D Solid Models에 추가하고 검증했다.
+- 2026-06-15: CIE 1931 visible locus reference 색역 추가를 첫 번째 작업 후보로 올렸다.
