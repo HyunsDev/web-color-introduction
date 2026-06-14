@@ -3,6 +3,7 @@ import {
   BufferGeometry,
   Line,
   LineSegments,
+  Mesh,
   Object3D,
   Points,
   PointsMaterial,
@@ -48,6 +49,7 @@ export function disposeObjectTree(object: Object3D) {
     if (
       child instanceof Line ||
       child instanceof LineSegments ||
+      child instanceof Mesh ||
       child instanceof Points
     ) {
       child.geometry.dispose()

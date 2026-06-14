@@ -9,9 +9,15 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from "./routes/__root"
+import { Route as ColorSpaceSolidModelsRouteImport } from "./routes/color-space-solid-models"
 import { Route as ColorSpaceModelsRouteImport } from "./routes/color-space-models"
 import { Route as IndexRouteImport } from "./routes/index"
 
+const ColorSpaceSolidModelsRoute = ColorSpaceSolidModelsRouteImport.update({
+  id: "/color-space-solid-models",
+  path: "/color-space-solid-models",
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ColorSpaceModelsRoute = ColorSpaceModelsRouteImport.update({
   id: "/color-space-models",
   path: "/color-space-models",
@@ -26,31 +32,42 @@ const IndexRoute = IndexRouteImport.update({
 export interface FileRoutesByFullPath {
   "/": typeof IndexRoute
   "/color-space-models": typeof ColorSpaceModelsRoute
+  "/color-space-solid-models": typeof ColorSpaceSolidModelsRoute
 }
 export interface FileRoutesByTo {
   "/": typeof IndexRoute
   "/color-space-models": typeof ColorSpaceModelsRoute
+  "/color-space-solid-models": typeof ColorSpaceSolidModelsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   "/": typeof IndexRoute
   "/color-space-models": typeof ColorSpaceModelsRoute
+  "/color-space-solid-models": typeof ColorSpaceSolidModelsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: "/" | "/color-space-models"
+  fullPaths: "/" | "/color-space-models" | "/color-space-solid-models"
   fileRoutesByTo: FileRoutesByTo
-  to: "/" | "/color-space-models"
-  id: "__root__" | "/" | "/color-space-models"
+  to: "/" | "/color-space-models" | "/color-space-solid-models"
+  id: "__root__" | "/" | "/color-space-models" | "/color-space-solid-models"
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ColorSpaceModelsRoute: typeof ColorSpaceModelsRoute
+  ColorSpaceSolidModelsRoute: typeof ColorSpaceSolidModelsRoute
 }
 
 declare module "@tanstack/react-router" {
   interface FileRoutesByPath {
+    "/color-space-solid-models": {
+      id: "/color-space-solid-models"
+      path: "/color-space-solid-models"
+      fullPath: "/color-space-solid-models"
+      preLoaderRoute: typeof ColorSpaceSolidModelsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     "/color-space-models": {
       id: "/color-space-models"
       path: "/color-space-models"
@@ -71,6 +88,7 @@ declare module "@tanstack/react-router" {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ColorSpaceModelsRoute: ColorSpaceModelsRoute,
+  ColorSpaceSolidModelsRoute: ColorSpaceSolidModelsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
