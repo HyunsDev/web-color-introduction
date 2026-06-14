@@ -2,6 +2,7 @@ export const COLOR_GAMUT_MODE_IDS = [
   "srgb",
   "display-p3",
   "bt2020",
+  "cie-1931",
 ] as const
 
 export const COLOR_OUTPUT_GAMUT_IDS = ["srgb", "display-p3"] as const
@@ -10,14 +11,16 @@ export type ColorGamutModeId = (typeof COLOR_GAMUT_MODE_IDS)[number]
 export type ColorOutputGamutId = (typeof COLOR_OUTPUT_GAMUT_IDS)[number]
 export type CuloriSampleGamut = "rgb" | "p3" | "rec2020"
 export type CuloriOutputGamut = "rgb" | "p3"
-export type ColorGamutRenderStatus = "actual" | "simulated"
+export type ColorGamutRenderStatus = "actual" | "reference" | "simulated"
+export type ColorGamutGroupId = "device" | "reference"
 
 export type ColorGamutModeDefinition = {
+  readonly description: string
+  readonly group: ColorGamutGroupId
   readonly id: ColorGamutModeId
   readonly label: string
-  readonly shortLabel: string
-  readonly description: string
   readonly sampleGamut: CuloriSampleGamut | null
+  readonly shortLabel: string
 }
 
 export type ColorOutputGamutDefinition = {
@@ -59,25 +62,36 @@ export const COLOR_OUTPUT_GAMUT_BY_ID = {
 
 export const COLOR_GAMUT_MODE_BY_ID = {
   srgb: {
+    description: "표준 웹 색역입니다. 모든 브라우저와 디스플레이의 기본 기준입니다.",
+    group: "device",
     id: "srgb",
     label: "sRGB",
-    shortLabel: "sRGB",
-    description: "표준 웹 색역입니다. 모든 브라우저와 디스플레이의 기본 기준입니다.",
     sampleGamut: "rgb",
+    shortLabel: "sRGB",
   },
   "display-p3": {
+    description: "sRGB보다 넓은 현대 디스플레이 색역입니다.",
+    group: "device",
     id: "display-p3",
     label: "Display P3",
-    shortLabel: "P3",
-    description: "sRGB보다 넓은 현대 디스플레이 색역입니다.",
     sampleGamut: "p3",
+    shortLabel: "P3",
   },
   bt2020: {
+    description: "영상 표준에서 쓰는 매우 넓은 색역입니다. 현재 웹 출력은 보통 시뮬레이션됩니다.",
+    group: "device",
     id: "bt2020",
     label: "BT.2020",
-    shortLabel: "BT.2020",
-    description: "영상 표준에서 쓰는 매우 넓은 색역입니다. 현재 웹 출력은 보통 시뮬레이션됩니다.",
     sampleGamut: "rec2020",
+    shortLabel: "BT.2020",
+  },
+  "cie-1931": {
+    description: "디스플레이 색역이 아니라 표준 관찰자의 visible locus reference입니다.",
+    group: "reference",
+    id: "cie-1931",
+    label: "CIE 1931 visible locus",
+    sampleGamut: null,
+    shortLabel: "CIE 1931",
   },
 } satisfies Record<ColorGamutModeId, ColorGamutModeDefinition>
 
@@ -85,6 +99,24 @@ export const COLOR_GAMUT_MODES = [
   COLOR_GAMUT_MODE_BY_ID.srgb,
   COLOR_GAMUT_MODE_BY_ID["display-p3"],
   COLOR_GAMUT_MODE_BY_ID.bt2020,
+  COLOR_GAMUT_MODE_BY_ID["cie-1931"],
+] as const
+
+export const COLOR_GAMUT_MODE_GROUPS = [
+  {
+    id: "device",
+    label: "Device gamuts",
+    modes: [
+      COLOR_GAMUT_MODE_BY_ID.srgb,
+      COLOR_GAMUT_MODE_BY_ID["display-p3"],
+      COLOR_GAMUT_MODE_BY_ID.bt2020,
+    ],
+  },
+  {
+    id: "reference",
+    label: "Reference",
+    modes: [COLOR_GAMUT_MODE_BY_ID["cie-1931"]],
+  },
 ] as const
 
 function canUseDisplayP3DrawingBuffer() {
@@ -155,6 +187,12 @@ export function resolveColorGamutRendering(
         status: "simulated",
         actualOutput: bestOutput,
       }
+    case "cie-1931":
+      return {
+        mode,
+        status: "reference",
+        actualOutput: bestOutput,
+      }
     default:
       return assertNeverGamutMode(modeId)
   }
@@ -164,6 +202,8 @@ export function getColorGamutStatusLabel(status: ColorGamutRenderStatus) {
   switch (status) {
     case "actual":
       return "Actual"
+    case "reference":
+      return "Reference"
     case "simulated":
       return "Simulated"
     default:
@@ -175,6 +215,8 @@ export function getColorGamutRenderLabel(rendering: ColorGamutRendering) {
   switch (rendering.status) {
     case "actual":
       return `${rendering.mode.label} · actual`
+    case "reference":
+      return `${rendering.mode.label} · reference via ${rendering.actualOutput.label}`
     case "simulated":
       return `${rendering.mode.label} · simulated via ${rendering.actualOutput.label}`
     default:

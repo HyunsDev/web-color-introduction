@@ -15,6 +15,12 @@ const XYZ_D65_WHITE = {
 const XYY_EPSILON = 0.000001
 const XY_AXIS_MAX = { x: 0.8, y: 0.9 } as const
 
+export type XyyCoordinate = {
+  readonly luminance: number
+  readonly x: number
+  readonly y: number
+}
+
 export function createRgbColorInGamut(
   gamut: CuloriSampleGamut,
   r: number,
@@ -59,6 +65,41 @@ export function toXyyModelPoint(color: Color): Vector3Point {
     y: normalizeXyzChannel(xyz.y, XYZ_D65_WHITE.y),
     z: normalizeXyChannel(chromaticity.y, XY_AXIS_MAX.y),
   }
+}
+
+export function toXyyCoordinateColor({
+  luminance,
+  x,
+  y,
+}: XyyCoordinate): Color {
+  if (luminance <= XYY_EPSILON || y <= XYY_EPSILON) {
+    return { mode: "xyz65", x: 0, y: 0, z: 0 }
+  }
+
+  return {
+    mode: "xyz65",
+    x: (x * luminance) / y,
+    y: luminance,
+    z: ((1 - x - y) * luminance) / y,
+  }
+}
+
+export function toXyyCoordinateModelPoint(
+  coordinate: XyyCoordinate
+): Vector3Point {
+  return {
+    x: normalizeXyChannel(coordinate.x, XY_AXIS_MAX.x),
+    y: normalizeXyzChannel(coordinate.luminance, XYZ_D65_WHITE.y),
+    z: normalizeXyChannel(coordinate.y, XY_AXIS_MAX.y),
+  }
+}
+
+export function toXyyCoordinateXyzModelPoint(
+  coordinate: XyyCoordinate
+): Vector3Point {
+  const color = toXyyCoordinateColor(coordinate)
+
+  return toXyzModelPoint(color)
 }
 
 function normalizeXyzChannel(value: number, whiteValue: number) {

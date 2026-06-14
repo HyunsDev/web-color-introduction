@@ -148,6 +148,7 @@ export function ColorSpaceExplorer() {
           capabilities={gamutCapabilities}
           selectedGamutId={selectedGamutId}
           onSelect={setSelectedGamutId}
+          isModeSupported={(gamutId) => gamutId !== "cie-1931"}
           className="max-w-[min(100%,42rem)] p-3 sm:p-4"
         />
       }

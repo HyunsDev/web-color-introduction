@@ -5,12 +5,17 @@ import type {
 import type { ColorSpaceModelId } from "@/color-models/color-space-models"
 import { buildBasicSolidMesh } from "@/color-models/color-space-solid-basic-mesh"
 import { createColorSampleRenderOptions } from "@/color-models/color-sample-rendering"
+import { buildCieReferenceSolidMesh } from "@/color-models/color-space-solid-cie-reference-mesh"
 import { buildPerceptualSolidMesh } from "@/color-models/color-space-solid-perceptual-mesh"
 import type { SolidColorSpaceMesh } from "@/color-models/color-space-solid-mesh-builder"
 import { buildXyzSolidMesh } from "@/color-models/color-space-solid-xyz-mesh"
 import { buildXyySolidMesh } from "@/color-models/color-space-solid-xyy-mesh"
 
 export type { SolidColorSpaceMesh }
+
+function createFallbackRenderOptions(outputGamutId: ColorOutputGamutId) {
+  return createColorSampleRenderOptions("srgb", outputGamutId)
+}
 
 export function buildSolidColorSpaceMesh(
   modelId: ColorSpaceModelId,
@@ -20,20 +25,34 @@ export function buildSolidColorSpaceMesh(
   const options = createColorSampleRenderOptions(gamutModeId, outputGamutId)
 
   switch (modelId) {
+    case "xyz":
+      return gamutModeId === "cie-1931"
+        ? buildCieReferenceSolidMesh("xyz", options)
+        : buildXyzSolidMesh(options)
+    case "xyy":
+      return gamutModeId === "cie-1931"
+        ? buildCieReferenceSolidMesh("xyy", options)
+        : buildXyySolidMesh(options)
     case "rgb":
     case "hsl":
     case "hsv":
     case "hwb":
-      return buildBasicSolidMesh(modelId, options)
-    case "xyz":
-      return buildXyzSolidMesh(options)
-    case "xyy":
-      return buildXyySolidMesh(options)
+      return buildBasicSolidMesh(
+        modelId,
+        gamutModeId === "cie-1931"
+          ? createFallbackRenderOptions(outputGamutId)
+          : options
+      )
     case "lab":
     case "lch":
     case "oklab":
     case "oklch":
-      return buildPerceptualSolidMesh(modelId, options)
+      return buildPerceptualSolidMesh(
+        modelId,
+        gamutModeId === "cie-1931"
+          ? createFallbackRenderOptions(outputGamutId)
+          : options
+      )
     default:
       return assertNeverModel(modelId)
   }

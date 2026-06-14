@@ -48,6 +48,19 @@ const MODEL_ICONS = {
   oklch: OrbitIcon,
 } satisfies Record<ColorSpaceModelId, ElementType>
 
+const CIE_REFERENCE_MODEL_IDS = ["xyz", "xyy"] as const
+
+function isCieReferenceModel(modelId: ColorSpaceModelId) {
+  return CIE_REFERENCE_MODEL_IDS.some((item) => item === modelId)
+}
+
+function isSolidGamutModeSupported(
+  modelId: ColorSpaceModelId,
+  gamutId: ColorGamutModeId
+) {
+  return gamutId !== "cie-1931" || isCieReferenceModel(modelId)
+}
+
 function AxisLegendItem({ axis }: { readonly axis: ColorSpaceAxis }) {
   return (
     <li className="grid grid-cols-[auto_1fr] items-center gap-x-2 rounded-md border border-border bg-background/75 px-2.5 py-2">
@@ -95,6 +108,7 @@ export function ColorSpaceSolidModelsPage() {
     () => resolveColorGamutRendering(selectedGamutId, gamutCapabilities),
     [gamutCapabilities, selectedGamutId]
   )
+
   const mesh = useMemo(
     () =>
       buildSolidColorSpaceMesh(
@@ -120,14 +134,20 @@ export function ColorSpaceSolidModelsPage() {
               "h-9 justify-start gap-2 px-3 text-xs",
               isSelected && "shadow-sm"
             )}
-            onClick={() => setSelectedModelId(model.id)}
+            onClick={() => {
+              setSelectedModelId(model.id)
+
+              if (!isSolidGamutModeSupported(model.id, selectedGamutId)) {
+                setSelectedGamutId("srgb")
+              }
+            }}
           >
             <ModelIcon />
             {model.name}
           </Button>
         )
       }),
-    [selectedModel.id]
+    [selectedGamutId, selectedModel.id]
   )
 
   return (
@@ -139,7 +159,8 @@ export function ColorSpaceSolidModelsPage() {
           </code>
           <p className="mt-1 hidden text-xs leading-5 text-muted-foreground sm:block">
             점군 대신 닫힌 표면 mesh로 RGB, HSL, HSV, HWB, XYZ, xyY, Lab,
-            LCH, OKLab, OKLCH의 형태 차이를 비교합니다.
+            LCH, OKLab, OKLCH의 형태 차이를 비교합니다. CIE 1931은
+            디스플레이 색역이 아니라 XYZ/xyY reference boundary입니다.
           </p>
           <div className="mt-3 flex flex-wrap items-center gap-2">
             <Badge variant="outline" className="gap-1">
@@ -164,6 +185,9 @@ export function ColorSpaceSolidModelsPage() {
           capabilities={gamutCapabilities}
           selectedGamutId={selectedGamutId}
           onSelect={setSelectedGamutId}
+          isModeSupported={(gamutId) =>
+            isSolidGamutModeSupported(selectedModel.id, gamutId)
+          }
           className="max-w-[min(100%,42rem)] p-3 sm:p-4"
         />
       }

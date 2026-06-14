@@ -13,7 +13,7 @@
 
 ## 전체 진행 상태
 
-- [ ] CIE 1931 visible locus를 3D Solid Models reference 색역으로 추가
+- [x] CIE 1931 visible locus를 3D Solid Models reference 색역으로 추가
 - [x] xyY 좌표계를 3D Solid Models에 추가
 - [ ] 공통 색 좌표/표기/색역 기반 정리
 - [ ] 색 좌표 2D 단면 조절기
@@ -54,6 +54,11 @@
 - 데스크톱에서 CIE reference 선택 시 visible locus/volume이 nonblank로 렌더링되는지 확인
 - 모바일 폭에서 색역 그룹, reference 설명, 모델 선택 버튼이 겹치지 않는지 확인
 - out-of-gamut 표시가 현재 출력 색역과 혼동되지 않는지 확인
+
+진행 로그:
+
+- 2026-06-15: `Device gamuts`와 `Reference` 그룹을 분리하고, CIE 1931 reference를 XYZ/xyY 전용 solid mesh로 추가했다.
+- 2026-06-15: `pnpm typecheck`, `pnpm build`, `pnpm lint` 통과. Playwright로 데스크톱/390px 모바일에서 xyY/XYZ reference 렌더링, RGB fallback, 콘솔 warning/error 없음 확인.
 
 커밋 예시:
 
