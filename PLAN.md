@@ -21,7 +21,7 @@
 - [x] 원통형 색 공간 펼쳐 보기
 - [x] 색 보간 경로 비교
 - [x] CSS 색상 표기 실험실
-- [ ] 색역과 Clipping
+- [x] 색역과 Clipping
 - [ ] 같은 숫자, 다른 체감
 
 ## 0. CIE 1931 visible locus를 3D Solid Models reference 색역으로 추가
@@ -354,6 +354,11 @@ feat(fe): add css color notation lab
 - `pnpm typecheck`
 - wide gamut 미지원 환경 fallback 확인
 - 데스크톱/모바일 색역 컨트롤 QA
+
+진행 로그:
+
+- 2026-06-15: `/color-gamut-clipping` 라우트와 홈 링크를 추가하고, sRGB/Display P3/Rec.2020 target 선택, OKLCH lightness/chroma/hue slider, chroma ramp의 out-of-gamut 패턴, original/clipped/gamut-mapped 비교 카드를 구현했다.
+- 2026-06-15: `clampGamut` 기반 channel clipping과 `toGamut` 기반 OKLCH gamut mapping 분석 모델 및 테스트를 추가했다. `pnpm test`, `pnpm typecheck`, `pnpm lint`, `pnpm build` 통과. Playwright/Chrome으로 target 전환, 데스크톱/390px 모바일 overflow 없음, 콘솔 warning/error 없음 확인.
 
 커밋 예시:
 

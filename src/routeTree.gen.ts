@@ -14,6 +14,7 @@ import { Route as ColorSpaceUnwrappedRouteImport } from "./routes/color-space-un
 import { Route as ColorSpaceSolidModelsRouteImport } from "./routes/color-space-solid-models"
 import { Route as ColorSpaceModelsRouteImport } from "./routes/color-space-models"
 import { Route as ColorInterpolationRouteImport } from "./routes/color-interpolation"
+import { Route as ColorGamutClippingRouteImport } from "./routes/color-gamut-clipping"
 import { Route as ColorCoordinatePlanesRouteImport } from "./routes/color-coordinate-planes"
 import { Route as Cie1931XyzRouteImport } from "./routes/cie-1931-xyz"
 import { Route as Cie1931XyRouteImport } from "./routes/cie-1931-xy"
@@ -43,6 +44,11 @@ const ColorSpaceModelsRoute = ColorSpaceModelsRouteImport.update({
 const ColorInterpolationRoute = ColorInterpolationRouteImport.update({
   id: "/color-interpolation",
   path: "/color-interpolation",
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ColorGamutClippingRoute = ColorGamutClippingRouteImport.update({
+  id: "/color-gamut-clipping",
+  path: "/color-gamut-clipping",
   getParentRoute: () => rootRouteImport,
 } as any)
 const ColorCoordinatePlanesRoute = ColorCoordinatePlanesRouteImport.update({
@@ -77,6 +83,7 @@ export interface FileRoutesByFullPath {
   "/cie-1931-xy": typeof Cie1931XyRoute
   "/cie-1931-xyz": typeof Cie1931XyzRoute
   "/color-coordinate-planes": typeof ColorCoordinatePlanesRoute
+  "/color-gamut-clipping": typeof ColorGamutClippingRoute
   "/color-interpolation": typeof ColorInterpolationRoute
   "/color-space-models": typeof ColorSpaceModelsRoute
   "/color-space-solid-models": typeof ColorSpaceSolidModelsRoute
@@ -89,6 +96,7 @@ export interface FileRoutesByTo {
   "/cie-1931-xy": typeof Cie1931XyRoute
   "/cie-1931-xyz": typeof Cie1931XyzRoute
   "/color-coordinate-planes": typeof ColorCoordinatePlanesRoute
+  "/color-gamut-clipping": typeof ColorGamutClippingRoute
   "/color-interpolation": typeof ColorInterpolationRoute
   "/color-space-models": typeof ColorSpaceModelsRoute
   "/color-space-solid-models": typeof ColorSpaceSolidModelsRoute
@@ -102,6 +110,7 @@ export interface FileRoutesById {
   "/cie-1931-xy": typeof Cie1931XyRoute
   "/cie-1931-xyz": typeof Cie1931XyzRoute
   "/color-coordinate-planes": typeof ColorCoordinatePlanesRoute
+  "/color-gamut-clipping": typeof ColorGamutClippingRoute
   "/color-interpolation": typeof ColorInterpolationRoute
   "/color-space-models": typeof ColorSpaceModelsRoute
   "/color-space-solid-models": typeof ColorSpaceSolidModelsRoute
@@ -116,6 +125,7 @@ export interface FileRouteTypes {
     | "/cie-1931-xy"
     | "/cie-1931-xyz"
     | "/color-coordinate-planes"
+    | "/color-gamut-clipping"
     | "/color-interpolation"
     | "/color-space-models"
     | "/color-space-solid-models"
@@ -128,6 +138,7 @@ export interface FileRouteTypes {
     | "/cie-1931-xy"
     | "/cie-1931-xyz"
     | "/color-coordinate-planes"
+    | "/color-gamut-clipping"
     | "/color-interpolation"
     | "/color-space-models"
     | "/color-space-solid-models"
@@ -140,6 +151,7 @@ export interface FileRouteTypes {
     | "/cie-1931-xy"
     | "/cie-1931-xyz"
     | "/color-coordinate-planes"
+    | "/color-gamut-clipping"
     | "/color-interpolation"
     | "/color-space-models"
     | "/color-space-solid-models"
@@ -153,6 +165,7 @@ export interface RootRouteChildren {
   Cie1931XyRoute: typeof Cie1931XyRoute
   Cie1931XyzRoute: typeof Cie1931XyzRoute
   ColorCoordinatePlanesRoute: typeof ColorCoordinatePlanesRoute
+  ColorGamutClippingRoute: typeof ColorGamutClippingRoute
   ColorInterpolationRoute: typeof ColorInterpolationRoute
   ColorSpaceModelsRoute: typeof ColorSpaceModelsRoute
   ColorSpaceSolidModelsRoute: typeof ColorSpaceSolidModelsRoute
@@ -195,6 +208,13 @@ declare module "@tanstack/react-router" {
       path: "/color-interpolation"
       fullPath: "/color-interpolation"
       preLoaderRoute: typeof ColorInterpolationRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    "/color-gamut-clipping": {
+      id: "/color-gamut-clipping"
+      path: "/color-gamut-clipping"
+      fullPath: "/color-gamut-clipping"
+      preLoaderRoute: typeof ColorGamutClippingRouteImport
       parentRoute: typeof rootRouteImport
     }
     "/color-coordinate-planes": {
@@ -241,6 +261,7 @@ const rootRouteChildren: RootRouteChildren = {
   Cie1931XyRoute: Cie1931XyRoute,
   Cie1931XyzRoute: Cie1931XyzRoute,
   ColorCoordinatePlanesRoute: ColorCoordinatePlanesRoute,
+  ColorGamutClippingRoute: ColorGamutClippingRoute,
   ColorInterpolationRoute: ColorInterpolationRoute,
   ColorSpaceModelsRoute: ColorSpaceModelsRoute,
   ColorSpaceSolidModelsRoute: ColorSpaceSolidModelsRoute,

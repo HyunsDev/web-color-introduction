@@ -8,6 +8,7 @@ import {
   CylinderIcon,
   PaletteIcon,
   PanelTopIcon,
+  ScissorsIcon,
 } from "lucide-react"
 
 import {
@@ -54,6 +55,11 @@ export function PlaygroundHomePage() {
             icon={Code2Icon}
             label="CSS Color Notations"
             path="/css-color-notations"
+          />
+          <PlaygroundRouteFeature
+            icon={ScissorsIcon}
+            label="Gamut Clipping"
+            path="/color-gamut-clipping"
           />
           <PlaygroundRouteFeature
             icon={CircleDotIcon}
