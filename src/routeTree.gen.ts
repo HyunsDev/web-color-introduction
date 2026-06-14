@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from "./routes/__root"
+import { Route as ColorSpaceUnwrappedRouteImport } from "./routes/color-space-unwrapped"
 import { Route as ColorSpaceSolidModelsRouteImport } from "./routes/color-space-solid-models"
 import { Route as ColorSpaceModelsRouteImport } from "./routes/color-space-models"
 import { Route as ColorCoordinatePlanesRouteImport } from "./routes/color-coordinate-planes"
@@ -17,6 +18,11 @@ import { Route as Cie1931XyRouteImport } from "./routes/cie-1931-xy"
 import { Route as Cie1931ProjectionRouteImport } from "./routes/cie-1931-projection"
 import { Route as IndexRouteImport } from "./routes/index"
 
+const ColorSpaceUnwrappedRoute = ColorSpaceUnwrappedRouteImport.update({
+  id: "/color-space-unwrapped",
+  path: "/color-space-unwrapped",
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ColorSpaceSolidModelsRoute = ColorSpaceSolidModelsRouteImport.update({
   id: "/color-space-solid-models",
   path: "/color-space-solid-models",
@@ -61,6 +67,7 @@ export interface FileRoutesByFullPath {
   "/color-coordinate-planes": typeof ColorCoordinatePlanesRoute
   "/color-space-models": typeof ColorSpaceModelsRoute
   "/color-space-solid-models": typeof ColorSpaceSolidModelsRoute
+  "/color-space-unwrapped": typeof ColorSpaceUnwrappedRoute
 }
 export interface FileRoutesByTo {
   "/": typeof IndexRoute
@@ -70,6 +77,7 @@ export interface FileRoutesByTo {
   "/color-coordinate-planes": typeof ColorCoordinatePlanesRoute
   "/color-space-models": typeof ColorSpaceModelsRoute
   "/color-space-solid-models": typeof ColorSpaceSolidModelsRoute
+  "/color-space-unwrapped": typeof ColorSpaceUnwrappedRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -80,6 +88,7 @@ export interface FileRoutesById {
   "/color-coordinate-planes": typeof ColorCoordinatePlanesRoute
   "/color-space-models": typeof ColorSpaceModelsRoute
   "/color-space-solid-models": typeof ColorSpaceSolidModelsRoute
+  "/color-space-unwrapped": typeof ColorSpaceUnwrappedRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -91,6 +100,7 @@ export interface FileRouteTypes {
     | "/color-coordinate-planes"
     | "/color-space-models"
     | "/color-space-solid-models"
+    | "/color-space-unwrapped"
   fileRoutesByTo: FileRoutesByTo
   to:
     | "/"
@@ -100,6 +110,7 @@ export interface FileRouteTypes {
     | "/color-coordinate-planes"
     | "/color-space-models"
     | "/color-space-solid-models"
+    | "/color-space-unwrapped"
   id:
     | "__root__"
     | "/"
@@ -109,6 +120,7 @@ export interface FileRouteTypes {
     | "/color-coordinate-planes"
     | "/color-space-models"
     | "/color-space-solid-models"
+    | "/color-space-unwrapped"
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -119,10 +131,18 @@ export interface RootRouteChildren {
   ColorCoordinatePlanesRoute: typeof ColorCoordinatePlanesRoute
   ColorSpaceModelsRoute: typeof ColorSpaceModelsRoute
   ColorSpaceSolidModelsRoute: typeof ColorSpaceSolidModelsRoute
+  ColorSpaceUnwrappedRoute: typeof ColorSpaceUnwrappedRoute
 }
 
 declare module "@tanstack/react-router" {
   interface FileRoutesByPath {
+    "/color-space-unwrapped": {
+      id: "/color-space-unwrapped"
+      path: "/color-space-unwrapped"
+      fullPath: "/color-space-unwrapped"
+      preLoaderRoute: typeof ColorSpaceUnwrappedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     "/color-space-solid-models": {
       id: "/color-space-solid-models"
       path: "/color-space-solid-models"
@@ -183,6 +203,7 @@ const rootRouteChildren: RootRouteChildren = {
   ColorCoordinatePlanesRoute: ColorCoordinatePlanesRoute,
   ColorSpaceModelsRoute: ColorSpaceModelsRoute,
   ColorSpaceSolidModelsRoute: ColorSpaceSolidModelsRoute,
+  ColorSpaceUnwrappedRoute: ColorSpaceUnwrappedRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

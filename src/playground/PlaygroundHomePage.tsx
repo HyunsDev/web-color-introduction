@@ -5,6 +5,7 @@ import {
   CrosshairIcon,
   CylinderIcon,
   PaletteIcon,
+  PanelTopIcon,
 } from "lucide-react"
 
 import {
@@ -36,6 +37,11 @@ export function PlaygroundHomePage() {
             icon={CrosshairIcon}
             label="2D Coordinate Planes"
             path="/color-coordinate-planes"
+          />
+          <PlaygroundRouteFeature
+            icon={PanelTopIcon}
+            label="Unwrapped Color Spaces"
+            path="/color-space-unwrapped"
           />
           <PlaygroundRouteFeature
             icon={CircleDotIcon}

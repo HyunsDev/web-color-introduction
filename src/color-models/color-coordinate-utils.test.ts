@@ -10,6 +10,10 @@ import {
   setPlaneCoordinate,
 } from "./color-coordinate-plane-models.ts"
 import {
+  createUnwrappedColor,
+  formatUnwrappedValue,
+} from "./color-space-unwrapped-models.ts"
+import {
   createDefaultColorCoordinate,
   readColorCoordinateAxis,
   setColorCoordinateAxis,
@@ -104,4 +108,24 @@ test("getPlaneMarkerPosition normalizes selected coordinate axes", () => {
 
   assert.ok(plane)
   assert.deepEqual(getPlaneMarkerPosition(coordinate, plane), { x: 1, y: 1 })
+})
+
+test("createUnwrappedColor maps hue radius and fixed axis into model colors", () => {
+  assert.deepEqual(createUnwrappedColor("hsv", 120, 0.5, 0.75), {
+    mode: "hsv",
+    h: 120,
+    s: 0.5,
+    v: 0.75,
+  })
+  assert.deepEqual(createUnwrappedColor("oklch", 32, 0.5, 0.7), {
+    mode: "oklch",
+    h: 32,
+    c: 0.2,
+    l: 0.7,
+  })
+})
+
+test("formatUnwrappedValue renders percent and numeric controls", () => {
+  assert.equal(formatUnwrappedValue(0.58, "percent"), "58%")
+  assert.equal(formatUnwrappedValue(0.18, "number"), "0.180")
 })

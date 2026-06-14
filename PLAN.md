@@ -18,7 +18,7 @@
 - [x] 공통 색 좌표/표기/색역 기반 정리
 - [x] 색 좌표 2D 단면 조절기
 - [x] 3D Solid Models 단면 보기
-- [ ] 원통형 색 공간 펼쳐 보기
+- [x] 원통형 색 공간 펼쳐 보기
 - [ ] 색 보간 경로 비교
 - [ ] CSS 색상 표기 실험실
 - [ ] 색역과 Clipping
@@ -259,6 +259,11 @@ feat(fe): add slice mode to solid color models
 - `pnpm typecheck`
 - Three.js/canvas nonblank 확인
 - 데스크톱/모바일 QA
+
+진행 로그:
+
+- 2026-06-15: `/color-space-unwrapped` 라우트와 홈 링크를 추가하고, HSL/HSV/LCH/OKLCH unwrapped sheet, fixed L/V slider, seam marker, radius 0 gray axis, gamut 밖 반투명 표시를 구현했다.
+- 2026-06-15: `pnpm test`, `pnpm typecheck`, `pnpm lint`, `pnpm build` 통과. Playwright로 데스크톱/390px 모바일에서 canvas nonblank, HSL 모델 전환, seam/gray axis 표시, 콘솔 warning/error 없음 확인.
 
 커밋 예시:
 
