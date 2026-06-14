@@ -1,9 +1,9 @@
 import type { Color } from "culori"
-import type {
-  ColorCoordinate,
-  ColorCoordinateModelId,
-} from "./color-coordinate-types.ts"
 
+export {
+  readColorCoordinateAxis,
+  setColorCoordinateAxis,
+} from "./color-coordinate-axis-io.ts"
 export {
   COLOR_COORDINATE_MODEL_BY_ID,
   COLOR_COORDINATE_MODELS,
@@ -12,6 +12,7 @@ export { COLOR_COORDINATE_MODEL_IDS } from "./color-coordinate-types.ts"
 export type {
   ColorCoordinate,
   ColorCoordinateAxis,
+  ColorCoordinateAxisId,
   ColorCoordinateModelDefinition,
   ColorCoordinateModelId,
   ColorCoordinateUnit,
@@ -20,6 +21,10 @@ export type {
   LchCoordinate,
   OklchCoordinate,
   RgbCoordinate,
+} from "./color-coordinate-types.ts"
+import type {
+  ColorCoordinate,
+  ColorCoordinateModelId,
 } from "./color-coordinate-types.ts"
 
 export function createDefaultColorCoordinate(

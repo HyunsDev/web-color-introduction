@@ -5,7 +5,14 @@ import { formatCssColorSet } from "./color-css-format.ts"
 import { samplePixel } from "./color-canvas-sampling.ts"
 import { getColorGamutChecks } from "./color-gamut-analysis.ts"
 import {
+  getCoordinatePlanes,
+  getPlaneMarkerPosition,
+  setPlaneCoordinate,
+} from "./color-coordinate-plane-models.ts"
+import {
   createDefaultColorCoordinate,
+  readColorCoordinateAxis,
+  setColorCoordinateAxis,
   toCuloriColor,
 } from "./color-coordinate-utils.ts"
 
@@ -64,4 +71,37 @@ test("samplePixel returns null outside bounds and channel data inside bounds", (
     a: 255,
   })
   assert.equal(samplePixel({ data, width: 2, height: 1 }, 2, 0), null)
+})
+
+test("setColorCoordinateAxis updates only valid channels for the model", () => {
+  const coordinate = createDefaultColorCoordinate("hsl")
+
+  assert.deepEqual(setColorCoordinateAxis(coordinate, "s", 42), {
+    modelId: "hsl",
+    h: 24,
+    s: 42,
+    l: 58,
+  })
+  assert.equal(readColorCoordinateAxis(coordinate, "r"), 0)
+})
+
+test("setPlaneCoordinate maps pointer ratios onto selected axes", () => {
+  const coordinate = createDefaultColorCoordinate("rgb")
+  const plane = getCoordinatePlanes("rgb")[0]
+
+  assert.ok(plane)
+  assert.deepEqual(setPlaneCoordinate(coordinate, plane, 0, 1), {
+    modelId: "rgb",
+    r: 0,
+    g: 0,
+    b: 64,
+  })
+})
+
+test("getPlaneMarkerPosition normalizes selected coordinate axes", () => {
+  const coordinate = { modelId: "rgb", r: 255, g: 0, b: 64 } as const
+  const plane = getCoordinatePlanes("rgb")[0]
+
+  assert.ok(plane)
+  assert.deepEqual(getPlaneMarkerPosition(coordinate, plane), { x: 1, y: 1 })
 })

@@ -9,10 +9,19 @@ export const COLOR_COORDINATE_MODEL_IDS = [
 export type ColorCoordinateModelId = (typeof COLOR_COORDINATE_MODEL_IDS)[number]
 
 export type ColorCoordinateUnit = "degree" | "number" | "percent"
+export type ColorCoordinateAxisId =
+  | "b"
+  | "c"
+  | "g"
+  | "h"
+  | "l"
+  | "r"
+  | "s"
+  | "v"
 
 export type ColorCoordinateAxis = {
   readonly defaultValue: number
-  readonly id: string
+  readonly id: ColorCoordinateAxisId
   readonly label: string
   readonly max: number
   readonly min: number

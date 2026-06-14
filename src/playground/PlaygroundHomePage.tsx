@@ -2,6 +2,7 @@ import {
   ArrowDownToLineIcon,
   BoxIcon,
   CircleDotIcon,
+  CrosshairIcon,
   CylinderIcon,
   PaletteIcon,
 } from "lucide-react"
@@ -30,6 +31,11 @@ export function PlaygroundHomePage() {
             icon={CylinderIcon}
             label="3D Solid Models"
             path="/color-space-solid-models"
+          />
+          <PlaygroundRouteFeature
+            icon={CrosshairIcon}
+            label="2D Coordinate Planes"
+            path="/color-coordinate-planes"
           />
           <PlaygroundRouteFeature
             icon={CircleDotIcon}

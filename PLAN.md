@@ -16,7 +16,7 @@
 - [x] CIE 1931 visible locus를 3D Solid Models reference 색역으로 추가
 - [x] xyY 좌표계를 3D Solid Models에 추가
 - [x] 공통 색 좌표/표기/색역 기반 정리
-- [ ] 색 좌표 2D 단면 조절기
+- [x] 색 좌표 2D 단면 조절기
 - [ ] 3D Solid Models 단면 보기
 - [ ] 원통형 색 공간 펼쳐 보기
 - [ ] 색 보간 경로 비교
@@ -175,6 +175,11 @@ feat(fe): add shared color coordinate utilities
 - 브라우저 데스크톱 QA
 - 모바일 폭 QA
 - canvas nonblank 확인
+
+진행 로그:
+
+- 2026-06-15: `/color-coordinate-planes` 라우트와 홈 링크를 추가하고, RGB/HSL/HSV/LCH/OKLCH 모델별 2D plane 선택, 고정축 slider, canvas crosshair 조작, 현재 색 swatch/CSS 표기/gamut badge를 구현했다.
+- 2026-06-15: `pnpm test`, `pnpm typecheck`, `pnpm lint`, `pnpm build` 통과. Playwright로 데스크톱/390px 모바일에서 canvas nonblank, RGB 모델 전환, canvas 클릭 좌표 갱신, 콘솔 warning/error 없음 확인.
 
 커밋 예시:
 

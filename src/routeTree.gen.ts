@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from "./routes/__root"
 import { Route as ColorSpaceSolidModelsRouteImport } from "./routes/color-space-solid-models"
 import { Route as ColorSpaceModelsRouteImport } from "./routes/color-space-models"
+import { Route as ColorCoordinatePlanesRouteImport } from "./routes/color-coordinate-planes"
 import { Route as Cie1931XyzRouteImport } from "./routes/cie-1931-xyz"
 import { Route as Cie1931XyRouteImport } from "./routes/cie-1931-xy"
 import { Route as Cie1931ProjectionRouteImport } from "./routes/cie-1931-projection"
@@ -24,6 +25,11 @@ const ColorSpaceSolidModelsRoute = ColorSpaceSolidModelsRouteImport.update({
 const ColorSpaceModelsRoute = ColorSpaceModelsRouteImport.update({
   id: "/color-space-models",
   path: "/color-space-models",
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ColorCoordinatePlanesRoute = ColorCoordinatePlanesRouteImport.update({
+  id: "/color-coordinate-planes",
+  path: "/color-coordinate-planes",
   getParentRoute: () => rootRouteImport,
 } as any)
 const Cie1931XyzRoute = Cie1931XyzRouteImport.update({
@@ -52,6 +58,7 @@ export interface FileRoutesByFullPath {
   "/cie-1931-projection": typeof Cie1931ProjectionRoute
   "/cie-1931-xy": typeof Cie1931XyRoute
   "/cie-1931-xyz": typeof Cie1931XyzRoute
+  "/color-coordinate-planes": typeof ColorCoordinatePlanesRoute
   "/color-space-models": typeof ColorSpaceModelsRoute
   "/color-space-solid-models": typeof ColorSpaceSolidModelsRoute
 }
@@ -60,6 +67,7 @@ export interface FileRoutesByTo {
   "/cie-1931-projection": typeof Cie1931ProjectionRoute
   "/cie-1931-xy": typeof Cie1931XyRoute
   "/cie-1931-xyz": typeof Cie1931XyzRoute
+  "/color-coordinate-planes": typeof ColorCoordinatePlanesRoute
   "/color-space-models": typeof ColorSpaceModelsRoute
   "/color-space-solid-models": typeof ColorSpaceSolidModelsRoute
 }
@@ -69,6 +77,7 @@ export interface FileRoutesById {
   "/cie-1931-projection": typeof Cie1931ProjectionRoute
   "/cie-1931-xy": typeof Cie1931XyRoute
   "/cie-1931-xyz": typeof Cie1931XyzRoute
+  "/color-coordinate-planes": typeof ColorCoordinatePlanesRoute
   "/color-space-models": typeof ColorSpaceModelsRoute
   "/color-space-solid-models": typeof ColorSpaceSolidModelsRoute
 }
@@ -79,6 +88,7 @@ export interface FileRouteTypes {
     | "/cie-1931-projection"
     | "/cie-1931-xy"
     | "/cie-1931-xyz"
+    | "/color-coordinate-planes"
     | "/color-space-models"
     | "/color-space-solid-models"
   fileRoutesByTo: FileRoutesByTo
@@ -87,6 +97,7 @@ export interface FileRouteTypes {
     | "/cie-1931-projection"
     | "/cie-1931-xy"
     | "/cie-1931-xyz"
+    | "/color-coordinate-planes"
     | "/color-space-models"
     | "/color-space-solid-models"
   id:
@@ -95,6 +106,7 @@ export interface FileRouteTypes {
     | "/cie-1931-projection"
     | "/cie-1931-xy"
     | "/cie-1931-xyz"
+    | "/color-coordinate-planes"
     | "/color-space-models"
     | "/color-space-solid-models"
   fileRoutesById: FileRoutesById
@@ -104,6 +116,7 @@ export interface RootRouteChildren {
   Cie1931ProjectionRoute: typeof Cie1931ProjectionRoute
   Cie1931XyRoute: typeof Cie1931XyRoute
   Cie1931XyzRoute: typeof Cie1931XyzRoute
+  ColorCoordinatePlanesRoute: typeof ColorCoordinatePlanesRoute
   ColorSpaceModelsRoute: typeof ColorSpaceModelsRoute
   ColorSpaceSolidModelsRoute: typeof ColorSpaceSolidModelsRoute
 }
@@ -122,6 +135,13 @@ declare module "@tanstack/react-router" {
       path: "/color-space-models"
       fullPath: "/color-space-models"
       preLoaderRoute: typeof ColorSpaceModelsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    "/color-coordinate-planes": {
+      id: "/color-coordinate-planes"
+      path: "/color-coordinate-planes"
+      fullPath: "/color-coordinate-planes"
+      preLoaderRoute: typeof ColorCoordinatePlanesRouteImport
       parentRoute: typeof rootRouteImport
     }
     "/cie-1931-xyz": {
@@ -160,6 +180,7 @@ const rootRouteChildren: RootRouteChildren = {
   Cie1931ProjectionRoute: Cie1931ProjectionRoute,
   Cie1931XyRoute: Cie1931XyRoute,
   Cie1931XyzRoute: Cie1931XyzRoute,
+  ColorCoordinatePlanesRoute: ColorCoordinatePlanesRoute,
   ColorSpaceModelsRoute: ColorSpaceModelsRoute,
   ColorSpaceSolidModelsRoute: ColorSpaceSolidModelsRoute,
 }
