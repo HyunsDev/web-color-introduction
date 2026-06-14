@@ -33,6 +33,8 @@ import { useTheme } from "@/components/theme-provider"
 import { cn } from "@/lib/utils"
 
 const BASE_CAMERA_POSITION = { x: 3.1, y: 2.35, z: 3.1 } as const
+const BASE_CONTROLS_MIN_DISTANCE = 2.4
+const BASE_CONTROLS_MAX_DISTANCE = 5.5
 
 export function ColorSpaceModelCanvas({
   className,
@@ -104,8 +106,8 @@ export function ColorSpaceModelCanvas({
     controls.autoRotateSpeed = 0.75
     controls.enableDamping = true
     controls.enablePan = false
-    controls.minDistance = 2.4
-    controls.maxDistance = 5.5
+    controls.minDistance = BASE_CONTROLS_MIN_DISTANCE
+    controls.maxDistance = BASE_CONTROLS_MAX_DISTANCE
 
     const keyLight = new DirectionalLight("#ffffff", 1.3)
     keyLight.position.set(3, 4, 5)
@@ -135,6 +137,8 @@ export function ColorSpaceModelCanvas({
         BASE_CAMERA_POSITION.z * cameraScale
       )
       camera.lookAt(0, 0, 0)
+      controls.minDistance = BASE_CONTROLS_MIN_DISTANCE * cameraScale
+      controls.maxDistance = BASE_CONTROLS_MAX_DISTANCE * cameraScale
       camera.aspect = renderWidth / renderHeight
       camera.updateProjectionMatrix()
       controls.update()

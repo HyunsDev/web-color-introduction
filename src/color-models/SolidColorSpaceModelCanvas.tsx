@@ -31,6 +31,8 @@ import { useTheme } from "@/components/theme-provider"
 import { cn } from "@/lib/utils"
 
 const BASE_CAMERA_POSITION = { x: 3.15, y: 2.2, z: 3.15 } as const
+const BASE_CONTROLS_MIN_DISTANCE = 2.2
+const BASE_CONTROLS_MAX_DISTANCE = 5.5
 
 export function SolidColorSpaceModelCanvas({
   className,
@@ -95,8 +97,8 @@ export function SolidColorSpaceModelCanvas({
     controls.autoRotateSpeed = 0.52
     controls.enableDamping = true
     controls.enablePan = false
-    controls.minDistance = 2.2
-    controls.maxDistance = 5.5
+    controls.minDistance = BASE_CONTROLS_MIN_DISTANCE
+    controls.maxDistance = BASE_CONTROLS_MAX_DISTANCE
 
     const frame = createModelFrame(model.id, resolvedTheme)
     const solid = createSolidColorSpaceObject({
@@ -133,6 +135,8 @@ export function SolidColorSpaceModelCanvas({
         BASE_CAMERA_POSITION.z * cameraScale
       )
       camera.lookAt(0, 0, 0)
+      controls.minDistance = BASE_CONTROLS_MIN_DISTANCE * cameraScale
+      controls.maxDistance = BASE_CONTROLS_MAX_DISTANCE * cameraScale
       camera.aspect = renderWidth / renderHeight
       camera.updateProjectionMatrix()
       controls.update()
