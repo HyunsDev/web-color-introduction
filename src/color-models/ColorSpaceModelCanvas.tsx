@@ -25,6 +25,7 @@ import {
   createColorPointCloud,
   disposeObjectTree,
 } from "@/color-models/three-scene"
+import { useTheme } from "@/components/theme-provider"
 import { cn } from "@/lib/utils"
 
 export function ColorSpaceModelCanvas({
@@ -38,6 +39,7 @@ export function ColorSpaceModelCanvas({
   readonly model: ColorSpaceModelDefinition
   readonly showHud?: boolean
 }) {
+  const { resolvedTheme } = useTheme()
   const hostRef = useRef<HTMLDivElement | null>(null)
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
   const samples = useMemo(
@@ -94,7 +96,7 @@ export function ColorSpaceModelCanvas({
     scene.add(keyLight)
     scene.add(new AmbientLight("#ffffff", 1.8))
 
-    const frame = createModelFrame(model.id)
+    const frame = createModelFrame(model.id, resolvedTheme)
     const points = createColorPointCloud(samples, model.pointSize)
     scene.add(frame)
     scene.add(points)
@@ -140,7 +142,13 @@ export function ColorSpaceModelCanvas({
       renderer.dispose()
       ColorManagement.workingColorSpace = previousWorkingColorSpace
     }
-  }, [gamutRendering.actualOutput.id, model.id, model.pointSize, samples])
+  }, [
+    gamutRendering.actualOutput.id,
+    model.id,
+    model.pointSize,
+    resolvedTheme,
+    samples,
+  ])
 
   return (
     <div

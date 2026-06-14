@@ -12,6 +12,7 @@ type ThemeProviderProps = {
 }
 
 type ThemeProviderState = {
+  resolvedTheme: ResolvedTheme
   theme: Theme
   setTheme: (theme: Theme) => void
 }
@@ -92,6 +93,9 @@ export function ThemeProvider({
 
     return defaultTheme
   })
+  const [systemTheme, setSystemTheme] =
+    React.useState<ResolvedTheme>(getSystemTheme)
+  const resolvedTheme = theme === "system" ? systemTheme : theme
 
   const setTheme = React.useCallback(
     (nextTheme: Theme) => {
@@ -102,16 +106,14 @@ export function ThemeProvider({
   )
 
   const applyTheme = React.useCallback(
-    (nextTheme: Theme) => {
+    (nextResolvedTheme: ResolvedTheme) => {
       const root = document.documentElement
-      const resolvedTheme =
-        nextTheme === "system" ? getSystemTheme() : nextTheme
       const restoreTransitions = disableTransitionOnChange
         ? disableTransitionsTemporarily()
         : null
 
       root.classList.remove("light", "dark")
-      root.classList.add(resolvedTheme)
+      root.classList.add(nextResolvedTheme)
 
       if (restoreTransitions) {
         restoreTransitions()
@@ -121,15 +123,13 @@ export function ThemeProvider({
   )
 
   React.useEffect(() => {
-    applyTheme(theme)
+    applyTheme(resolvedTheme)
+  }, [resolvedTheme, applyTheme])
 
-    if (theme !== "system") {
-      return undefined
-    }
-
+  React.useEffect(() => {
     const mediaQuery = window.matchMedia(COLOR_SCHEME_QUERY)
     const handleChange = () => {
-      applyTheme("system")
+      setSystemTheme(getSystemTheme())
     }
 
     mediaQuery.addEventListener("change", handleChange)
@@ -137,7 +137,7 @@ export function ThemeProvider({
     return () => {
       mediaQuery.removeEventListener("change", handleChange)
     }
-  }, [theme, applyTheme])
+  }, [])
 
   React.useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -206,10 +206,11 @@ export function ThemeProvider({
 
   const value = React.useMemo(
     () => ({
+      resolvedTheme,
       theme,
       setTheme,
     }),
-    [theme, setTheme]
+    [resolvedTheme, theme, setTheme]
   )
 
   return (
