@@ -7,11 +7,23 @@ import {
   useNavigate,
   useRouter,
 } from "@tanstack/react-router"
-import { ArrowLeftIcon, ArrowRightIcon, HomeIcon } from "lucide-react"
+import {
+  ArrowLeftIcon,
+  ArrowRightIcon,
+  HomeIcon,
+  MonitorIcon,
+  MoonIcon,
+  SunIcon,
+} from "lucide-react"
 import { motion } from "motion/react"
 
+import { useTheme } from "@/components/theme-provider"
 import { Button } from "@/components/ui/button"
 import { ButtonGroup } from "@/components/ui/button-group"
+import {
+  ToggleGroup,
+  ToggleGroupItem,
+} from "@/components/ui/toggle-group"
 import {
   Tooltip,
   TooltipContent,
@@ -33,53 +45,108 @@ import {
 } from "@/playground/playground-route-motion"
 import type { PlaygroundTransitionState } from "@/playground/playground-route-motion"
 
-function PlaygroundNavigationTools() {
+type PlaygroundTheme = "light" | "dark" | "system"
+
+function isPlaygroundTheme(value: string): value is PlaygroundTheme {
+  switch (value) {
+    case "light":
+    case "dark":
+    case "system":
+      return true
+    default:
+      return false
+  }
+}
+
+export function PlaygroundTools() {
   const router = useRouter()
   const canGoBack = useCanGoBack()
+  const { theme, setTheme } = useTheme()
   const canGoForward = useSyncExternalStore(
     router.history.subscribe,
     () => router.history.location.state.__TSR_index < router.history.length - 1
   )
 
   return (
-    <ButtonGroup>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <Button
-            size="icon-sm"
-            variant="outline"
-            onClick={() => router.history.back()}
-            disabled={!canGoBack}
-          >
-            <ArrowLeftIcon />
-          </Button>
-        </TooltipTrigger>
-        <TooltipContent>Back</TooltipContent>
-      </Tooltip>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <Button size="icon-sm" variant="outline" asChild>
-            <Link to="/">
-              <HomeIcon />
-            </Link>
-          </Button>
-        </TooltipTrigger>
-        <TooltipContent>Home</TooltipContent>
-      </Tooltip>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <Button
-            size="icon-sm"
-            variant="outline"
-            onClick={() => router.history.forward()}
-            disabled={!canGoForward}
-          >
-            <ArrowRightIcon />
-          </Button>
-        </TooltipTrigger>
-        <TooltipContent>Forward</TooltipContent>
-      </Tooltip>
-    </ButtonGroup>
+    <div className="flex flex-wrap items-center justify-center gap-2">
+      <ButtonGroup>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              size="icon-sm"
+              variant="outline"
+              onClick={() => router.history.back()}
+              disabled={!canGoBack}
+            >
+              <ArrowLeftIcon />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>Back</TooltipContent>
+        </Tooltip>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button size="icon-sm" variant="outline" asChild>
+              <Link to="/">
+                <HomeIcon />
+              </Link>
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>Home</TooltipContent>
+        </Tooltip>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              size="icon-sm"
+              variant="outline"
+              onClick={() => router.history.forward()}
+              disabled={!canGoForward}
+            >
+              <ArrowRightIcon />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>Forward</TooltipContent>
+        </Tooltip>
+      </ButtonGroup>
+
+      <ToggleGroup
+        type="single"
+        value={theme}
+        size="sm"
+        spacing={0}
+        variant="outline"
+        aria-label="Theme selector"
+        onValueChange={(value) => {
+          if (isPlaygroundTheme(value)) {
+            setTheme(value)
+          }
+        }}
+      >
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <ToggleGroupItem value="light" aria-label="Light theme">
+              <SunIcon />
+            </ToggleGroupItem>
+          </TooltipTrigger>
+          <TooltipContent>Light</TooltipContent>
+        </Tooltip>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <ToggleGroupItem value="dark" aria-label="Dark theme">
+              <MoonIcon />
+            </ToggleGroupItem>
+          </TooltipTrigger>
+          <TooltipContent>Dark</TooltipContent>
+        </Tooltip>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <ToggleGroupItem value="system" aria-label="System theme">
+              <MonitorIcon />
+            </ToggleGroupItem>
+          </TooltipTrigger>
+          <TooltipContent>System</TooltipContent>
+        </Tooltip>
+      </ToggleGroup>
+    </div>
   )
 }
 
@@ -184,7 +251,7 @@ export function PlaygroundIndexPage({
           <PlaygroundIndexPageContent>{children}</PlaygroundIndexPageContent>
         </main>
         <footer className="flex shrink-0 items-center justify-center px-4 py-3">
-          <PlaygroundNavigationTools />
+          <PlaygroundTools />
         </footer>
       </div>
     </PlaygroundTransitionContext.Provider>

@@ -9,8 +9,14 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from "./routes/__root"
+import { Route as ColorSpaceModelsRouteImport } from "./routes/color-space-models"
 import { Route as IndexRouteImport } from "./routes/index"
 
+const ColorSpaceModelsRoute = ColorSpaceModelsRouteImport.update({
+  id: "/color-space-models",
+  path: "/color-space-models",
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: "/",
   path: "/",
@@ -19,28 +25,39 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   "/": typeof IndexRoute
+  "/color-space-models": typeof ColorSpaceModelsRoute
 }
 export interface FileRoutesByTo {
   "/": typeof IndexRoute
+  "/color-space-models": typeof ColorSpaceModelsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   "/": typeof IndexRoute
+  "/color-space-models": typeof ColorSpaceModelsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: "/"
+  fullPaths: "/" | "/color-space-models"
   fileRoutesByTo: FileRoutesByTo
-  to: "/"
-  id: "__root__" | "/"
+  to: "/" | "/color-space-models"
+  id: "__root__" | "/" | "/color-space-models"
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ColorSpaceModelsRoute: typeof ColorSpaceModelsRoute
 }
 
 declare module "@tanstack/react-router" {
   interface FileRoutesByPath {
+    "/color-space-models": {
+      id: "/color-space-models"
+      path: "/color-space-models"
+      fullPath: "/color-space-models"
+      preLoaderRoute: typeof ColorSpaceModelsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     "/": {
       id: "/"
       path: "/"
@@ -53,6 +70,7 @@ declare module "@tanstack/react-router" {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ColorSpaceModelsRoute: ColorSpaceModelsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

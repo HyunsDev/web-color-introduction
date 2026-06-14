@@ -7,7 +7,6 @@ import {
   ConeIcon,
   CylinderIcon,
   OrbitIcon,
-  PaletteIcon,
 } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
@@ -22,6 +21,7 @@ import type {
   ColorSpaceModelId,
 } from "@/color-models/color-space-models"
 import { cn } from "@/lib/utils"
+import { PlaygroundCenter } from "@/playground/PlaygroundRoute"
 
 const MODEL_ICONS = {
   rgb: BoxIcon,
@@ -77,26 +77,15 @@ export function ColorSpaceExplorer() {
   )
 
   return (
-    <main className="bg-dot-grid min-h-svh bg-muted/30 px-4 py-5 text-foreground sm:px-6 lg:px-8">
-      <div className="mx-auto flex w-full max-w-7xl flex-col gap-5">
-        <header className="grid gap-4 rounded-md border border-border bg-background/85 p-4 shadow-sm backdrop-blur lg:grid-cols-[1fr_auto] lg:items-center">
-          <div className="grid gap-2">
-            <div className="flex items-center gap-2 font-mono text-xs font-semibold">
-              <PaletteIcon className="size-4" />
-              Web Color Introduction
-            </div>
-            <h1 className="max-w-3xl text-2xl font-semibold tracking-normal text-balance sm:text-3xl">
-              색 좌표계를 3D 모델로 비교하기
-            </h1>
-            <p className="max-w-3xl text-sm leading-6 text-muted-foreground">
-              RGB, HSL, HSV, LCH, OKLCH를 같은 캔버스 안에서 점군과 좌표축으로
-              비교합니다.
-            </p>
-          </div>
-          <div className="grid grid-cols-2 gap-2 sm:grid-cols-5 lg:min-w-[500px]">
-            {modelTabs}
-          </div>
-        </header>
+    <PlaygroundCenter
+      title="색 좌표계를 3D 모델로 비교하기"
+      description="RGB, HSL, HSV, LCH, OKLCH를 같은 캔버스 안에서 점군과 좌표축으로 비교합니다."
+      width="min(100%, 1280px)"
+    >
+      <div className="flex w-full flex-col gap-5">
+        <div className="grid grid-cols-2 gap-2 rounded-md border border-border bg-background/85 p-4 shadow-sm backdrop-blur sm:grid-cols-5">
+          {modelTabs}
+        </div>
 
         <section className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_360px]">
           <ColorSpaceModelCanvas model={selectedModel} />
@@ -157,6 +146,6 @@ export function ColorSpaceExplorer() {
           </aside>
         </section>
       </div>
-    </main>
+    </PlaygroundCenter>
   )
 }
