@@ -19,7 +19,7 @@
 - [x] 색 좌표 2D 단면 조절기
 - [x] 3D Solid Models 단면 보기
 - [x] 원통형 색 공간 펼쳐 보기
-- [ ] 색 보간 경로 비교
+- [x] 색 보간 경로 비교
 - [ ] CSS 색상 표기 실험실
 - [ ] 색역과 Clipping
 - [ ] 같은 숫자, 다른 체감
@@ -291,6 +291,11 @@ feat(fe): add unwrapped cylindrical color spaces
 - `pnpm typecheck`
 - invalid color, NaN, gamut 밖 결과 처리 확인
 - 모바일에서 swatch와 라벨 overflow 확인
+
+진행 로그:
+
+- 2026-06-15: `/color-interpolation` 라우트와 홈 링크를 추가하고, 시작/끝 색 입력, RGB/HSL/Lab/LCH/OKLCH gradient strip, 단계별 swatch grid, hue 방향(shorter/longer/increasing/decreasing), OKLCH lightness mini path를 구현했다.
+- 2026-06-15: hue 방향별 보간 row 생성 테스트를 추가했다. `pnpm test`, `pnpm typecheck`, `pnpm lint`, `pnpm build` 통과. Playwright/Chrome으로 데스크톱/390px 모바일에서 overflow 없음, `Longer` 전환, 콘솔 warning/error 없음 확인.
 
 커밋 예시:
 

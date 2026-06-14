@@ -1,5 +1,6 @@
 import {
   ArrowDownToLineIcon,
+  BlendIcon,
   BoxIcon,
   CircleDotIcon,
   CrosshairIcon,
@@ -42,6 +43,11 @@ export function PlaygroundHomePage() {
             icon={PanelTopIcon}
             label="Unwrapped Color Spaces"
             path="/color-space-unwrapped"
+          />
+          <PlaygroundRouteFeature
+            icon={BlendIcon}
+            label="Color Interpolation"
+            path="/color-interpolation"
           />
           <PlaygroundRouteFeature
             icon={CircleDotIcon}

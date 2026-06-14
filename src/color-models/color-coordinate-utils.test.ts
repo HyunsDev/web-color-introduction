@@ -14,6 +14,10 @@ import {
   formatUnwrappedValue,
 } from "./color-space-unwrapped-models.ts"
 import {
+  createInterpolationRows,
+  formatInterpolationStepPosition,
+} from "./color-interpolation-models.ts"
+import {
   createDefaultColorCoordinate,
   readColorCoordinateAxis,
   setColorCoordinateAxis,
@@ -128,4 +132,49 @@ test("createUnwrappedColor maps hue radius and fixed axis into model colors", ()
 test("formatUnwrappedValue renders percent and numeric controls", () => {
   assert.equal(formatUnwrappedValue(0.58, "percent"), "58%")
   assert.equal(formatUnwrappedValue(0.18, "number"), "0.180")
+})
+
+test("createInterpolationRows samples every interpolation space", () => {
+  const rows = createInterpolationRows({
+    startColor: "#ff0000",
+    endColor: "#0000ff",
+    hueStrategyId: "shorter",
+    stepCount: 5,
+  })
+
+  assert.deepEqual(
+    rows.map((row) => row.id),
+    ["rgb", "hsl", "lab", "lch", "oklch"]
+  )
+  assert.deepEqual(
+    rows[0]?.steps.map((step) => step.position),
+    [0, 0.25, 0.5, 0.75, 1]
+  )
+})
+
+test("createInterpolationRows applies hue direction strategies", () => {
+  const shorterRows = createInterpolationRows({
+    startColor: "#ff0000",
+    endColor: "#0000ff",
+    hueStrategyId: "shorter",
+    stepCount: 3,
+  })
+  const longerRows = createInterpolationRows({
+    startColor: "#ff0000",
+    endColor: "#0000ff",
+    hueStrategyId: "longer",
+    stepCount: 3,
+  })
+
+  const shorterHsl = shorterRows.find((row) => row.id === "hsl")
+  const longerHsl = longerRows.find((row) => row.id === "hsl")
+
+  assert.equal(shorterHsl?.steps[1]?.hex, "#ff00ff")
+  assert.equal(longerHsl?.steps[1]?.hex, "#00ff00")
+})
+
+test("formatInterpolationStepPosition renders rounded percentages", () => {
+  assert.equal(formatInterpolationStepPosition(0), "0%")
+  assert.equal(formatInterpolationStepPosition(0.375), "38%")
+  assert.equal(formatInterpolationStepPosition(1), "100%")
 })
