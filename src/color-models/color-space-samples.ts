@@ -19,6 +19,7 @@ import {
   buildOklabSamples,
   buildOklchSamples,
 } from "@/color-models/color-space-perceptual-samples"
+import { buildXyzSamples } from "@/color-models/color-space-xyz-samples"
 
 export type Vector3Point = {
   readonly x: number
@@ -175,6 +176,8 @@ export function buildColorSpaceSamples(
       return buildHslSamples(options)
     case "hsv":
       return buildHsvSamples(options)
+    case "xyz":
+      return buildXyzSamples(options)
     case "lab":
       return buildLabSamples(options)
     case "lch":

@@ -67,6 +67,18 @@ const HSV_AXIS_LABELS = [
   tick("V 1", HEIGHT_AXIS, 0, TICK_OFFSET, 0),
 ] as const satisfies readonly ColorSpaceAxisLabel[]
 
+const XYZ_AXIS_LABELS = [
+  axis("X", RED_AXIS, AXIS_OFFSET, 0.12, 0),
+  axis("Y", GREEN_AXIS, 0.12, AXIS_OFFSET, 0),
+  axis("Z", BLUE_AXIS, 0, 0.12, AXIS_OFFSET),
+  tick("X 0", RED_AXIS, -TICK_OFFSET, -0.1, 0),
+  tick("X D65", RED_AXIS, TICK_OFFSET, -0.1, 0),
+  tick("Y 0", GREEN_AXIS, 0.1, -TICK_OFFSET, 0),
+  tick("Y 1", GREEN_AXIS, 0.1, TICK_OFFSET, 0),
+  tick("Z 0", BLUE_AXIS, 0, -0.1, -TICK_OFFSET),
+  tick("Z D65", BLUE_AXIS, 0, -0.1, TICK_OFFSET),
+] as const satisfies readonly ColorSpaceAxisLabel[]
+
 const LAB_AXIS_LABELS = [
   axis("a", LAB_A_AXIS, AXIS_OFFSET, 0.12, 0),
   axis("Light", HEIGHT_AXIS, 0.12, AXIS_OFFSET, 0),
@@ -127,6 +139,8 @@ export function getColorSpaceAxisLabels(modelId: ColorSpaceModelId) {
       return HSL_AXIS_LABELS
     case "hsv":
       return HSV_AXIS_LABELS
+    case "xyz":
+      return XYZ_AXIS_LABELS
     case "lab":
       return LAB_AXIS_LABELS
     case "lch":

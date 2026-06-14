@@ -2,6 +2,7 @@ export type ColorSpaceModelId =
   | "rgb"
   | "hsl"
   | "hsv"
+  | "xyz"
   | "lab"
   | "lch"
   | "oklab"
@@ -89,6 +90,27 @@ export const COLOR_SPACE_MODEL_BY_ID = {
     notes: [
       "아래 꼭짓점은 검정이고, 위쪽 원판에서 가장 선명한 색이 펼쳐집니다.",
       "색 선택에는 편하지만 같은 거리 변화가 같은 시각 변화는 아닙니다.",
+    ],
+  },
+  xyz: {
+    id: "xyz",
+    name: "XYZ",
+    title: "CIE XYZ Tristimulus Volume",
+    geometry: "D65 tristimulus coordinates",
+    coordinate: "X, Y, Z",
+    notation: "color(xyz-d65 0.42 0.21 0.02)",
+    summary:
+      "기기 색역을 CIE D65 기준의 X, Y, Z 자극값으로 옮겨, RGB 큐브가 장치 독립 좌표에서 어떻게 기울어지는지 봅니다.",
+    pointSize: 0.04,
+    accent: "#2563eb",
+    axes: [
+      { label: "X", value: "Red-weighted tristimulus", color: "#ef4444" },
+      { label: "Y", value: "Luminance", color: "#22c55e" },
+      { label: "Z", value: "Blue-weighted tristimulus", color: "#3b82f6" },
+    ],
+    notes: [
+      "Y 축은 상대 휘도에 대응해 색의 밝기 기여를 가장 직접적으로 보여줍니다.",
+      "같은 RGB 색역도 XYZ로 옮기면 원색 좌표와 백색점 때문에 비스듬한 입체가 됩니다.",
     ],
   },
   lab: {
@@ -181,6 +203,7 @@ export const COLOR_SPACE_MODELS = [
   COLOR_SPACE_MODEL_BY_ID.rgb,
   COLOR_SPACE_MODEL_BY_ID.hsl,
   COLOR_SPACE_MODEL_BY_ID.hsv,
+  COLOR_SPACE_MODEL_BY_ID.xyz,
   COLOR_SPACE_MODEL_BY_ID.lab,
   COLOR_SPACE_MODEL_BY_ID.lch,
   COLOR_SPACE_MODEL_BY_ID.oklab,
