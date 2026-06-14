@@ -8,54 +8,17 @@ import {
   LineSegments,
   Mesh,
   MeshBasicMaterial,
-  SphereGeometry,
   Vector3,
 } from "three"
 
-import type {
-  CieXyzGamutMesh,
-  CieXyzReferenceMesh,
-} from "@/color-models/cie-xyz-gamut-mesh"
+import type { CieXyzGamutMesh } from "@/color-models/cie-xyz-gamut-mesh"
 import type { CieXyzGamutId } from "@/color-models/cie-xyz-gamut-data"
+import type { CieXyzReferenceMesh } from "@/color-models/cie-xyz-reference-mesh"
+import { CIE_XYZ_SCENE_PALETTE } from "@/color-models/three-cie-xyz-palette"
+import type { CieXyzSceneTheme } from "@/color-models/three-cie-xyz-palette"
+import { createCieXyzReferenceObject } from "@/color-models/three-cie-xyz-reference-scene"
 
 export type CieXyzGamutVisibility = Record<CieXyzGamutId, boolean>
-
-export type CieXyzSceneTheme = "dark" | "light"
-
-const FRAME_PALETTE = {
-  light: {
-    axisOpacity: 0.58,
-    frameColor: "#1f2937",
-    guideOpacity: 0.24,
-    planeColor: "#64748b",
-    planeOpacity: 0.08,
-    purpleBoundary: "#a855f7",
-    spectralLocus: "#111827",
-    whitePoint: "#f8fafc",
-  },
-  dark: {
-    axisOpacity: 0.78,
-    frameColor: "#d1d5db",
-    guideOpacity: 0.38,
-    planeColor: "#cbd5e1",
-    planeOpacity: 0.12,
-    purpleBoundary: "#d8b4fe",
-    spectralLocus: "#f8fafc",
-    whitePoint: "#ffffff",
-  },
-} as const satisfies Record<
-  CieXyzSceneTheme,
-  {
-    readonly axisOpacity: number
-    readonly frameColor: string
-    readonly guideOpacity: number
-    readonly planeColor: string
-    readonly planeOpacity: number
-    readonly purpleBoundary: string
-    readonly spectralLocus: string
-    readonly whitePoint: string
-  }
->
 
 function createLine(
   points: readonly Vector3[],
@@ -88,7 +51,7 @@ function createLineSegments(
 }
 
 function createXyzFrame(theme: CieXyzSceneTheme) {
-  const palette = FRAME_PALETTE[theme]
+  const palette = CIE_XYZ_SCENE_PALETTE[theme]
   const group = new Group()
   const axisLength = 1.24
 
@@ -172,63 +135,11 @@ function createGamutObject({
   return group
 }
 
-function createReferenceObject({
-  reference,
-  theme,
-}: {
-  readonly reference: CieXyzReferenceMesh
-  readonly theme: CieXyzSceneTheme
-}) {
-  const palette = FRAME_PALETTE[theme]
-  const group = new Group()
-  const planeGeometry = new BufferGeometry()
-  planeGeometry.setAttribute(
-    "position",
-    new BufferAttribute(reference.chromaticityPlanePositions, 3)
-  )
-  planeGeometry.setIndex(
-    new BufferAttribute(reference.chromaticityPlaneIndices, 1)
-  )
-  const plane = new Mesh(
-    planeGeometry,
-    new MeshBasicMaterial({
-      color: palette.planeColor,
-      depthWrite: false,
-      opacity: palette.planeOpacity,
-      side: DoubleSide,
-      transparent: true,
-    })
-  )
-  const whitePoint = new Mesh(
-    new SphereGeometry(0.035, 18, 12),
-    new MeshBasicMaterial({ color: palette.whitePoint })
-  )
-
-  whitePoint.position.set(
-    reference.whitePointPosition[0] ?? 0,
-    reference.whitePointPosition[1] ?? 0,
-    reference.whitePointPosition[2] ?? 0
-  )
-  group.add(plane)
-  group.add(
-    createLineSegments(reference.locusPositions, palette.spectralLocus, 0.9)
-  )
-  group.add(
-    createLineSegments(
-      reference.purpleBoundaryPositions,
-      palette.purpleBoundary,
-      0.88
-    )
-  )
-  group.add(whitePoint)
-
-  return group
-}
-
 export function createCieXyzGamutSceneObject({
   gamutMeshes,
   reference,
   showChromaticity,
+  showVisibleCone,
   showWireframe,
   theme,
   visibleGamuts,
@@ -236,14 +147,22 @@ export function createCieXyzGamutSceneObject({
   readonly gamutMeshes: readonly CieXyzGamutMesh[]
   readonly reference: CieXyzReferenceMesh
   readonly showChromaticity: boolean
+  readonly showVisibleCone: boolean
   readonly showWireframe: boolean
   readonly theme: CieXyzSceneTheme
   readonly visibleGamuts: CieXyzGamutVisibility
 }) {
   const group = createXyzFrame(theme)
 
-  if (showChromaticity) {
-    group.add(createReferenceObject({ reference, theme }))
+  if (showChromaticity || showVisibleCone) {
+    group.add(
+      createCieXyzReferenceObject({
+        reference,
+        showChromaticity,
+        showVisibleCone,
+        theme,
+      })
+    )
   }
 
   gamutMeshes.forEach((mesh) => {

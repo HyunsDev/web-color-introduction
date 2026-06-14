@@ -8,10 +8,8 @@ import {
 } from "three"
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js"
 
-import type {
-  CieXyzGamutMesh,
-  CieXyzReferenceMesh,
-} from "@/color-models/cie-xyz-gamut-mesh"
+import type { CieXyzGamutMesh } from "@/color-models/cie-xyz-gamut-mesh"
+import type { CieXyzReferenceMesh } from "@/color-models/cie-xyz-reference-mesh"
 import {
   createCieXyzGamutSceneObject,
   type CieXyzGamutVisibility,
@@ -44,6 +42,7 @@ export function CieXyzGamutCanvas({
   gamutMeshes,
   reference,
   showChromaticity,
+  showVisibleCone,
   showWireframe,
   viewMode,
   visibleGamuts,
@@ -52,6 +51,7 @@ export function CieXyzGamutCanvas({
   readonly gamutMeshes: readonly CieXyzGamutMesh[]
   readonly reference: CieXyzReferenceMesh
   readonly showChromaticity: boolean
+  readonly showVisibleCone: boolean
   readonly showWireframe: boolean
   readonly viewMode: CieXyzViewMode
   readonly visibleGamuts: CieXyzGamutVisibility
@@ -96,6 +96,7 @@ export function CieXyzGamutCanvas({
       gamutMeshes,
       reference,
       showChromaticity,
+      showVisibleCone,
       showWireframe,
       theme: resolvedTheme,
       visibleGamuts,
@@ -150,6 +151,7 @@ export function CieXyzGamutCanvas({
     reference,
     resolvedTheme,
     showChromaticity,
+    showVisibleCone,
     showWireframe,
     viewMode,
     visibleGamuts,
@@ -170,7 +172,11 @@ export function CieXyzGamutCanvas({
           {visibleCount} gamuts
         </span>
         <span className="rounded-md border border-border bg-background/85 px-2 py-1 font-mono text-[0.65rem] text-muted-foreground shadow-sm backdrop-blur">
-          {viewMode === "xy" ? "X + Y + Z = 1" : "XYZ volume"}
+          {showVisibleCone && visibleCount === 0
+            ? "visible cone"
+            : viewMode === "xy"
+              ? "X + Y + Z = 1"
+              : "XYZ volume"}
         </span>
       </div>
     </div>

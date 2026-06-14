@@ -7,10 +7,8 @@ import {
 } from "@/color-models/CieXyzGamutCanvas"
 import { CIE_XYZ_GAMUTS } from "@/color-models/cie-xyz-gamut-data"
 import type { CieXyzGamutId } from "@/color-models/cie-xyz-gamut-data"
-import {
-  buildCieXyzGamutMeshes,
-  buildCieXyzReferenceMesh,
-} from "@/color-models/cie-xyz-gamut-mesh"
+import { buildCieXyzGamutMeshes } from "@/color-models/cie-xyz-gamut-mesh"
+import { buildCieXyzReferenceMesh } from "@/color-models/cie-xyz-reference-mesh"
 import type { CieXyzGamutVisibility } from "@/color-models/three-cie-xyz-gamut-scene"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -20,9 +18,9 @@ import { PlaygroundTools } from "@/playground/PlaygroundIndexPage"
 import { PlaygroundStage } from "@/playground/PlaygroundRoute"
 
 const DEFAULT_GAMUT_VISIBILITY = {
-  srgb: true,
-  "display-p3": true,
-  bt2020: true,
+  srgb: false,
+  "display-p3": false,
+  bt2020: false,
 } satisfies CieXyzGamutVisibility
 
 function getViewModeLabel(viewMode: CieXyzViewMode) {
@@ -131,6 +129,7 @@ export function CieXyzGamutPage() {
     DEFAULT_GAMUT_VISIBILITY
   )
   const [showChromaticity, setShowChromaticity] = useState(true)
+  const [showVisibleCone, setShowVisibleCone] = useState(true)
   const [showWireframe, setShowWireframe] = useState(true)
   const gamutMeshes = useMemo(() => buildCieXyzGamutMeshes(), [])
   const reference = useMemo(() => buildCieXyzReferenceMesh(), [])
@@ -158,18 +157,23 @@ export function CieXyzGamutPage() {
             CIE 1931 XYZ
           </div>
           <h1 className="text-xl leading-tight font-semibold tracking-normal sm:text-2xl">
-            XYZ 공간에서 보는 디스플레이 색역
+            말발굽을 원점까지 확장한 visible cone
           </h1>
           <p className="mt-2 hidden text-xs leading-5 text-muted-foreground sm:block">
-            RGB 큐브를 XYZ로 변환해 부피로 겹치고, 정규화 평면에서는 익숙한
-            말발굽 색도 경계를 함께 봅니다.
+            X+Y+Z=1 색도 단면의 말발굽이 검정 원점에서 어떤 방향으로 뻗는지 먼저
+            보고, 디스플레이 색역은 필요할 때 겹쳐 봅니다.
           </p>
           <div className="mt-3 flex flex-wrap items-center gap-2">
             <Badge variant="outline" className="gap-1">
               <OrbitIcon className="size-3" />
               {getViewModeLabel(viewMode)}
             </Badge>
-            <Badge variant="secondary">{visibleGamutCount} gamuts</Badge>
+            <Badge variant="secondary">
+              {visibleGamutCount === 0
+                ? "display gamuts off"
+                : `${visibleGamutCount} gamuts`}
+            </Badge>
+            {showVisibleCone && <Badge variant="outline">visible cone</Badge>}
             <Badge variant="outline">
               {triangleCount.toLocaleString()} tris
             </Badge>
@@ -190,7 +194,7 @@ export function CieXyzGamutPage() {
       }
       bottomStart={<XyzAxisLegend />}
       bottomCenter={
-        <div className="grid gap-2 rounded-md border border-border bg-background/90 p-3 shadow-sm backdrop-blur sm:grid-cols-[auto_auto_auto_auto]">
+        <div className="grid gap-2 rounded-md border border-border bg-background/90 p-3 shadow-sm backdrop-blur sm:grid-cols-[auto_auto_auto_auto_auto]">
           <ViewModeButton
             currentViewMode={viewMode}
             targetViewMode="3d"
@@ -202,7 +206,16 @@ export function CieXyzGamutPage() {
             onSelect={setViewMode}
           />
           <label className="flex h-9 items-center justify-between gap-3 rounded-md border border-border bg-background/75 px-3 text-xs">
-            <span className="font-medium">말발굽</span>
+            <span className="font-medium">Cone</span>
+            <Switch
+              size="sm"
+              checked={showVisibleCone}
+              onCheckedChange={setShowVisibleCone}
+              aria-label="Toggle visible cone"
+            />
+          </label>
+          <label className="flex h-9 items-center justify-between gap-3 rounded-md border border-border bg-background/75 px-3 text-xs">
+            <span className="font-medium">색도 단면</span>
             <Switch
               size="sm"
               checked={showChromaticity}
@@ -227,6 +240,7 @@ export function CieXyzGamutPage() {
         gamutMeshes={gamutMeshes}
         reference={reference}
         showChromaticity={showChromaticity}
+        showVisibleCone={showVisibleCone}
         showWireframe={showWireframe}
         viewMode={viewMode}
         visibleGamuts={visibleGamuts}

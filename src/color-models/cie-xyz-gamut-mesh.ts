@@ -1,8 +1,4 @@
-import {
-  CIE_D65_WHITE,
-  CIE_XYZ_GAMUTS,
-  CIE_XYZ_SPECTRAL_LOCUS_5NM,
-} from "@/color-models/cie-xyz-gamut-data"
+import { CIE_XYZ_GAMUTS } from "@/color-models/cie-xyz-gamut-data"
 import type {
   CieXyzGamutDefinition,
   CieXyzGamutId,
@@ -33,14 +29,6 @@ export type CieXyzGamutMesh = {
   readonly triangleCount: number
   readonly vertexCount: number
   readonly wireframePositions: Float32Array
-}
-
-export type CieXyzReferenceMesh = {
-  readonly chromaticityPlaneIndices: Uint16Array
-  readonly chromaticityPlanePositions: Float32Array
-  readonly locusPositions: Float32Array
-  readonly purpleBoundaryPositions: Float32Array
-  readonly whitePointPosition: Float32Array
 }
 
 const CUBE_SEGMENTS = 12
@@ -243,38 +231,4 @@ function buildGamutMesh(gamut: CieXyzGamutDefinition): CieXyzGamutMesh {
 
 export function buildCieXyzGamutMeshes() {
   return CIE_XYZ_GAMUTS.map(buildGamutMesh)
-}
-
-export function buildCieXyzReferenceMesh(): CieXyzReferenceMesh {
-  const spectralPoints = CIE_XYZ_SPECTRAL_LOCUS_5NM.map(
-    toChromaticityPlanePoint
-  )
-  const firstSpectralPoint = spectralPoints[0]
-  const lastSpectralPoint = spectralPoints[spectralPoints.length - 1]
-  const purpleBoundaryPositions =
-    firstSpectralPoint && lastSpectralPoint
-      ? new Float32Array([
-          lastSpectralPoint.x,
-          lastSpectralPoint.y,
-          lastSpectralPoint.z,
-          firstSpectralPoint.x,
-          firstSpectralPoint.y,
-          firstSpectralPoint.z,
-        ])
-      : new Float32Array()
-  const whitePoint = toChromaticityPlanePoint(CIE_D65_WHITE)
-
-  return {
-    chromaticityPlaneIndices: new Uint16Array([0, 1, 2]),
-    chromaticityPlanePositions: new Float32Array([
-      2, -1, -1, -1, 2, -1, -1, -1, 2,
-    ]),
-    locusPositions: createClosedLinePositions(spectralPoints),
-    purpleBoundaryPositions,
-    whitePointPosition: new Float32Array([
-      whitePoint.x,
-      whitePoint.y,
-      whitePoint.z,
-    ]),
-  }
 }
