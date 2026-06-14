@@ -18,6 +18,10 @@ import {
   formatInterpolationStepPosition,
 } from "./color-interpolation-models.ts"
 import {
+  createCssNotationRows,
+  parseCssColorInput,
+} from "./css-color-notation-models.ts"
+import {
   createDefaultColorCoordinate,
   readColorCoordinateAxis,
   setColorCoordinateAxis,
@@ -52,8 +56,11 @@ test("formatCssColorSet exposes core CSS notations", () => {
   assert.equal(formats.hex, "#ff0000")
   assert.match(formats.rgb, /rgb/)
   assert.match(formats.hsl, /hsl/)
+  assert.match(formats.lab, /lab/)
   assert.match(formats.lch, /lch/)
+  assert.match(formats.oklab, /oklab/)
   assert.match(formats.oklch, /oklch/)
+  assert.match(formats.displayP3, /color\(display-p3/)
 })
 
 test("getColorGamutChecks reports sRGB red inside each device gamut", () => {
@@ -177,4 +184,26 @@ test("formatInterpolationStepPosition renders rounded percentages", () => {
   assert.equal(formatInterpolationStepPosition(0), "0%")
   assert.equal(formatInterpolationStepPosition(0.375), "38%")
   assert.equal(formatInterpolationStepPosition(1), "100%")
+})
+
+test("parseCssColorInput reports parsed and invalid CSS color input", () => {
+  assert.equal(parseCssColorInput("oklch(70% 0.18 32)").status, "parsed")
+  assert.equal(parseCssColorInput("not-a-color").status, "invalid")
+})
+
+test("createCssNotationRows returns copy-ready notation rows", () => {
+  const parsed = parseCssColorInput("#ff0000")
+
+  assert.equal(parsed.status, "parsed")
+  if (parsed.status !== "parsed") {
+    return
+  }
+
+  const rows = createCssNotationRows(parsed.color)
+
+  assert.deepEqual(
+    rows.map((row) => row.id),
+    ["hex", "rgb", "hsl", "lab", "lch", "oklab", "oklch", "displayP3"]
+  )
+  assert.equal(rows[0]?.value, "#ff0000")
 })

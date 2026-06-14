@@ -20,7 +20,7 @@
 - [x] 3D Solid Models 단면 보기
 - [x] 원통형 색 공간 펼쳐 보기
 - [x] 색 보간 경로 비교
-- [ ] CSS 색상 표기 실험실
+- [x] CSS 색상 표기 실험실
 - [ ] 색역과 Clipping
 - [ ] 같은 숫자, 다른 체감
 
@@ -323,6 +323,11 @@ feat(fe): add color interpolation comparison
 - 대표 입력 파싱 성공/실패 확인
 - 브라우저에서 copy button 동작 확인
 - 모바일에서 긴 CSS 표기 줄바꿈 확인
+
+진행 로그:
+
+- 2026-06-15: `/css-color-notations` 라우트와 홈 링크를 추가하고, text/color input, preset swatches, hex/rgb/hsl/lab/lch/oklab/oklch/display-p3 출력, copy 상태, gamut badge, invalid input 패널을 구현했다.
+- 2026-06-15: CSS formatter와 parse/notation row 테스트를 확장했다. `pnpm test`, `pnpm typecheck`, `pnpm lint`, `pnpm build` 통과. Playwright/Chrome으로 copy 버튼, invalid 입력, 데스크톱/390px 모바일 줄바꿈과 overflow 없음, 콘솔 warning/error 없음 확인.
 
 커밋 예시:
 

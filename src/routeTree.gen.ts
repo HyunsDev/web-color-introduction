@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from "./routes/__root"
+import { Route as CssColorNotationsRouteImport } from "./routes/css-color-notations"
 import { Route as ColorSpaceUnwrappedRouteImport } from "./routes/color-space-unwrapped"
 import { Route as ColorSpaceSolidModelsRouteImport } from "./routes/color-space-solid-models"
 import { Route as ColorSpaceModelsRouteImport } from "./routes/color-space-models"
@@ -19,6 +20,11 @@ import { Route as Cie1931XyRouteImport } from "./routes/cie-1931-xy"
 import { Route as Cie1931ProjectionRouteImport } from "./routes/cie-1931-projection"
 import { Route as IndexRouteImport } from "./routes/index"
 
+const CssColorNotationsRoute = CssColorNotationsRouteImport.update({
+  id: "/css-color-notations",
+  path: "/css-color-notations",
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ColorSpaceUnwrappedRoute = ColorSpaceUnwrappedRouteImport.update({
   id: "/color-space-unwrapped",
   path: "/color-space-unwrapped",
@@ -75,6 +81,7 @@ export interface FileRoutesByFullPath {
   "/color-space-models": typeof ColorSpaceModelsRoute
   "/color-space-solid-models": typeof ColorSpaceSolidModelsRoute
   "/color-space-unwrapped": typeof ColorSpaceUnwrappedRoute
+  "/css-color-notations": typeof CssColorNotationsRoute
 }
 export interface FileRoutesByTo {
   "/": typeof IndexRoute
@@ -86,6 +93,7 @@ export interface FileRoutesByTo {
   "/color-space-models": typeof ColorSpaceModelsRoute
   "/color-space-solid-models": typeof ColorSpaceSolidModelsRoute
   "/color-space-unwrapped": typeof ColorSpaceUnwrappedRoute
+  "/css-color-notations": typeof CssColorNotationsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -98,6 +106,7 @@ export interface FileRoutesById {
   "/color-space-models": typeof ColorSpaceModelsRoute
   "/color-space-solid-models": typeof ColorSpaceSolidModelsRoute
   "/color-space-unwrapped": typeof ColorSpaceUnwrappedRoute
+  "/css-color-notations": typeof CssColorNotationsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -111,6 +120,7 @@ export interface FileRouteTypes {
     | "/color-space-models"
     | "/color-space-solid-models"
     | "/color-space-unwrapped"
+    | "/css-color-notations"
   fileRoutesByTo: FileRoutesByTo
   to:
     | "/"
@@ -122,6 +132,7 @@ export interface FileRouteTypes {
     | "/color-space-models"
     | "/color-space-solid-models"
     | "/color-space-unwrapped"
+    | "/css-color-notations"
   id:
     | "__root__"
     | "/"
@@ -133,6 +144,7 @@ export interface FileRouteTypes {
     | "/color-space-models"
     | "/color-space-solid-models"
     | "/color-space-unwrapped"
+    | "/css-color-notations"
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -145,10 +157,18 @@ export interface RootRouteChildren {
   ColorSpaceModelsRoute: typeof ColorSpaceModelsRoute
   ColorSpaceSolidModelsRoute: typeof ColorSpaceSolidModelsRoute
   ColorSpaceUnwrappedRoute: typeof ColorSpaceUnwrappedRoute
+  CssColorNotationsRoute: typeof CssColorNotationsRoute
 }
 
 declare module "@tanstack/react-router" {
   interface FileRoutesByPath {
+    "/css-color-notations": {
+      id: "/css-color-notations"
+      path: "/css-color-notations"
+      fullPath: "/css-color-notations"
+      preLoaderRoute: typeof CssColorNotationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     "/color-space-unwrapped": {
       id: "/color-space-unwrapped"
       path: "/color-space-unwrapped"
@@ -225,6 +245,7 @@ const rootRouteChildren: RootRouteChildren = {
   ColorSpaceModelsRoute: ColorSpaceModelsRoute,
   ColorSpaceSolidModelsRoute: ColorSpaceSolidModelsRoute,
   ColorSpaceUnwrappedRoute: ColorSpaceUnwrappedRoute,
+  CssColorNotationsRoute: CssColorNotationsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

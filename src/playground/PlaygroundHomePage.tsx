@@ -3,6 +3,7 @@ import {
   BlendIcon,
   BoxIcon,
   CircleDotIcon,
+  Code2Icon,
   CrosshairIcon,
   CylinderIcon,
   PaletteIcon,
@@ -48,6 +49,11 @@ export function PlaygroundHomePage() {
             icon={BlendIcon}
             label="Color Interpolation"
             path="/color-interpolation"
+          />
+          <PlaygroundRouteFeature
+            icon={Code2Icon}
+            label="CSS Color Notations"
+            path="/css-color-notations"
           />
           <PlaygroundRouteFeature
             icon={CircleDotIcon}
