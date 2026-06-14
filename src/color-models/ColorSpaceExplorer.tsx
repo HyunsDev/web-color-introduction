@@ -42,37 +42,29 @@ const MODEL_ICONS = {
 
 function AxisLegendItem({ axis }: { readonly axis: ColorSpaceAxis }) {
   return (
-    <li className="flex items-center gap-2 rounded-md border border-border bg-background/75 px-2 py-1.5">
-      <span className="flex items-center gap-1.5 font-mono text-[0.65rem] text-muted-foreground">
-        <span
-          className="size-2 rounded-full"
-          style={{ backgroundColor: axis.color }}
-        />
+    <li className="grid grid-cols-[auto_1fr] items-center gap-x-2 rounded-md border border-border bg-background/75 px-2.5 py-2">
+      <span
+        className="row-span-2 size-2 rounded-full"
+        style={{ backgroundColor: axis.color }}
+      />
+      <span className="font-mono text-[0.62rem] leading-none text-muted-foreground">
         {axis.label}
       </span>
-      <span className="text-xs font-medium">{axis.value}</span>
+      <span className="mt-1 text-xs leading-none font-medium">
+        {axis.value}
+      </span>
     </li>
   )
 }
 
 function CoordinateLegendDock({
   axes,
-  coordinate,
 }: {
   readonly axes: readonly ColorSpaceAxis[]
-  readonly coordinate: string
 }) {
   return (
-    <div className="rounded-md border border-border bg-background/90 p-3 shadow-sm backdrop-blur">
-      <div className="mb-2 flex items-center justify-between gap-3">
-        <span className="font-mono text-[0.62rem] font-semibold tracking-normal text-muted-foreground uppercase">
-          Coordinates
-        </span>
-        <span className="font-mono text-[0.62rem] text-muted-foreground">
-          {coordinate}
-        </span>
-      </div>
-      <ul className="flex flex-wrap gap-1.5">
+    <div className="rounded-md border border-border bg-background/90 p-2.5 shadow-sm backdrop-blur">
+      <ul className="grid min-w-32 gap-1.5">
         {axes.map((axis) => (
           <AxisLegendItem key={`${axis.label}-${axis.value}`} axis={axis} />
         ))}
@@ -152,10 +144,7 @@ export function ColorSpaceExplorer() {
         />
       }
       bottomStart={
-        <CoordinateLegendDock
-          axes={selectedModel.axes}
-          coordinate={selectedModel.coordinate}
-        />
+        <CoordinateLegendDock axes={selectedModel.axes} />
       }
       bottomCenter={
         <div className="grid grid-cols-2 gap-2 rounded-md border border-border bg-background/90 p-3 shadow-sm backdrop-blur sm:grid-cols-5">
