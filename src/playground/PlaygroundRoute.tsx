@@ -1,5 +1,6 @@
 export { PlaygroundCenter } from "@/playground/PlaygroundCenter"
 export { PlaygroundIndexPage } from "@/playground/PlaygroundIndexPage"
+export { PlaygroundStage } from "@/playground/PlaygroundStage"
 export {
   PlaygroundRouteColumn,
   PlaygroundRouteFeature,

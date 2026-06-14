@@ -25,13 +25,18 @@ import {
   createColorPointCloud,
   disposeObjectTree,
 } from "@/color-models/three-scene"
+import { cn } from "@/lib/utils"
 
 export function ColorSpaceModelCanvas({
+  className,
   gamutRendering,
   model,
+  showHud = true,
 }: {
+  readonly className?: string
   readonly gamutRendering: ColorGamutRendering
   readonly model: ColorSpaceModelDefinition
+  readonly showHud?: boolean
 }) {
   const hostRef = useRef<HTMLDivElement | null>(null)
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
@@ -140,24 +145,29 @@ export function ColorSpaceModelCanvas({
   return (
     <div
       ref={hostRef}
-      className="relative min-h-[320px] overflow-hidden rounded-md border border-border bg-background shadow-sm md:min-h-[520px]"
+      className={cn(
+        "relative min-h-[320px] overflow-hidden rounded-md border border-border bg-background shadow-sm md:min-h-[520px]",
+        className
+      )}
     >
       <canvas
         ref={canvasRef}
         aria-label={`${model.name} color space 3D model`}
         className="block size-full"
       />
-      <div className="pointer-events-none absolute top-3 left-3 flex flex-wrap items-center gap-2">
-        <span className="rounded-md border border-border bg-background/85 px-2 py-1 font-mono text-[0.65rem] text-foreground shadow-sm backdrop-blur">
-          {samples.length.toLocaleString()} samples
-        </span>
-        <span className="rounded-md border border-border bg-background/85 px-2 py-1 font-mono text-[0.65rem] text-foreground shadow-sm backdrop-blur">
-          {gamutRenderLabel}
-        </span>
-        <span className="rounded-md border border-border bg-background/85 px-2 py-1 font-mono text-[0.65rem] text-muted-foreground shadow-sm backdrop-blur">
-          {model.geometry}
-        </span>
-      </div>
+      {showHud && (
+        <div className="pointer-events-none absolute top-3 left-3 flex flex-wrap items-center gap-2">
+          <span className="rounded-md border border-border bg-background/85 px-2 py-1 font-mono text-[0.65rem] text-foreground shadow-sm backdrop-blur">
+            {samples.length.toLocaleString()} samples
+          </span>
+          <span className="rounded-md border border-border bg-background/85 px-2 py-1 font-mono text-[0.65rem] text-foreground shadow-sm backdrop-blur">
+            {gamutRenderLabel}
+          </span>
+          <span className="rounded-md border border-border bg-background/85 px-2 py-1 font-mono text-[0.65rem] text-muted-foreground shadow-sm backdrop-blur">
+            {model.geometry}
+          </span>
+        </div>
+      )}
     </div>
   )
 }

@@ -96,16 +96,23 @@ function GamutModeButton({
 }
 
 export function ColorGamutControls({
+  className,
   capabilities,
   onSelect,
   selectedGamutId,
 }: {
+  readonly className?: string
   readonly capabilities: ColorGamutCapabilities
   readonly onSelect: (gamutId: ColorGamutModeId) => void
   readonly selectedGamutId: ColorGamutModeId
 }) {
   return (
-    <div className="grid grid-cols-1 gap-2 rounded-md border border-border bg-background/85 p-4 shadow-sm backdrop-blur sm:grid-cols-2 lg:grid-cols-4">
+    <div
+      className={cn(
+        "grid grid-cols-1 gap-2 rounded-md border border-border bg-background/85 p-4 shadow-sm backdrop-blur sm:grid-cols-2 lg:grid-cols-4",
+        className
+      )}
+    >
       {COLOR_GAMUT_MODES.map((mode) => {
         const rendering = resolveColorGamutRendering(mode.id, capabilities)
         const isSelected = mode.id === selectedGamutId
