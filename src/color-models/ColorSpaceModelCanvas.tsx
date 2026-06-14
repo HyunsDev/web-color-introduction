@@ -5,10 +5,12 @@ import {
   DirectionalLight,
   PerspectiveCamera,
   Scene,
+  Vector3,
   WebGLRenderer,
 } from "three"
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js"
 
+import { getColorSpaceAxisLabels } from "@/color-models/color-space-axis-labels"
 import {
   getColorGamutRenderLabel,
   type ColorGamutRendering,
@@ -42,6 +44,7 @@ export function ColorSpaceModelCanvas({
   const { resolvedTheme } = useTheme()
   const hostRef = useRef<HTMLDivElement | null>(null)
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
+  const labelLayerRef = useRef<HTMLDivElement | null>(null)
   const samples = useMemo(
     () =>
       buildColorSpaceSamples(
@@ -51,13 +54,18 @@ export function ColorSpaceModelCanvas({
       ),
     [gamutRendering.actualOutput.id, gamutRendering.mode.id, model.id]
   )
+  const axisLabels = useMemo(
+    () => getColorSpaceAxisLabels(model.id),
+    [model.id]
+  )
   const gamutRenderLabel = getColorGamutRenderLabel(gamutRendering)
 
   useEffect(() => {
     const host = hostRef.current
     const canvas = canvasRef.current
+    const labelLayer = labelLayerRef.current
 
-    if (!host || !canvas) {
+    if (!host || !canvas || !labelLayer) {
       return
     }
 
@@ -101,15 +109,57 @@ export function ColorSpaceModelCanvas({
     scene.add(frame)
     scene.add(points)
 
+    const labelElements = Array.from(
+      labelLayer.querySelectorAll("[data-axis-label-index]")
+    ).filter((element): element is HTMLElement => element instanceof HTMLElement)
+    const projectedLabelPoint = new Vector3()
+
+    const updateAxisLabels = (width: number, height: number) => {
+      axisLabels.forEach((label, index) => {
+        const element = labelElements[index]
+
+        if (!element) {
+          return
+        }
+
+        projectedLabelPoint
+          .set(label.position.x, label.position.y, label.position.z)
+          .project(camera)
+
+        const isVisible =
+          projectedLabelPoint.z >= -1 && projectedLabelPoint.z <= 1
+        const x = clampLabelPosition(
+          (projectedLabelPoint.x * 0.5 + 0.5) * width,
+          element.offsetWidth,
+          width
+        )
+        const y = clampLabelPosition(
+          (-projectedLabelPoint.y * 0.5 + 0.5) * height,
+          element.offsetHeight,
+          height
+        )
+
+        element.style.opacity = isVisible
+          ? label.kind === "axis"
+            ? "1"
+            : "0.78"
+          : "0"
+        element.style.transform = `translate3d(${x}px, ${y}px, 0) translate(-50%, -50%)`
+      })
+    }
+
     let resizeFrameId = 0
+    let renderWidth = 1
+    let renderHeight = 1
     const resize = () => {
       resizeFrameId = 0
-      const width = Math.max(1, Math.floor(host.clientWidth))
-      const height = Math.max(1, Math.floor(host.clientHeight))
+      renderWidth = Math.max(1, Math.floor(host.clientWidth))
+      renderHeight = Math.max(1, Math.floor(host.clientHeight))
 
-      renderer.setSize(width, height, false)
-      camera.aspect = width / height
+      renderer.setSize(renderWidth, renderHeight, false)
+      camera.aspect = renderWidth / renderHeight
       camera.updateProjectionMatrix()
+      updateAxisLabels(renderWidth, renderHeight)
     }
     const queueResize = () => {
       if (resizeFrameId !== 0) {
@@ -126,6 +176,7 @@ export function ColorSpaceModelCanvas({
     const render = () => {
       controls.update()
       renderer.render(scene, camera)
+      updateAxisLabels(renderWidth, renderHeight)
       animationFrameId = window.requestAnimationFrame(render)
     }
     render()
@@ -144,6 +195,7 @@ export function ColorSpaceModelCanvas({
     }
   }, [
     gamutRendering.actualOutput.id,
+    axisLabels,
     model.id,
     model.pointSize,
     resolvedTheme,
@@ -163,6 +215,31 @@ export function ColorSpaceModelCanvas({
         aria-label={`${model.name} color space 3D model`}
         className="block size-full"
       />
+      <div
+        ref={labelLayerRef}
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0"
+      >
+        {axisLabels.map((label, index) => (
+          <span
+            key={`${label.kind}-${label.text}`}
+            data-axis-label-index={index}
+            className={cn(
+              "absolute top-0 left-0 rounded-md border border-border/70 bg-background/80 px-1.5 py-0.5 font-mono text-[0.62rem] leading-none font-semibold whitespace-nowrap shadow-sm backdrop-blur transition-opacity",
+              label.kind === "axis"
+                ? "text-foreground"
+                : "hidden text-muted-foreground sm:block"
+            )}
+            style={{
+              color: label.kind === "axis" ? label.color : undefined,
+              opacity: 0,
+              transform: "translate3d(-9999px, -9999px, 0)",
+            }}
+          >
+            {label.text}
+          </span>
+        ))}
+      </div>
       {showHud && (
         <div className="pointer-events-none absolute top-3 left-3 flex flex-wrap items-center gap-2">
           <span className="rounded-md border border-border bg-background/85 px-2 py-1 font-mono text-[0.65rem] text-foreground shadow-sm backdrop-blur">
@@ -178,4 +255,10 @@ export function ColorSpaceModelCanvas({
       )}
     </div>
   )
+}
+
+function clampLabelPosition(value: number, labelSize: number, hostSize: number) {
+  const inset = labelSize / 2 + 8
+
+  return Math.min(hostSize - inset, Math.max(inset, value))
 }

@@ -1,0 +1,149 @@
+import type { ColorSpaceModelId } from "@/color-models/color-space-models"
+import type { Vector3Point } from "@/color-models/color-space-samples"
+
+export type ColorSpaceAxisLabelKind = "axis" | "tick"
+
+export type ColorSpaceAxisLabel = {
+  readonly color: string
+  readonly kind: ColorSpaceAxisLabelKind
+  readonly position: Vector3Point
+  readonly text: string
+}
+
+const AXIS_OFFSET = 1.24
+const TICK_OFFSET = 1.08
+const HUE_OFFSET = 1.12
+
+const RED_AXIS = "#ef4444"
+const GREEN_AXIS = "#22c55e"
+const BLUE_AXIS = "#3b82f6"
+const HUE_AXIS = "#f59e0b"
+const RADIUS_AXIS = "#06b6d4"
+const HEIGHT_AXIS = "#94a3b8"
+const CHROMA_AXIS = "#10b981"
+const OK_CHROMA_AXIS = "#e11d48"
+
+const RGB_AXIS_LABELS = [
+  axis("R", RED_AXIS, AXIS_OFFSET, 0.12, 0),
+  axis("G", GREEN_AXIS, 0, AXIS_OFFSET, 0),
+  axis("B", BLUE_AXIS, 0, 0.12, AXIS_OFFSET),
+  tick("R 0", RED_AXIS, -TICK_OFFSET, -0.1, 0),
+  tick("R 1", RED_AXIS, TICK_OFFSET, -0.1, 0),
+  tick("G 0", GREEN_AXIS, 0.1, -TICK_OFFSET, 0),
+  tick("G 1", GREEN_AXIS, 0.1, TICK_OFFSET, 0),
+  tick("B 0", BLUE_AXIS, 0, -0.1, -TICK_OFFSET),
+  tick("B 1", BLUE_AXIS, 0, -0.1, TICK_OFFSET),
+] as const satisfies readonly ColorSpaceAxisLabel[]
+
+const HSL_AXIS_LABELS = [
+  axis("Hue", HUE_AXIS, AXIS_OFFSET, 0.18, 0),
+  axis("Sat", RADIUS_AXIS, 0.72, 0, 0.72),
+  axis("Light", HEIGHT_AXIS, 0.12, AXIS_OFFSET, 0),
+  tick("H 0deg", HUE_AXIS, HUE_OFFSET, -0.16, 0),
+  tick("H 90deg", HUE_AXIS, 0, -0.16, HUE_OFFSET),
+  tick("H 180deg", HUE_AXIS, -HUE_OFFSET, -0.16, 0),
+  tick("H 270deg", HUE_AXIS, 0, -0.16, -HUE_OFFSET),
+  tick("S 0", RADIUS_AXIS, 0, 0, 0),
+  tick("S 1", RADIUS_AXIS, TICK_OFFSET, 0.12, 0),
+  tick("L 0", HEIGHT_AXIS, 0, -TICK_OFFSET, 0),
+  tick("L 1", HEIGHT_AXIS, 0, TICK_OFFSET, 0),
+] as const satisfies readonly ColorSpaceAxisLabel[]
+
+const HSV_AXIS_LABELS = [
+  axis("Hue", HUE_AXIS, AXIS_OFFSET, 1.12, 0),
+  axis("Sat", "#a855f7", 0.72, 1, 0.72),
+  axis("Value", HEIGHT_AXIS, 0.12, AXIS_OFFSET, 0),
+  tick("H 0deg", HUE_AXIS, HUE_OFFSET, 0.86, 0),
+  tick("H 90deg", HUE_AXIS, 0, 0.86, HUE_OFFSET),
+  tick("H 180deg", HUE_AXIS, -HUE_OFFSET, 0.86, 0),
+  tick("H 270deg", HUE_AXIS, 0, 0.86, -HUE_OFFSET),
+  tick("S 0", "#a855f7", 0, 0, 0),
+  tick("S 1", "#a855f7", TICK_OFFSET, 1, 0),
+  tick("V 0", HEIGHT_AXIS, 0, -TICK_OFFSET, 0),
+  tick("V 1", HEIGHT_AXIS, 0, TICK_OFFSET, 0),
+] as const satisfies readonly ColorSpaceAxisLabel[]
+
+const LCH_AXIS_LABELS = [
+  axis("Hue", HUE_AXIS, AXIS_OFFSET, 0.18, 0),
+  axis("Chroma", CHROMA_AXIS, AXIS_OFFSET, -0.12, 0),
+  axis("Light", HEIGHT_AXIS, 0.12, AXIS_OFFSET, 0),
+  tick("H 0deg", HUE_AXIS, HUE_OFFSET, -0.22, 0),
+  tick("H 90deg", HUE_AXIS, 0, -0.16, HUE_OFFSET),
+  tick("H 180deg", HUE_AXIS, -HUE_OFFSET, -0.16, 0),
+  tick("H 270deg", HUE_AXIS, 0, -0.16, -HUE_OFFSET),
+  tick("C 0", CHROMA_AXIS, 0, 0, 0),
+  tick("C 144", CHROMA_AXIS, TICK_OFFSET, 0, 0),
+  tick("L 0", HEIGHT_AXIS, 0, -TICK_OFFSET, 0),
+  tick("L 100", HEIGHT_AXIS, 0, TICK_OFFSET, 0),
+] as const satisfies readonly ColorSpaceAxisLabel[]
+
+const OKLCH_AXIS_LABELS = [
+  axis("Hue", HUE_AXIS, AXIS_OFFSET, 0.18, 0),
+  axis("Chroma", OK_CHROMA_AXIS, AXIS_OFFSET, -0.12, 0),
+  axis("OKL", HEIGHT_AXIS, 0.12, AXIS_OFFSET, 0),
+  tick("H 0deg", HUE_AXIS, HUE_OFFSET, -0.22, 0),
+  tick("H 90deg", HUE_AXIS, 0, -0.16, HUE_OFFSET),
+  tick("H 180deg", HUE_AXIS, -HUE_OFFSET, -0.16, 0),
+  tick("H 270deg", HUE_AXIS, 0, -0.16, -HUE_OFFSET),
+  tick("C 0", OK_CHROMA_AXIS, 0, 0, 0),
+  tick("C .315", OK_CHROMA_AXIS, TICK_OFFSET, 0, 0),
+  tick("OKL 0", HEIGHT_AXIS, 0, -TICK_OFFSET, 0),
+  tick("OKL 1", HEIGHT_AXIS, 0, TICK_OFFSET, 0),
+] as const satisfies readonly ColorSpaceAxisLabel[]
+
+export function getColorSpaceAxisLabels(modelId: ColorSpaceModelId) {
+  switch (modelId) {
+    case "rgb":
+      return RGB_AXIS_LABELS
+    case "hsl":
+      return HSL_AXIS_LABELS
+    case "hsv":
+      return HSV_AXIS_LABELS
+    case "lch":
+      return LCH_AXIS_LABELS
+    case "oklch":
+      return OKLCH_AXIS_LABELS
+    default:
+      return assertNeverModel(modelId)
+  }
+}
+
+function axis(
+  text: string,
+  color: string,
+  x: number,
+  y: number,
+  z: number
+): ColorSpaceAxisLabel {
+  return label("axis", text, color, x, y, z)
+}
+
+function tick(
+  text: string,
+  color: string,
+  x: number,
+  y: number,
+  z: number
+): ColorSpaceAxisLabel {
+  return label("tick", text, color, x, y, z)
+}
+
+function label(
+  kind: ColorSpaceAxisLabelKind,
+  text: string,
+  color: string,
+  x: number,
+  y: number,
+  z: number
+): ColorSpaceAxisLabel {
+  return {
+    color,
+    kind,
+    position: { x, y, z },
+    text,
+  }
+}
+
+function assertNeverModel(modelId: never): never {
+  throw new RangeError(`Unknown color model: ${modelId}`)
+}
