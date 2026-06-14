@@ -8,6 +8,7 @@ import {
   multiplyMatrixPoint,
   toChromaticityPlanePoint,
   toScenePoint,
+  toXyChartPoint,
 } from "@/color-models/cie-xyz-gamut-space"
 import type { Matrix3, XyzPoint } from "@/color-models/cie-xyz-gamut-space"
 
@@ -29,6 +30,7 @@ export type CieXyzGamutMesh = {
   readonly triangleCount: number
   readonly vertexCount: number
   readonly wireframePositions: Float32Array
+  readonly xyPrimaryLinePositions: Float32Array
 }
 
 const CUBE_SEGMENTS = 12
@@ -226,6 +228,11 @@ function buildGamutMesh(gamut: CieXyzGamutDefinition): CieXyzGamutMesh {
     triangleCount: builder.indices.length / 3,
     vertexCount: builder.positions.length / 3,
     wireframePositions: new Float32Array(builder.wireframePositions),
+    xyPrimaryLinePositions: createClosedLinePositions([
+      toXyChartPoint(gamut.primaries.red),
+      toXyChartPoint(gamut.primaries.green),
+      toXyChartPoint(gamut.primaries.blue),
+    ]),
   }
 }
 

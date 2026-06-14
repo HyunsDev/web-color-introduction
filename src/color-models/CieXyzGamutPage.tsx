@@ -39,9 +39,9 @@ function XyzAxisLegend() {
     <div className="rounded-md border border-border bg-background/90 p-2.5 shadow-sm backdrop-blur">
       <ul className="grid min-w-32 gap-1.5">
         {[
-          { label: "X", value: "red response", color: "#ef4444" },
+          { label: "X", value: "tristimulus", color: "#ef4444" },
           { label: "Y", value: "luminance", color: "#22c55e" },
-          { label: "Z", value: "blue response", color: "#3b82f6" },
+          { label: "Z", value: "tristimulus", color: "#3b82f6" },
         ].map((axis) => (
           <li
             key={axis.label}
@@ -161,7 +161,7 @@ export function CieXyzGamutPage() {
           </h1>
           <p className="mt-2 hidden text-xs leading-5 text-muted-foreground sm:block">
             X+Y+Z=1 색도 단면의 말발굽이 검정 원점에서 어떤 방향으로 뻗는지 먼저
-            보고, 디스플레이 색역은 필요할 때 겹쳐 봅니다.
+            보고, xy 정면에서는 익숙한 0-1 색도표로 확인합니다.
           </p>
           <div className="mt-3 flex flex-wrap items-center gap-2">
             <Badge variant="outline" className="gap-1">

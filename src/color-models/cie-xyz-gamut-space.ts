@@ -132,3 +132,11 @@ export function toChromaticityPlanePoint(
     z: (point.z - CHROMATICITY_CENTER) * SCENE_SCALE,
   }
 }
+
+export function toXyChartPoint({ x, y }: CieXyzChromaticity): XyzPoint {
+  return {
+    x: (x - 0.45) * 4,
+    y: (y - 0.4) * 4,
+    z: 0,
+  }
+}

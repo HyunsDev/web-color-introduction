@@ -3,10 +3,13 @@ import {
   BufferGeometry,
   Line,
   LineSegments,
+  Material,
   Mesh,
   Object3D,
   Points,
   PointsMaterial,
+  Sprite,
+  Texture,
 } from "three"
 
 import type { ColorSpaceSample } from "@/color-models/color-space-samples"
@@ -50,16 +53,26 @@ export function disposeObjectTree(object: Object3D) {
       child instanceof Line ||
       child instanceof LineSegments ||
       child instanceof Mesh ||
-      child instanceof Points
+      child instanceof Points ||
+      child instanceof Sprite
     ) {
       child.geometry.dispose()
 
       if (Array.isArray(child.material)) {
-        child.material.forEach((material) => material.dispose())
+        child.material.forEach(disposeMaterial)
         return
       }
 
-      child.material.dispose()
+      disposeMaterial(child.material)
     }
   })
+}
+
+function disposeMaterial(material: Material) {
+  Object.values(material).forEach((value) => {
+    if (value instanceof Texture) {
+      value.dispose()
+    }
+  })
+  material.dispose()
 }

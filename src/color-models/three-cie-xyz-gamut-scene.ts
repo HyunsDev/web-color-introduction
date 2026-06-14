@@ -135,12 +135,23 @@ function createGamutObject({
   return group
 }
 
+function createXyGamutObject(mesh: CieXyzGamutMesh) {
+  const group = new Group()
+
+  group.add(
+    createLineSegments(mesh.xyPrimaryLinePositions, mesh.lineColor, 0.95)
+  )
+
+  return group
+}
+
 export function createCieXyzGamutSceneObject({
   gamutMeshes,
   reference,
   showChromaticity,
   showVisibleCone,
   showWireframe,
+  showXyChart,
   theme,
   visibleGamuts,
 }: {
@@ -149,6 +160,7 @@ export function createCieXyzGamutSceneObject({
   readonly showChromaticity: boolean
   readonly showVisibleCone: boolean
   readonly showWireframe: boolean
+  readonly showXyChart: boolean
   readonly theme: CieXyzSceneTheme
   readonly visibleGamuts: CieXyzGamutVisibility
 }) {
@@ -160,6 +172,7 @@ export function createCieXyzGamutSceneObject({
         reference,
         showChromaticity,
         showVisibleCone,
+        showXyChart,
         theme,
       })
     )
@@ -167,7 +180,11 @@ export function createCieXyzGamutSceneObject({
 
   gamutMeshes.forEach((mesh) => {
     if (visibleGamuts[mesh.id]) {
-      group.add(createGamutObject({ mesh, showWireframe }))
+      group.add(
+        showXyChart
+          ? createXyGamutObject(mesh)
+          : createGamutObject({ mesh, showWireframe })
+      )
     }
   })
 
