@@ -25,10 +25,12 @@ const WIREFRAME_PALETTE = {
 export function createSolidColorSpaceObject({
   mesh,
   showWireframe,
+  surfaceOpacity = 1,
   theme,
 }: {
   readonly mesh: SolidColorSpaceMesh
   readonly showWireframe: boolean
+  readonly surfaceOpacity?: number
   readonly theme: "dark" | "light"
 }) {
   const geometry = new BufferGeometry()
@@ -38,10 +40,13 @@ export function createSolidColorSpaceObject({
   geometry.computeVertexNormals()
 
   const material = new MeshBasicMaterial({
+    depthWrite: surfaceOpacity >= 1,
+    opacity: surfaceOpacity,
     side: DoubleSide,
     polygonOffset: true,
     polygonOffsetFactor: 1,
     polygonOffsetUnits: 1,
+    transparent: surfaceOpacity < 1,
     vertexColors: true,
   })
   const group = new Group()

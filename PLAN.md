@@ -17,7 +17,7 @@
 - [x] xyY 좌표계를 3D Solid Models에 추가
 - [x] 공통 색 좌표/표기/색역 기반 정리
 - [x] 색 좌표 2D 단면 조절기
-- [ ] 3D Solid Models 단면 보기
+- [x] 3D Solid Models 단면 보기
 - [ ] 원통형 색 공간 펼쳐 보기
 - [ ] 색 보간 경로 비교
 - [ ] CSS 색상 표기 실험실
@@ -221,6 +221,11 @@ feat(fe): add color coordinate plane picker
 - `pnpm build`
 - 데스크톱에서 slice, wireframe, orbit 동작 확인
 - 모바일 폭에서 라벨과 컨트롤 겹침 확인
+
+진행 로그:
+
+- 2026-06-15: `/color-space-solid-models`에 `Slice` 토글, 모델별 고정축 선택, 고정값 slider, 반투명 shell, 별도 slice mesh overlay를 추가했다.
+- 2026-06-15: RGB/HSL/HSV/LCH/OKLCH slice mesh를 구현하고, unsupported 모델은 slice 컨트롤에서 안내한다. `pnpm test`, `pnpm typecheck`, `pnpm lint`, `pnpm build` 통과. Playwright로 RGB/OKLCH slice 활성화, 데스크톱/390px 모바일, 콘솔 warning/error 없음 확인.
 
 커밋 예시:
 

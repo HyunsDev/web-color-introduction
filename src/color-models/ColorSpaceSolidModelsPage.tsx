@@ -15,6 +15,14 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Switch } from "@/components/ui/switch"
 import { ColorGamutControls } from "@/color-models/ColorGamutControls"
+import { ColorSpaceSolidSliceControls } from "@/color-models/ColorSpaceSolidSliceControls"
+import { createColorSampleRenderOptions } from "@/color-models/color-sample-rendering"
+import {
+  buildSolidSliceMesh,
+  createDefaultSolidSliceState,
+  isSolidSliceModel,
+} from "@/color-models/color-space-solid-slice"
+import type { SolidSliceState } from "@/color-models/color-space-solid-slice"
 import { buildSolidColorSpaceMesh } from "@/color-models/color-space-solid-mesh"
 import {
   detectColorGamutCapabilities,
@@ -100,6 +108,10 @@ export function ColorSpaceSolidModelsPage() {
   const [selectedGamutId, setSelectedGamutId] =
     useState<ColorGamutModeId>("srgb")
   const [showWireframe, setShowWireframe] = useState(true)
+  const [showSlice, setShowSlice] = useState(false)
+  const [slice, setSlice] = useState<SolidSliceState>(() =>
+    createDefaultSolidSliceState("rgb")
+  )
   const [gamutCapabilities] = useState<ColorGamutCapabilities>(() =>
     detectColorGamutCapabilities()
   )
@@ -118,6 +130,26 @@ export function ColorSpaceSolidModelsPage() {
       ),
     [gamutRendering.actualOutput.id, gamutRendering.mode.id, selectedModel.id]
   )
+  const sliceMesh = useMemo(() => {
+    if (!showSlice || !isSolidSliceModel(selectedModel.id)) {
+      return null
+    }
+
+    return buildSolidSliceMesh(
+      selectedModel.id,
+      slice,
+      createColorSampleRenderOptions(
+        gamutRendering.mode.id,
+        gamutRendering.actualOutput.id
+      )
+    )
+  }, [
+    gamutRendering.actualOutput.id,
+    gamutRendering.mode.id,
+    selectedModel.id,
+    showSlice,
+    slice,
+  ])
   const ActiveIcon = MODEL_ICONS[selectedModel.id]
   const modelTabs = useMemo(
     () =>
@@ -140,6 +172,10 @@ export function ColorSpaceSolidModelsPage() {
               if (!isSolidGamutModeSupported(model.id, selectedGamutId)) {
                 setSelectedGamutId("srgb")
               }
+
+              if (isSolidSliceModel(model.id)) {
+                setSlice(createDefaultSolidSliceState(model.id))
+              }
             }}
           >
             <ModelIcon />
@@ -158,9 +194,9 @@ export function ColorSpaceSolidModelsPage() {
             색 공간을 실제 3D 표면으로 보기
           </code>
           <p className="mt-1 hidden text-xs leading-5 text-muted-foreground sm:block">
-            점군 대신 닫힌 표면 mesh로 RGB, HSL, HSV, HWB, XYZ, xyY, Lab,
-            LCH, OKLab, OKLCH의 형태 차이를 비교합니다. CIE 1931은
-            디스플레이 색역이 아니라 XYZ/xyY reference boundary입니다.
+            점군 대신 닫힌 표면 mesh로 RGB, HSL, HSV, HWB, XYZ, xyY, Lab, LCH,
+            OKLab, OKLCH의 형태 차이를 비교합니다. CIE 1931은 디스플레이 색역이
+            아니라 XYZ/xyY reference boundary입니다.
           </p>
           <div className="mt-3 flex flex-wrap items-center gap-2">
             <Badge variant="outline" className="gap-1">
@@ -178,6 +214,13 @@ export function ColorSpaceSolidModelsPage() {
               aria-label="Toggle wireframe overlay"
             />
           </label>
+          <ColorSpaceSolidSliceControls
+            modelId={selectedModel.id}
+            slice={slice}
+            sliceEnabled={showSlice}
+            onEnabledChange={setShowSlice}
+            onSliceChange={setSlice}
+          />
         </div>
       }
       topEnd={
@@ -203,6 +246,7 @@ export function ColorSpaceSolidModelsPage() {
         gamutRendering={gamutRendering}
         mesh={mesh}
         model={selectedModel}
+        sliceMesh={sliceMesh}
         showWireframe={showWireframe}
         className="size-full min-h-0 rounded-none border-0 bg-background/70 shadow-none md:min-h-0"
       />

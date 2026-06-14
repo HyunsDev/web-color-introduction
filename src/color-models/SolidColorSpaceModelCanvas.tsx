@@ -39,12 +39,14 @@ export function SolidColorSpaceModelCanvas({
   gamutRendering,
   mesh,
   model,
+  sliceMesh,
   showWireframe,
 }: {
   readonly className?: string
   readonly gamutRendering: ColorGamutRendering
   readonly mesh: SolidColorSpaceMesh
   readonly model: ColorSpaceModelDefinition
+  readonly sliceMesh?: SolidColorSpaceMesh | null
   readonly showWireframe: boolean
 }) {
   const { resolvedTheme } = useTheme()
@@ -104,19 +106,30 @@ export function SolidColorSpaceModelCanvas({
     const solid = createSolidColorSpaceObject({
       mesh,
       showWireframe,
+      surfaceOpacity: sliceMesh ? 0.22 : 1,
       theme: resolvedTheme,
     })
+    const slice = sliceMesh
+      ? createSolidColorSpaceObject({
+          mesh: sliceMesh,
+          showWireframe: true,
+          theme: resolvedTheme,
+        })
+      : null
     const keyLight = new DirectionalLight("#ffffff", 1.2)
     keyLight.position.set(3, 4, 5)
     scene.add(keyLight)
     scene.add(new AmbientLight("#ffffff", 1.6))
     scene.add(frame)
     scene.add(solid)
+    if (slice) {
+      scene.add(slice)
+    }
 
     const updateAxisLabels = createAxisLabelProjector(labelLayer, axisLabels, {
       occludeTicksOnly: true,
       occlusionPadding: 0.34,
-      occluders: [solid],
+      occluders: slice ? [solid, slice] : [solid],
     })
 
     let resizeFrameId = 0
@@ -171,6 +184,9 @@ export function SolidColorSpaceModelCanvas({
       controls.dispose()
       disposeObjectTree(frame)
       disposeObjectTree(solid)
+      if (slice) {
+        disposeObjectTree(slice)
+      }
       renderer.dispose()
       ColorManagement.workingColorSpace = previousWorkingColorSpace
     }
@@ -181,6 +197,7 @@ export function SolidColorSpaceModelCanvas({
     model.id,
     resolvedTheme,
     showWireframe,
+    sliceMesh,
   ])
 
   return (
@@ -210,6 +227,11 @@ export function SolidColorSpaceModelCanvas({
         <span className="rounded-md border border-border bg-background/85 px-2 py-1 font-mono text-[0.65rem] text-muted-foreground shadow-sm backdrop-blur">
           {gamutRenderLabel}
         </span>
+        {sliceMesh && (
+          <span className="rounded-md border border-border bg-background/85 px-2 py-1 font-mono text-[0.65rem] text-muted-foreground shadow-sm backdrop-blur">
+            {sliceMesh.shapeLabel}
+          </span>
+        )}
       </div>
     </div>
   )
