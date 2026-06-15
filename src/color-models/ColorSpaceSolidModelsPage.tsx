@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react"
-import type { ElementType } from "react"
+import type { ElementType, ReactNode } from "react"
 import {
   Axis3dIcon,
   BlendIcon,
@@ -15,7 +15,10 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Switch } from "@/components/ui/switch"
 import { ColorGamutControls } from "@/color-models/ColorGamutControls"
-import { ColorSpaceSolidSliceControls } from "@/color-models/ColorSpaceSolidSliceControls"
+import {
+  ColorSpaceSolidSliceControls,
+  ColorSpaceSolidSliceToggle,
+} from "@/color-models/ColorSpaceSolidSliceControls"
 import { createColorSampleRenderOptions } from "@/color-models/color-sample-rendering"
 import {
   buildSolidSliceMesh,
@@ -93,16 +96,93 @@ function AxisLegendItem({ axis }: { readonly axis: ColorSpaceAxis }) {
 
 function CoordinateLegendDock({
   axes,
+  className,
 }: {
   readonly axes: readonly ColorSpaceAxis[]
+  readonly className?: string
 }) {
   return (
-    <div className="rounded-md border border-border bg-background/90 p-2.5 shadow-sm backdrop-blur">
+    <div
+      className={cn(
+        "rounded-md border border-border bg-background/90 p-2.5 shadow-sm backdrop-blur",
+        className
+      )}
+    >
       <ul className="grid min-w-32 gap-1.5">
         {axes.map((axis) => (
           <AxisLegendItem key={`${axis.label}-${axis.value}`} axis={axis} />
         ))}
       </ul>
+    </div>
+  )
+}
+
+function CoordinateSliceDock({
+  axes,
+  className,
+  modelId,
+  onSliceChange,
+  slice,
+  sliceEnabled,
+}: {
+  readonly axes: readonly ColorSpaceAxis[]
+  readonly className?: string
+  readonly modelId: ColorSpaceModelId
+  readonly onSliceChange: (slice: SolidSliceState) => void
+  readonly slice: SolidSliceState
+  readonly sliceEnabled: boolean
+}) {
+  return (
+    <div
+      className={cn(
+        "grid max-w-full gap-2 rounded-md border border-border bg-background/90 p-2.5 shadow-sm backdrop-blur sm:grid-cols-[auto_minmax(13rem,1fr)]",
+        className
+      )}
+    >
+      <CoordinateLegendDock
+        axes={axes}
+        className="border-0 bg-transparent p-0 shadow-none backdrop-blur-none"
+      />
+      <ColorSpaceSolidSliceControls
+        modelId={modelId}
+        slice={slice}
+        sliceEnabled={sliceEnabled}
+        onSliceChange={onSliceChange}
+      />
+    </div>
+  )
+}
+
+function SolidModelsBottomDock({
+  axes,
+  modelId,
+  modelTabs,
+  onSliceChange,
+  slice,
+  sliceEnabled,
+}: {
+  readonly axes: readonly ColorSpaceAxis[]
+  readonly modelId: ColorSpaceModelId
+  readonly modelTabs: ReactNode
+  readonly onSliceChange: (slice: SolidSliceState) => void
+  readonly slice: SolidSliceState
+  readonly sliceEnabled: boolean
+}) {
+  return (
+    <div className="grid max-h-[18rem] w-[calc(100vw-1.5rem)] max-w-[calc(100vw-1.5rem)] items-end gap-2 overflow-y-auto sm:w-[calc(100vw-2rem)] sm:max-w-[calc(100vw-2rem)] lg:max-h-none lg:grid-cols-[minmax(20rem,23rem)_minmax(0,1fr)_auto] lg:overflow-visible">
+      <CoordinateSliceDock
+        axes={axes}
+        modelId={modelId}
+        slice={slice}
+        sliceEnabled={sliceEnabled}
+        onSliceChange={onSliceChange}
+      />
+      <div className="grid grid-cols-2 gap-2 rounded-md border border-border bg-background/90 p-3 shadow-sm backdrop-blur sm:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-8">
+        {modelTabs}
+      </div>
+      <div className="justify-self-center sm:justify-self-end">
+        <PlaygroundTools />
+      </div>
     </div>
   )
 }
@@ -219,12 +299,11 @@ export function ColorSpaceSolidModelsPage() {
               aria-label="Toggle wireframe overlay"
             />
           </label>
-          <ColorSpaceSolidSliceControls
+          <ColorSpaceSolidSliceToggle
+            className="mt-2"
             modelId={selectedModel.id}
-            slice={slice}
             sliceEnabled={showSlice}
             onEnabledChange={setShowSlice}
-            onSliceChange={setSlice}
           />
         </div>
       }
@@ -240,13 +319,16 @@ export function ColorSpaceSolidModelsPage() {
           className="w-full max-w-[18rem] p-3 sm:p-4"
         />
       }
-      bottomStart={<CoordinateLegendDock axes={selectedModel.axes} />}
       bottomCenter={
-        <div className="grid w-full max-w-[min(100%,64rem)] grid-cols-2 gap-2 rounded-md border border-border bg-background/90 p-3 shadow-sm backdrop-blur sm:grid-cols-4 xl:grid-cols-8">
-          {modelTabs}
-        </div>
+        <SolidModelsBottomDock
+          axes={selectedModel.axes}
+          modelId={selectedModel.id}
+          modelTabs={modelTabs}
+          slice={slice}
+          sliceEnabled={showSlice}
+          onSliceChange={setSlice}
+        />
       }
-      bottomEnd={<PlaygroundTools />}
     >
       <SolidColorSpaceModelCanvas
         gamutRendering={gamutRendering}
