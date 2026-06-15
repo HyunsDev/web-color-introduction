@@ -35,8 +35,11 @@ export function buildSolidColorSpaceMesh(
         : buildXyySolidMesh(options)
     case "rgb":
     case "hsl":
+    case "hsl-cube":
     case "hsv":
+    case "hsv-cube":
     case "hwb":
+    case "hwb-cube":
       return buildBasicSolidMesh(
         modelId,
         gamutModeId === "cie-1931"
@@ -45,8 +48,10 @@ export function buildSolidColorSpaceMesh(
       )
     case "lab":
     case "lch":
+    case "lch-cube":
     case "oklab":
     case "oklch":
+    case "oklch-cube":
       return buildPerceptualSolidMesh(
         modelId,
         gamutModeId === "cie-1931"

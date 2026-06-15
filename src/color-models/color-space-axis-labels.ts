@@ -159,16 +159,91 @@ const OKLCH_AXIS_LABELS = [
   tick("OKL 1", HEIGHT_AXIS, 0, TICK_OFFSET, 0),
 ] as const satisfies readonly ColorSpaceAxisLabel[]
 
+function createHueCubeAxisLabels({
+  depthAxisColor,
+  depthLabel,
+  depthMaxLabel,
+  heightAxisColor = HEIGHT_AXIS,
+  heightLabel,
+  heightMaxLabel,
+}: {
+  readonly depthAxisColor: string
+  readonly depthLabel: string
+  readonly depthMaxLabel: string
+  readonly heightAxisColor?: string
+  readonly heightLabel: string
+  readonly heightMaxLabel: string
+}) {
+  return [
+    axis("Hue", HUE_AXIS, AXIS_OFFSET, 0.12, 0),
+    axis(heightLabel, heightAxisColor, 0.12, AXIS_OFFSET, 0),
+    axis(depthLabel, depthAxisColor, 0, 0.12, AXIS_OFFSET),
+    tick("H 0deg", HUE_AXIS, -TICK_OFFSET, -0.1, 0),
+    tick("H 360deg", HUE_AXIS, TICK_OFFSET, -0.1, 0),
+    tick(`${heightLabel} 0`, heightAxisColor, 0.1, -TICK_OFFSET, 0),
+    tick(heightMaxLabel, heightAxisColor, 0.1, TICK_OFFSET, 0),
+    tick(`${depthLabel} 0`, depthAxisColor, 0, -0.1, -TICK_OFFSET),
+    tick(depthMaxLabel, depthAxisColor, 0, -0.1, TICK_OFFSET),
+  ] satisfies readonly ColorSpaceAxisLabel[]
+}
+
+const HSL_CUBE_AXIS_LABELS = createHueCubeAxisLabels({
+  depthAxisColor: RADIUS_AXIS,
+  depthLabel: "Sat",
+  depthMaxLabel: "Sat 1",
+  heightLabel: "Light",
+  heightMaxLabel: "Light 1",
+})
+
+const HSV_CUBE_AXIS_LABELS = createHueCubeAxisLabels({
+  depthAxisColor: "#a855f7",
+  depthLabel: "Sat",
+  depthMaxLabel: "Sat 1",
+  heightLabel: "Value",
+  heightMaxLabel: "Value 1",
+})
+
+const HWB_CUBE_AXIS_LABELS = createHueCubeAxisLabels({
+  depthAxisColor: BLACK_AXIS,
+  depthLabel: "Black",
+  depthMaxLabel: "Black 1",
+  heightAxisColor: WHITE_AXIS,
+  heightLabel: "White",
+  heightMaxLabel: "White 1",
+})
+
+const LCH_CUBE_AXIS_LABELS = createHueCubeAxisLabels({
+  depthAxisColor: CHROMA_AXIS,
+  depthLabel: "Chroma",
+  depthMaxLabel: "C 144",
+  heightLabel: "Light",
+  heightMaxLabel: "L 100",
+})
+
+const OKLCH_CUBE_AXIS_LABELS = createHueCubeAxisLabels({
+  depthAxisColor: OK_CHROMA_AXIS,
+  depthLabel: "Chroma",
+  depthMaxLabel: "C .315",
+  heightLabel: "OKL",
+  heightMaxLabel: "OKL 1",
+})
+
 export function getColorSpaceAxisLabels(modelId: ColorSpaceModelId) {
   switch (modelId) {
     case "rgb":
       return RGB_AXIS_LABELS
     case "hsl":
       return HSL_AXIS_LABELS
+    case "hsl-cube":
+      return HSL_CUBE_AXIS_LABELS
     case "hsv":
       return HSV_AXIS_LABELS
+    case "hsv-cube":
+      return HSV_CUBE_AXIS_LABELS
     case "hwb":
       return HWB_AXIS_LABELS
+    case "hwb-cube":
+      return HWB_CUBE_AXIS_LABELS
     case "xyz":
       return XYZ_AXIS_LABELS
     case "xyy":
@@ -177,10 +252,14 @@ export function getColorSpaceAxisLabels(modelId: ColorSpaceModelId) {
       return LAB_AXIS_LABELS
     case "lch":
       return LCH_AXIS_LABELS
+    case "lch-cube":
+      return LCH_CUBE_AXIS_LABELS
     case "oklab":
       return OKLAB_AXIS_LABELS
     case "oklch":
       return OKLCH_AXIS_LABELS
+    case "oklch-cube":
+      return OKLCH_CUBE_AXIS_LABELS
     default:
       return assertNeverModel(modelId)
   }

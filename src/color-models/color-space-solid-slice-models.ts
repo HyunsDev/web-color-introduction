@@ -2,7 +2,15 @@ import type { ColorSpaceModelId } from "@/color-models/color-space-models"
 
 export type SolidSliceModelId = Extract<
   ColorSpaceModelId,
-  "hsl" | "hsv" | "lch" | "oklch" | "rgb"
+  | "hsl"
+  | "hsl-cube"
+  | "hsv"
+  | "hsv-cube"
+  | "lch"
+  | "lch-cube"
+  | "oklch"
+  | "oklch-cube"
+  | "rgb"
 >
 export type SolidSliceAxisId = "b" | "c" | "g" | "h" | "l" | "r" | "s" | "v"
 
@@ -80,7 +88,65 @@ const SLICE_AXES_BY_MODEL = {
       unit: "percent",
     },
   ],
+  "hsl-cube": [
+    {
+      id: "h",
+      label: "Hue",
+      min: 0,
+      max: 360,
+      step: 1,
+      defaultValue: 24,
+      unit: "degree",
+    },
+    {
+      id: "s",
+      label: "Saturation",
+      min: 0,
+      max: 1,
+      step: 0.01,
+      defaultValue: 1,
+      unit: "percent",
+    },
+    {
+      id: "l",
+      label: "Lightness",
+      min: 0,
+      max: 1,
+      step: 0.01,
+      defaultValue: 0.5,
+      unit: "percent",
+    },
+  ],
   hsv: [
+    {
+      id: "h",
+      label: "Hue",
+      min: 0,
+      max: 360,
+      step: 1,
+      defaultValue: 24,
+      unit: "degree",
+    },
+    {
+      id: "s",
+      label: "Saturation",
+      min: 0,
+      max: 1,
+      step: 0.01,
+      defaultValue: 1,
+      unit: "percent",
+    },
+    {
+      id: "v",
+      label: "Value",
+      min: 0,
+      max: 1,
+      step: 0.01,
+      defaultValue: 0.75,
+      unit: "percent",
+    },
+  ],
+  "hsv-cube": [
     {
       id: "h",
       label: "Hue",
@@ -138,7 +204,65 @@ const SLICE_AXES_BY_MODEL = {
       unit: "percent",
     },
   ],
+  "lch-cube": [
+    {
+      id: "h",
+      label: "Hue",
+      min: 0,
+      max: 360,
+      step: 1,
+      defaultValue: 32,
+      unit: "degree",
+    },
+    {
+      id: "c",
+      label: "Chroma",
+      min: 0,
+      max: 150,
+      step: 1,
+      defaultValue: 74,
+      unit: "number",
+    },
+    {
+      id: "l",
+      label: "Lightness",
+      min: 0,
+      max: 1,
+      step: 0.01,
+      defaultValue: 0.62,
+      unit: "percent",
+    },
+  ],
   oklch: [
+    {
+      id: "h",
+      label: "Hue",
+      min: 0,
+      max: 360,
+      step: 1,
+      defaultValue: 32,
+      unit: "degree",
+    },
+    {
+      id: "c",
+      label: "Chroma",
+      min: 0,
+      max: 0.4,
+      step: 0.005,
+      defaultValue: 0.18,
+      unit: "number",
+    },
+    {
+      id: "l",
+      label: "Lightness",
+      min: 0,
+      max: 1,
+      step: 0.01,
+      defaultValue: 0.7,
+      unit: "percent",
+    },
+  ],
+  "oklch-cube": [
     {
       id: "h",
       label: "Hue",
@@ -175,9 +299,13 @@ export function isSolidSliceModel(
   return (
     modelId === "rgb" ||
     modelId === "hsl" ||
+    modelId === "hsl-cube" ||
     modelId === "hsv" ||
+    modelId === "hsv-cube" ||
     modelId === "lch" ||
-    modelId === "oklch"
+    modelId === "lch-cube" ||
+    modelId === "oklch" ||
+    modelId === "oklch-cube"
   )
 }
 

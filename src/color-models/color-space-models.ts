@@ -1,4 +1,4 @@
-export type ColorSpaceModelId =
+export type BaseColorSpaceModelId =
   | "rgb"
   | "hsl"
   | "hsv"
@@ -9,6 +9,12 @@ export type ColorSpaceModelId =
   | "lch"
   | "oklab"
   | "oklch"
+
+export type HueCubeBaseModelId = "hsl" | "hsv" | "hwb" | "lch" | "oklch"
+
+export type HueCubeModelId = `${HueCubeBaseModelId}-cube`
+
+export type ColorSpaceModelId = BaseColorSpaceModelId | HueCubeModelId
 
 export type ColorSpaceAxis = {
   readonly label: string
@@ -28,6 +34,36 @@ export type ColorSpaceModelDefinition = {
   readonly accent: string
   readonly axes: readonly ColorSpaceAxis[]
   readonly notes: readonly string[]
+}
+
+export const HUE_CUBE_MODEL_IDS = [
+  "hsl-cube",
+  "hsv-cube",
+  "hwb-cube",
+  "lch-cube",
+  "oklch-cube",
+] as const satisfies readonly HueCubeModelId[]
+
+const HUE_CUBE_BASE_MODEL_BY_ID = {
+  "hsl-cube": "hsl",
+  "hsv-cube": "hsv",
+  "hwb-cube": "hwb",
+  "lch-cube": "lch",
+  "oklch-cube": "oklch",
+} as const satisfies Record<HueCubeModelId, HueCubeBaseModelId>
+
+export function isHueCubeModelId(
+  modelId: ColorSpaceModelId
+): modelId is HueCubeModelId {
+  return HUE_CUBE_MODEL_IDS.some((cubeModelId) => cubeModelId === modelId)
+}
+
+export function getBaseColorSpaceModelId(
+  modelId: ColorSpaceModelId
+): BaseColorSpaceModelId {
+  return isHueCubeModelId(modelId)
+    ? HUE_CUBE_BASE_MODEL_BY_ID[modelId]
+    : modelId
 }
 
 export const COLOR_SPACE_MODEL_BY_ID = {
@@ -73,6 +109,27 @@ export const COLOR_SPACE_MODEL_BY_ID = {
       "디자인 툴에서 직관적이지만 지각 균일성은 약합니다.",
     ],
   },
+  "hsl-cube": {
+    id: "hsl-cube",
+    name: "HSL Cube",
+    title: "HSL Coordinate Cube",
+    geometry: "Hue width + saturation depth + lightness height",
+    coordinate: "H, S, L",
+    notation: "hsl(24 90% 58%)",
+    summary:
+      "원형 색상환을 직교 박스로 펼쳐 Hue, Saturation, Lightness 축을 한눈에 읽게 합니다.",
+    pointSize: 0.04,
+    accent: "#06b6d4",
+    axes: [
+      { label: "X", value: "Hue", color: "#f59e0b" },
+      { label: "Y", value: "Lightness", color: "#64748b" },
+      { label: "Z", value: "Saturation", color: "#06b6d4" },
+    ],
+    notes: [
+      "0deg와 360deg는 실제로 이어지지만 펼친 박스에서는 양끝 경계로 분리됩니다.",
+      "색상환의 순환 구조보다 좌표 축 변화를 비교하기 좋은 버전입니다.",
+    ],
+  },
   hsv: {
     id: "hsv",
     name: "HSV",
@@ -94,6 +151,27 @@ export const COLOR_SPACE_MODEL_BY_ID = {
       "색 선택에는 편하지만 같은 거리 변화가 같은 시각 변화는 아닙니다.",
     ],
   },
+  "hsv-cube": {
+    id: "hsv-cube",
+    name: "HSV Cube",
+    title: "HSV Coordinate Cube",
+    geometry: "Hue width + saturation depth + value height",
+    coordinate: "H, S, V",
+    notation: "hsv(24 90% 100%)",
+    summary:
+      "HSV 원뿔을 Hue, Saturation, Value 직교축으로 펼쳐 컬러 피커 좌표를 박스처럼 비교합니다.",
+    pointSize: 0.04,
+    accent: "#a855f7",
+    axes: [
+      { label: "X", value: "Hue", color: "#f59e0b" },
+      { label: "Y", value: "Value", color: "#64748b" },
+      { label: "Z", value: "Saturation", color: "#a855f7" },
+    ],
+    notes: [
+      "Value가 낮은 영역에서는 여러 Hue와 Saturation이 비슷한 어두운 색으로 모입니다.",
+      "원뿔의 수렴을 접지 않고 좌표 범위를 그대로 펼쳐 보여줍니다.",
+    ],
+  },
   hwb: {
     id: "hwb",
     name: "HWB",
@@ -113,6 +191,27 @@ export const COLOR_SPACE_MODEL_BY_ID = {
     notes: [
       "W와 B가 모두 0이면 중앙 고리의 가장 선명한 hue가 됩니다.",
       "W와 B가 커질수록 반지름이 접히며 흰색 또는 검정 축으로 수렴합니다.",
+    ],
+  },
+  "hwb-cube": {
+    id: "hwb-cube",
+    name: "HWB Cube",
+    title: "HWB Coordinate Prism",
+    geometry: "Hue width + whiteness height + blackness depth",
+    coordinate: "H, W, B",
+    notation: "hwb(24 12% 8%)",
+    summary:
+      "HWB의 Hue, Whiteness, Blackness를 직교축에 놓고 W+B가 1 이하인 유효 영역만 보여줍니다.",
+    pointSize: 0.04,
+    accent: "#64748b",
+    axes: [
+      { label: "X", value: "Hue", color: "#f59e0b" },
+      { label: "Y", value: "Whiteness", color: "#cbd5e1" },
+      { label: "Z", value: "Blackness", color: "#0f172a" },
+    ],
+    notes: [
+      "W와 B의 합이 1을 넘는 좌표는 CSS HWB에서 유효한 색 좌표가 아니므로 제외합니다.",
+      "완전한 정육면체가 아니라 박스 안에 놓인 유효 좌표 프리즘입니다.",
     ],
   },
   xyz: {
@@ -143,7 +242,8 @@ export const COLOR_SPACE_MODEL_BY_ID = {
     geometry: "xy chromaticity base + Y luminance height",
     coordinate: "x, y, Y",
     notation: "xyY(0.42 0.32 0.21)",
-    summary: "XYZ를 색도 x/y와 휘도 Y로 나누어, xy 색도도 위에 밝기 축을 세운 형태로 봅니다.",
+    summary:
+      "XYZ를 색도 x/y와 휘도 Y로 나누어, xy 색도도 위에 밝기 축을 세운 형태로 봅니다.",
     pointSize: 0.04,
     accent: "#0ea5e9",
     axes: [
@@ -151,9 +251,7 @@ export const COLOR_SPACE_MODEL_BY_ID = {
       { label: "Y", value: "Luminance Y", color: "#22c55e" },
       { label: "Z", value: "Chromaticity y", color: "#6366f1" },
     ],
-    notes: [
-      "검정처럼 XYZ 합이 0이면 x/y 색도 좌표는 정의되지 않습니다.",
-    ],
+    notes: ["검정처럼 XYZ 합이 0이면 x/y 색도 좌표는 정의되지 않습니다."],
   },
   lab: {
     id: "lab",
@@ -195,6 +293,27 @@ export const COLOR_SPACE_MODEL_BY_ID = {
     notes: [
       "sRGB에서 표현할 수 없는 바깥쪽 좌표는 모델에서 제외했습니다.",
       "명도 중심 설계와 팔레트 단계화에 강한 좌표계입니다.",
+    ],
+  },
+  "lch-cube": {
+    id: "lch-cube",
+    name: "LCH Cube",
+    title: "LCH Coordinate Cube",
+    geometry: "Hue width + chroma depth + lightness height",
+    coordinate: "L, C, H",
+    notation: "lch(62% 74 32)",
+    summary:
+      "LCH 원통을 Hue, Chroma, Lightness 직교축으로 펼쳐 지각 색 좌표의 범위를 비교합니다.",
+    pointSize: 0.038,
+    accent: "#10b981",
+    axes: [
+      { label: "X", value: "Hue", color: "#f59e0b" },
+      { label: "Y", value: "Lightness", color: "#64748b" },
+      { label: "Z", value: "Chroma", color: "#10b981" },
+    ],
+    notes: [
+      "Hue의 양끝은 같은 빨강 계열이지만 펼친 좌표에서는 경계선으로 보입니다.",
+      "sRGB에서 표현 가능한 색만 남기면 박스 안의 실제 색역 껍질이 드러납니다.",
     ],
   },
   oklab: {
@@ -239,16 +358,42 @@ export const COLOR_SPACE_MODEL_BY_ID = {
       "색역 밖 좌표를 제거하면 실제 웹 표시 가능 영역의 껍질이 드러납니다.",
     ],
   },
+  "oklch-cube": {
+    id: "oklch-cube",
+    name: "OKLCH Cube",
+    title: "OKLCH Coordinate Cube",
+    geometry: "Hue width + chroma depth + OK lightness height",
+    coordinate: "OKL, C, H",
+    notation: "oklch(70% 0.18 32)",
+    summary:
+      "OKLCH의 순환 Hue 축을 펼쳐 OKL, Chroma, Hue 변화를 직교 박스 안에서 비교합니다.",
+    pointSize: 0.04,
+    accent: "#e11d48",
+    axes: [
+      { label: "X", value: "Hue", color: "#f59e0b" },
+      { label: "Y", value: "OK Lightness", color: "#64748b" },
+      { label: "Z", value: "Chroma", color: "#e11d48" },
+    ],
+    notes: [
+      "CSS `oklch()`의 세 축을 토큰 설계용 좌표처럼 분리해서 읽을 수 있습니다.",
+      "색역 밖 좌표를 제거하면 실제 웹 표시 가능 영역의 펼친 껍질이 보입니다.",
+    ],
+  },
 } satisfies Record<ColorSpaceModelId, ColorSpaceModelDefinition>
 
 export const COLOR_SPACE_MODELS = [
   COLOR_SPACE_MODEL_BY_ID.rgb,
   COLOR_SPACE_MODEL_BY_ID.hsl,
+  COLOR_SPACE_MODEL_BY_ID["hsl-cube"],
   COLOR_SPACE_MODEL_BY_ID.hsv,
+  COLOR_SPACE_MODEL_BY_ID["hsv-cube"],
   COLOR_SPACE_MODEL_BY_ID.hwb,
+  COLOR_SPACE_MODEL_BY_ID["hwb-cube"],
   COLOR_SPACE_MODEL_BY_ID.xyz,
   COLOR_SPACE_MODEL_BY_ID.lab,
   COLOR_SPACE_MODEL_BY_ID.lch,
+  COLOR_SPACE_MODEL_BY_ID["lch-cube"],
   COLOR_SPACE_MODEL_BY_ID.oklab,
   COLOR_SPACE_MODEL_BY_ID.oklch,
+  COLOR_SPACE_MODEL_BY_ID["oklch-cube"],
 ] as const

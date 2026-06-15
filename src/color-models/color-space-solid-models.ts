@@ -1,9 +1,19 @@
-import {
-  COLOR_SPACE_MODEL_BY_ID,
-  COLOR_SPACE_MODELS,
-} from "@/color-models/color-space-models"
+import { COLOR_SPACE_MODEL_BY_ID } from "@/color-models/color-space-models"
 
 export const COLOR_SPACE_SOLID_MODELS = [
-  ...COLOR_SPACE_MODELS,
+  COLOR_SPACE_MODEL_BY_ID.rgb,
+  COLOR_SPACE_MODEL_BY_ID.hsl,
+  COLOR_SPACE_MODEL_BY_ID["hsl-cube"],
+  COLOR_SPACE_MODEL_BY_ID.hsv,
+  COLOR_SPACE_MODEL_BY_ID["hsv-cube"],
+  COLOR_SPACE_MODEL_BY_ID.hwb,
+  COLOR_SPACE_MODEL_BY_ID["hwb-cube"],
+  COLOR_SPACE_MODEL_BY_ID.xyz,
   COLOR_SPACE_MODEL_BY_ID.xyy,
+  COLOR_SPACE_MODEL_BY_ID.lab,
+  COLOR_SPACE_MODEL_BY_ID.lch,
+  COLOR_SPACE_MODEL_BY_ID["lch-cube"],
+  COLOR_SPACE_MODEL_BY_ID.oklab,
+  COLOR_SPACE_MODEL_BY_ID.oklch,
+  COLOR_SPACE_MODEL_BY_ID["oklch-cube"],
 ] as const

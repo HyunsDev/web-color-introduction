@@ -13,10 +13,13 @@ import type {
   LinearDisplayColor,
 } from "@/color-models/color-sample-rendering"
 import type { ColorSpaceModelId } from "@/color-models/color-space-models"
+import { hueCubeToPoint } from "@/color-models/color-space-hue-cube"
 import {
   buildLabSamples,
+  buildLchCubeSamples,
   buildLchSamples,
   buildOklabSamples,
+  buildOklchCubeSamples,
   buildOklchSamples,
 } from "@/color-models/color-space-perceptual-samples"
 import { buildXyySamples } from "@/color-models/color-space-xyy-samples"
@@ -131,6 +134,30 @@ function buildHslSamples(options: ColorSampleRenderOptions) {
   return samples
 }
 
+function buildHslCubeSamples(options: ColorSampleRenderOptions) {
+  const samples: ColorSpaceSample[] = []
+
+  for (const lightness of LIGHTNESS_STEPS) {
+    for (const saturation of UNIT_STEPS) {
+      for (const hue of HUE_STEPS) {
+        appendSample(
+          samples,
+          hueCubeToPoint(hue, lightness, saturation),
+          {
+            mode: "hsl",
+            h: hue,
+            s: saturation,
+            l: lightness,
+          },
+          options
+        )
+      }
+    }
+  }
+
+  return samples
+}
+
 function buildHsvSamples(options: ColorSampleRenderOptions) {
   const samples: ColorSpaceSample[] = []
 
@@ -144,6 +171,30 @@ function buildHsvSamples(options: ColorSampleRenderOptions) {
         appendSample(
           samples,
           polarToPoint(hue, radius, y),
+          {
+            mode: "hsv",
+            h: hue,
+            s: saturation,
+            v: value,
+          },
+          options
+        )
+      }
+    }
+  }
+
+  return samples
+}
+
+function buildHsvCubeSamples(options: ColorSampleRenderOptions) {
+  const samples: ColorSpaceSample[] = []
+
+  for (const value of VALUE_STEPS) {
+    for (const saturation of UNIT_STEPS) {
+      for (const hue of HUE_STEPS) {
+        appendSample(
+          samples,
+          hueCubeToPoint(hue, value, saturation),
           {
             mode: "hsv",
             h: hue,
@@ -185,6 +236,29 @@ function buildHwbSamples(options: ColorSampleRenderOptions) {
   return samples
 }
 
+function buildHwbCubeSamples(options: ColorSampleRenderOptions) {
+  const samples: ColorSpaceSample[] = []
+
+  for (const whiteness of UNIT_STEPS) {
+    for (const blackness of UNIT_STEPS) {
+      if (whiteness + blackness > 1) {
+        continue
+      }
+
+      for (const hue of HUE_STEPS) {
+        appendSample(
+          samples,
+          hueCubeToPoint(hue, whiteness, blackness),
+          { mode: "hwb", h: hue, w: whiteness, b: blackness },
+          options
+        )
+      }
+    }
+  }
+
+  return samples
+}
+
 function assertNeverModel(modelId: never): never {
   throw new RangeError(`Unknown color model: ${modelId}`)
 }
@@ -201,10 +275,16 @@ export function buildColorSpaceSamples(
       return buildRgbSamples(options)
     case "hsl":
       return buildHslSamples(options)
+    case "hsl-cube":
+      return buildHslCubeSamples(options)
     case "hsv":
       return buildHsvSamples(options)
+    case "hsv-cube":
+      return buildHsvCubeSamples(options)
     case "hwb":
       return buildHwbSamples(options)
+    case "hwb-cube":
+      return buildHwbCubeSamples(options)
     case "xyz":
       return buildXyzSamples(options)
     case "xyy":
@@ -213,10 +293,14 @@ export function buildColorSpaceSamples(
       return buildLabSamples(options)
     case "lch":
       return buildLchSamples(options)
+    case "lch-cube":
+      return buildLchCubeSamples(options)
     case "oklab":
       return buildOklabSamples(options)
     case "oklch":
       return buildOklchSamples(options)
+    case "oklch-cube":
+      return buildOklchCubeSamples(options)
     default:
       return assertNeverModel(modelId)
   }

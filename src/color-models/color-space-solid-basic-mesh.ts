@@ -2,6 +2,7 @@ import type { Color } from "culori"
 
 import type { CuloriSampleGamut } from "@/color-models/color-gamut"
 import type { ColorSampleRenderOptions } from "@/color-models/color-sample-rendering"
+import { hueCubeToPoint } from "@/color-models/color-space-hue-cube"
 import type { ColorSpaceModelId } from "@/color-models/color-space-models"
 import {
   appendGridSurface,
@@ -24,9 +25,12 @@ const POLAR_WIREFRAME_ROW_STEP = 8
 
 type BasicSolidModelId = Extract<
   ColorSpaceModelId,
-  "hsl" | "hsv" | "hwb" | "rgb"
+  "hsl" | "hsl-cube" | "hsv" | "hsv-cube" | "hwb" | "hwb-cube" | "rgb"
 >
+type HslCubeAxis = "h" | "l" | "s"
+type HsvCubeAxis = "h" | "s" | "v"
 type HwbConeChannel = "blackness" | "whiteness"
+type HwbCubeFace = "blackness-zero" | "hue" | "sum-one" | "whiteness-zero"
 
 function toGamutRgbColor(
   gamut: CuloriSampleGamut,
@@ -119,6 +123,50 @@ function buildHslMesh(options: ColorSampleRenderOptions) {
   return finalizeMesh(builder, "double-cone HSL surface")
 }
 
+function appendHslCubeFace(
+  fixedAxis: HslCubeAxis,
+  fixedValue: number,
+  options: ColorSampleRenderOptions,
+  builder = createBuilder()
+) {
+  appendGridSurface(
+    builder,
+    CUBE_SEGMENTS,
+    CUBE_SEGMENTS,
+    (row, column) => {
+      const u = column / CUBE_SEGMENTS
+      const v = row / CUBE_SEGMENTS
+      const hue = (fixedAxis === "h" ? fixedValue : u) * 360
+      const saturation =
+        fixedAxis === "s" ? fixedValue : fixedAxis === "h" ? u : v
+      const lightness = fixedAxis === "l" ? fixedValue : v
+
+      return appendVertex(
+        builder,
+        hueCubeToPoint(hue, lightness, saturation),
+        { mode: "hsl", h: hue, s: saturation, l: lightness },
+        options
+      )
+    },
+    { columnStep: CUBE_WIREFRAME_STEP, rowStep: CUBE_WIREFRAME_STEP }
+  )
+
+  return builder
+}
+
+function buildHslCubeMesh(options: ColorSampleRenderOptions) {
+  const builder = createBuilder()
+
+  appendHslCubeFace("h", 0, options, builder)
+  appendHslCubeFace("h", 1, options, builder)
+  appendHslCubeFace("s", 0, options, builder)
+  appendHslCubeFace("s", 1, options, builder)
+  appendHslCubeFace("l", 0, options, builder)
+  appendHslCubeFace("l", 1, options, builder)
+
+  return finalizeMesh(builder, "HSL unfolded coordinate cube")
+}
+
 function buildHsvMesh(options: ColorSampleRenderOptions) {
   const builder = createBuilder()
 
@@ -161,6 +209,50 @@ function buildHsvMesh(options: ColorSampleRenderOptions) {
   )
 
   return finalizeMesh(builder, "HSV cone with value cap")
+}
+
+function appendHsvCubeFace(
+  fixedAxis: HsvCubeAxis,
+  fixedValue: number,
+  options: ColorSampleRenderOptions,
+  builder = createBuilder()
+) {
+  appendGridSurface(
+    builder,
+    CUBE_SEGMENTS,
+    CUBE_SEGMENTS,
+    (row, column) => {
+      const u = column / CUBE_SEGMENTS
+      const v = row / CUBE_SEGMENTS
+      const hue = (fixedAxis === "h" ? fixedValue : u) * 360
+      const saturation =
+        fixedAxis === "s" ? fixedValue : fixedAxis === "h" ? u : v
+      const value = fixedAxis === "v" ? fixedValue : v
+
+      return appendVertex(
+        builder,
+        hueCubeToPoint(hue, value, saturation),
+        { mode: "hsv", h: hue, s: saturation, v: value },
+        options
+      )
+    },
+    { columnStep: CUBE_WIREFRAME_STEP, rowStep: CUBE_WIREFRAME_STEP }
+  )
+
+  return builder
+}
+
+function buildHsvCubeMesh(options: ColorSampleRenderOptions) {
+  const builder = createBuilder()
+
+  appendHsvCubeFace("h", 0, options, builder)
+  appendHsvCubeFace("h", 1, options, builder)
+  appendHsvCubeFace("s", 0, options, builder)
+  appendHsvCubeFace("s", 1, options, builder)
+  appendHsvCubeFace("v", 0, options, builder)
+  appendHsvCubeFace("v", 1, options, builder)
+
+  return finalizeMesh(builder, "HSV unfolded coordinate cube")
 }
 
 function appendHwbCone(
@@ -210,6 +302,67 @@ function buildHwbMesh(options: ColorSampleRenderOptions) {
   return finalizeMesh(builder, "HWB white/black bicone surface")
 }
 
+function appendHwbCubeFace(
+  face: HwbCubeFace,
+  fixedHueUnit: number,
+  options: ColorSampleRenderOptions,
+  builder = createBuilder()
+) {
+  appendGridSurface(
+    builder,
+    HWB_RATIO_SEGMENTS,
+    face === "hue" ? HWB_RATIO_SEGMENTS : HUE_SEGMENTS,
+    (row, column) => {
+      const u =
+        face === "hue" ? column / HWB_RATIO_SEGMENTS : column / HUE_SEGMENTS
+      const v = row / HWB_RATIO_SEGMENTS
+      const hue = (face === "hue" ? fixedHueUnit : u) * 360
+      const whiteness =
+        face === "blackness-zero"
+          ? v
+          : face === "whiteness-zero"
+            ? 0
+            : face === "sum-one"
+              ? v
+              : v
+      const blackness =
+        face === "blackness-zero"
+          ? 0
+          : face === "whiteness-zero"
+            ? v
+            : face === "sum-one"
+              ? 1 - v
+              : (1 - whiteness) * u
+
+      return appendVertex(
+        builder,
+        hueCubeToPoint(hue, whiteness, blackness),
+        { mode: "hwb", h: hue, w: whiteness, b: blackness },
+        options
+      )
+    },
+    {
+      columnStep:
+        face === "hue" ? CUBE_WIREFRAME_STEP : POLAR_WIREFRAME_COLUMN_STEP,
+      rowStep: POLAR_WIREFRAME_ROW_STEP,
+    }
+  )
+
+  return builder
+}
+
+function buildHwbCubeMesh(options: ColorSampleRenderOptions) {
+  const builder = createBuilder()
+
+  appendHwbCubeFace("blackness-zero", 0, options, builder)
+  appendHwbCubeFace("whiteness-zero", 0, options, builder)
+  appendHwbCubeFace("sum-one", 0, options, builder)
+  appendHwbCubeFace("hue", 0, options, builder)
+  appendHwbCubeFace("hue", 1, options, builder)
+
+  return finalizeMesh(builder, "HWB valid coordinate prism")
+}
+
 export function buildBasicSolidMesh(
   modelId: BasicSolidModelId,
   options: ColorSampleRenderOptions
@@ -219,10 +372,16 @@ export function buildBasicSolidMesh(
       return buildRgbMesh(options)
     case "hsl":
       return buildHslMesh(options)
+    case "hsl-cube":
+      return buildHslCubeMesh(options)
     case "hsv":
       return buildHsvMesh(options)
+    case "hsv-cube":
+      return buildHsvCubeMesh(options)
     case "hwb":
       return buildHwbMesh(options)
+    case "hwb-cube":
+      return buildHwbCubeMesh(options)
     default:
       return assertNeverBasicModel(modelId)
   }

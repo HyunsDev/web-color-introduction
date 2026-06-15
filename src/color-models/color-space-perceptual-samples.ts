@@ -2,6 +2,7 @@ import type { Color } from "culori"
 
 import type { ColorSampleRenderOptions } from "@/color-models/color-sample-rendering"
 import { toColorSampleRenderColor } from "@/color-models/color-sample-rendering"
+import { hueCubeToPoint } from "@/color-models/color-space-hue-cube"
 import type {
   ColorSpaceSample,
   Vector3Point,
@@ -169,6 +170,43 @@ function buildPolarPerceptualSamples({
   return samples
 }
 
+function buildPolarPerceptualCubeSamples({
+  chromaSteps,
+  lightnessDivisor,
+  lightnessSteps,
+  maxChroma,
+  modelId,
+  options,
+}: {
+  readonly chromaSteps: readonly number[]
+  readonly lightnessDivisor: number
+  readonly lightnessSteps: readonly number[]
+  readonly maxChroma: number
+  readonly modelId: PolarPerceptualModelId
+  readonly options: ColorSampleRenderOptions
+}) {
+  const samples: ColorSpaceSample[] = []
+
+  for (const lightness of lightnessSteps) {
+    const lightnessUnit = lightness / lightnessDivisor
+
+    for (const chroma of chromaSteps) {
+      const chromaUnit = chroma / maxChroma
+
+      for (const hue of HUE_STEPS) {
+        appendSample(
+          samples,
+          hueCubeToPoint(hue, lightnessUnit, chromaUnit),
+          createPolarPerceptualColor(modelId, lightness, chroma, hue),
+          options
+        )
+      }
+    }
+  }
+
+  return samples
+}
+
 export function buildLabSamples(options: ColorSampleRenderOptions) {
   return buildCartesianPerceptualSamples({
     componentRange: LAB_MAX_CHROMA,
@@ -191,6 +229,17 @@ export function buildLchSamples(options: ColorSampleRenderOptions) {
   })
 }
 
+export function buildLchCubeSamples(options: ColorSampleRenderOptions) {
+  return buildPolarPerceptualCubeSamples({
+    chromaSteps: LCH_CHROMA_STEPS,
+    lightnessDivisor: 100,
+    lightnessSteps: LAB_LIGHTNESS_STEPS,
+    maxChroma: LAB_MAX_CHROMA,
+    modelId: "lch",
+    options,
+  })
+}
+
 export function buildOklabSamples(options: ColorSampleRenderOptions) {
   return buildCartesianPerceptualSamples({
     componentRange: OKLAB_MAX_CHROMA,
@@ -204,6 +253,17 @@ export function buildOklabSamples(options: ColorSampleRenderOptions) {
 
 export function buildOklchSamples(options: ColorSampleRenderOptions) {
   return buildPolarPerceptualSamples({
+    chromaSteps: OKLCH_CHROMA_STEPS,
+    lightnessDivisor: 1,
+    lightnessSteps: OKLAB_LIGHTNESS_STEPS,
+    maxChroma: OKLAB_MAX_CHROMA,
+    modelId: "oklch",
+    options,
+  })
+}
+
+export function buildOklchCubeSamples(options: ColorSampleRenderOptions) {
+  return buildPolarPerceptualCubeSamples({
     chromaSteps: OKLCH_CHROMA_STEPS,
     lightnessDivisor: 1,
     lightnessSteps: OKLAB_LIGHTNESS_STEPS,

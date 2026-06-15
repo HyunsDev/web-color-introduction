@@ -2,13 +2,13 @@ import type { Color } from "culori"
 
 import type { ColorSampleRenderOptions } from "@/color-models/color-sample-rendering"
 import { toColorSampleRenderColor } from "@/color-models/color-sample-rendering"
+import { hueCubeToPoint } from "@/color-models/color-space-hue-cube"
 import {
   appendGridSurface,
   appendVertex,
   createBuilder,
   finalizeMesh,
   normalizeUnit,
-  polarToPoint,
 } from "@/color-models/color-space-solid-mesh-builder"
 
 const HUE_SEGMENTS = 192
@@ -21,7 +21,13 @@ const WIREFRAME_ROW_STEP = 8
 const LAB_MAX_CHROMA = 200
 const OKLAB_MAX_CHROMA = 0.48
 
-type PerceptualSolidModelId = "lab" | "lch" | "oklab" | "oklch"
+type PerceptualSolidModelId =
+  | "lab"
+  | "lch"
+  | "lch-cube"
+  | "oklab"
+  | "oklch"
+  | "oklch-cube"
 type ChromaSmoothingMode = "color" | "shape"
 
 const PERCEPTUAL_SOLID_MODEL_SETTINGS = {
@@ -33,12 +39,20 @@ const PERCEPTUAL_SOLID_MODEL_SETTINGS = {
     shapeLabel: "smooth LCH gamut shell",
     upperChroma: LAB_MAX_CHROMA,
   },
+  "lch-cube": {
+    shapeLabel: "smooth LCH unfolded gamut shell",
+    upperChroma: LAB_MAX_CHROMA,
+  },
   oklab: {
     shapeLabel: "smooth OKLab a/b gamut shell",
     upperChroma: OKLAB_MAX_CHROMA,
   },
   oklch: {
     shapeLabel: "smooth OKLCH gamut shell",
+    upperChroma: OKLAB_MAX_CHROMA,
+  },
+  "oklch-cube": {
+    shapeLabel: "smooth OKLCH unfolded gamut shell",
     upperChroma: OKLAB_MAX_CHROMA,
   },
 } as const satisfies Record<
@@ -70,10 +84,12 @@ function getPerceptualColor(
     case "lab":
       return { mode: "lab", l: lightness * 100, a, b }
     case "lch":
+    case "lch-cube":
       return { mode: "lch", l: lightness * 100, c: chroma, h: hue }
     case "oklab":
       return { mode: "oklab", l: lightness, a, b }
     case "oklch":
+    case "oklch-cube":
       return { mode: "oklch", l: lightness, c: chroma, h: hue }
     default:
       return assertNeverPerceptualModel(modelId)
@@ -99,8 +115,14 @@ function getPerceptualPoint(
       }
     }
     case "lch":
-    case "oklch":
-      return polarToPoint(hue, chroma / upperChroma, normalizeUnit(lightness))
+    case "oklch": {
+      const { a, b } = chromaHueToComponents(chroma / upperChroma, hue)
+
+      return { x: a, y: normalizeUnit(lightness), z: b }
+    }
+    case "lch-cube":
+    case "oklch-cube":
+      return hueCubeToPoint(hue, lightness, chroma / upperChroma)
     default:
       return assertNeverPerceptualModel(modelId)
   }

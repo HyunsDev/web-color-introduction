@@ -46,14 +46,19 @@ import { PlaygroundStage } from "@/playground/PlaygroundRoute"
 const MODEL_ICONS = {
   rgb: BoxIcon,
   hsl: CircleDotIcon,
+  "hsl-cube": BoxIcon,
   hsv: ConeIcon,
+  "hsv-cube": BoxIcon,
   hwb: BlendIcon,
+  "hwb-cube": BoxIcon,
   xyz: Axis3dIcon,
   xyy: CircleDotIcon,
   lab: Axis3dIcon,
   lch: CylinderIcon,
+  "lch-cube": BoxIcon,
   oklab: Scale3dIcon,
   oklch: OrbitIcon,
+  "oklch-cube": BoxIcon,
 } satisfies Record<ColorSpaceModelId, ElementType>
 
 const CIE_REFERENCE_MODEL_IDS = ["xyz", "xyy"] as const
@@ -195,8 +200,8 @@ export function ColorSpaceSolidModelsPage() {
           </code>
           <p className="mt-1 hidden text-xs leading-5 text-muted-foreground sm:block">
             점군 대신 닫힌 표면 mesh로 RGB, HSL, HSV, HWB, XYZ, xyY, Lab, LCH,
-            OKLab, OKLCH의 형태 차이를 비교합니다. CIE 1931은 디스플레이 색역이
-            아니라 XYZ/xyY reference boundary입니다.
+            OKLab, OKLCH와 펼친 Cube 모델의 형태 차이를 비교합니다. CIE 1931은
+            디스플레이 색역이 아니라 XYZ/xyY reference boundary입니다.
           </p>
           <div className="mt-3 flex flex-wrap items-center gap-2">
             <Badge variant="outline" className="gap-1">
@@ -237,7 +242,7 @@ export function ColorSpaceSolidModelsPage() {
       }
       bottomStart={<CoordinateLegendDock axes={selectedModel.axes} />}
       bottomCenter={
-        <div className="grid w-full max-w-[min(100%,58rem)] grid-cols-2 gap-2 rounded-md border border-border bg-background/90 p-3 shadow-sm backdrop-blur sm:grid-cols-4 xl:grid-cols-5">
+        <div className="grid w-full max-w-[min(100%,64rem)] grid-cols-2 gap-2 rounded-md border border-border bg-background/90 p-3 shadow-sm backdrop-blur sm:grid-cols-4 xl:grid-cols-8">
           {modelTabs}
         </div>
       }

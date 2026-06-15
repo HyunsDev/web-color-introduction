@@ -1,6 +1,7 @@
 import type { Color } from "culori"
 
 import type { ColorSampleRenderOptions } from "@/color-models/color-sample-rendering"
+import { hueCubeToPoint } from "@/color-models/color-space-hue-cube"
 import {
   appendGridSurface,
   appendVertex,
@@ -29,12 +30,20 @@ export function buildSolidSliceMesh(
       return buildRgbSlice(slice, options)
     case "hsl":
       return buildHslSlice(slice, options)
+    case "hsl-cube":
+      return buildHslCubeSlice(slice, options)
     case "hsv":
       return buildHsvSlice(slice, options)
+    case "hsv-cube":
+      return buildHsvCubeSlice(slice, options)
     case "lch":
       return buildPerceptualSlice(slice, options, "lch", 150)
+    case "lch-cube":
+      return buildPerceptualSlice(slice, options, "lch", 150, "cube")
     case "oklch":
       return buildPerceptualSlice(slice, options, "oklch", 0.4)
+    case "oklch-cube":
+      return buildPerceptualSlice(slice, options, "oklch", 0.4, "cube")
     default:
       return assertNeverModel(modelId)
   }
@@ -44,7 +53,8 @@ function buildPerceptualSlice(
   slice: SolidSliceState,
   options: ColorSampleRenderOptions,
   mode: "lch" | "oklch",
-  maxChroma: number
+  maxChroma: number,
+  shape: "cube" | "polar" = "polar"
 ) {
   const builder = createBuilder()
 
@@ -66,7 +76,9 @@ function buildPerceptualSlice(
 
       return appendVertex(
         builder,
-        polarToPoint(h, c / maxChroma, normalizeUnit(l)),
+        shape === "cube"
+          ? hueCubeToPoint(h, l, c / maxChroma)
+          : polarToPoint(h, c / maxChroma, normalizeUnit(l)),
         color,
         options
       )
@@ -74,7 +86,12 @@ function buildPerceptualSlice(
     { columnStep: 12, rowStep: WIREFRAME_STEP }
   )
 
-  return finalizeMesh(builder, `${mode.toUpperCase()} coordinate slice`)
+  return finalizeMesh(
+    builder,
+    shape === "cube"
+      ? `${mode.toUpperCase()} cube coordinate slice`
+      : `${mode.toUpperCase()} coordinate slice`
+  )
 }
 
 function buildRgbSlice(
@@ -108,6 +125,19 @@ function buildHslSlice(
   )
 }
 
+function buildHslCubeSlice(
+  slice: SolidSliceState,
+  options: ColorSampleRenderOptions
+) {
+  return buildPolarSlice(
+    slice,
+    options,
+    (h, s, l) => ({ mode: "hsl", h, s, l }),
+    (h, s, l) => hueCubeToPoint(h, l, s),
+    "HSL cube coordinate slice"
+  )
+}
+
 function buildHsvSlice(
   slice: SolidSliceState,
   options: ColorSampleRenderOptions
@@ -118,6 +148,19 @@ function buildHsvSlice(
     (h, s, v) => ({ mode: "hsv", h, s, v }),
     (h, s, v) => polarToPoint(h, s * v, normalizeUnit(v)),
     "HSV coordinate slice"
+  )
+}
+
+function buildHsvCubeSlice(
+  slice: SolidSliceState,
+  options: ColorSampleRenderOptions
+) {
+  return buildPolarSlice(
+    slice,
+    options,
+    (h, s, v) => ({ mode: "hsv", h, s, v }),
+    (h, s, v) => hueCubeToPoint(h, v, s),
+    "HSV cube coordinate slice"
   )
 }
 

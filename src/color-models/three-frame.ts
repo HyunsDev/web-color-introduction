@@ -226,6 +226,11 @@ export function createModelFrame(
 
   switch (modelId) {
     case "rgb":
+    case "hsl-cube":
+    case "hsv-cube":
+    case "hwb-cube":
+    case "lch-cube":
+    case "oklch-cube":
       group.add(createCubeFrame(theme))
       return group
     case "hsl":
