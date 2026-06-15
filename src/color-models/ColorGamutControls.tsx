@@ -103,12 +103,14 @@ export function ColorGamutControls({
   capabilities,
   isModeSupported = () => true,
   onSelect,
+  orientation = "responsive",
   selectedGamutId,
 }: {
   readonly className?: string
   readonly capabilities: ColorGamutCapabilities
   readonly isModeSupported?: (gamutId: ColorGamutModeId) => boolean
   readonly onSelect: (gamutId: ColorGamutModeId) => void
+  readonly orientation?: "responsive" | "vertical"
   readonly selectedGamutId: ColorGamutModeId
 }) {
   return (
@@ -123,7 +125,12 @@ export function ColorGamutControls({
           <div className="font-mono text-[0.62rem] font-semibold tracking-normal text-muted-foreground uppercase">
             {group.label}
           </div>
-          <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+          <div
+            className={cn(
+              "grid grid-cols-1 gap-2",
+              orientation === "responsive" && "sm:grid-cols-3"
+            )}
+          >
             {group.modes.map((mode) => {
               const rendering = resolveColorGamutRendering(
                 mode.id,

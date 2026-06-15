@@ -149,7 +149,8 @@ export function ColorSpaceExplorer() {
           selectedGamutId={selectedGamutId}
           onSelect={setSelectedGamutId}
           isModeSupported={(gamutId) => gamutId !== "cie-1931"}
-          className="max-w-[min(100%,42rem)] p-3 sm:p-4"
+          orientation="vertical"
+          className="w-full max-w-[18rem] p-3 sm:p-4"
         />
       }
       bottomStart={<CoordinateLegendDock axes={selectedModel.axes} />}
