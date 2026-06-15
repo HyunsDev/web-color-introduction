@@ -4,13 +4,13 @@ import type { Color } from "culori"
 import {
   COLOR_GAMUT_MODE_BY_ID,
   COLOR_OUTPUT_GAMUT_BY_ID,
-} from "@/color-models/color-gamut"
+} from "./color-gamut.ts"
 import type {
   ColorGamutModeId,
   ColorOutputGamutId,
   CuloriOutputGamut,
   CuloriSampleGamut,
-} from "@/color-models/color-gamut"
+} from "./color-gamut.ts"
 
 export type LinearDisplayColor = {
   readonly r: number
@@ -85,10 +85,7 @@ function toSampleGamutCoordinates(
   }
 }
 
-function isInSampleGamut(
-  color: Color,
-  sampleGamut: CuloriSampleGamut | null
-) {
+function isInSampleGamut(color: Color, sampleGamut: CuloriSampleGamut | null) {
   if (!sampleGamut) {
     return true
   }
@@ -102,10 +99,7 @@ function isInSampleGamut(
   )
 }
 
-function mapToOutputGamut(
-  color: Color,
-  outputGamut: CuloriOutputGamut
-): Color {
+function mapToOutputGamut(color: Color, outputGamut: CuloriOutputGamut): Color {
   switch (outputGamut) {
     case "rgb":
       return toSrgbGamut(color)
@@ -142,9 +136,7 @@ function toLinearP3(color: Color): LinearDisplayColor {
 }
 
 function linearizeSrgbTransfer(value = 0) {
-  return value < 0.04045
-    ? value / 12.92
-    : ((value + 0.055) / 1.055) ** 2.4
+  return value < 0.04045 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4
 }
 
 function assertNeverSampleGamut(sampleGamut: never): never {

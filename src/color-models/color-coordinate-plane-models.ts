@@ -139,3 +139,28 @@ export function getPlaneMarkerPosition(
       getAxisRatio(yAxis, readColorCoordinateAxis(coordinate, plane.yAxisId)),
   }
 }
+
+export function getCoordinateAxisRatio(
+  coordinate: ColorCoordinate,
+  modelId: ColorCoordinateModelId,
+  axisId: ColorCoordinateAxisId
+) {
+  const axis = requireCoordinateAxis(modelId, axisId)
+
+  return getAxisRatio(axis, readColorCoordinateAxis(coordinate, axisId))
+}
+
+export function setCoordinateAxisFromRatio(
+  coordinate: ColorCoordinate,
+  modelId: ColorCoordinateModelId,
+  axisId: ColorCoordinateAxisId,
+  ratio: number
+) {
+  const axis = requireCoordinateAxis(modelId, axisId)
+
+  return setColorCoordinateAxis(
+    coordinate,
+    axisId,
+    getAxisValueFromRatio(axis, ratio)
+  )
+}

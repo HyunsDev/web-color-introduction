@@ -5,8 +5,10 @@ import { formatCssColorSet } from "./color-css-format.ts"
 import { samplePixel } from "./color-canvas-sampling.ts"
 import { getColorGamutChecks } from "./color-gamut-analysis.ts"
 import {
+  getCoordinateAxisRatio,
   getCoordinatePlanes,
   getPlaneMarkerPosition,
+  setCoordinateAxisFromRatio,
   setPlaneCoordinate,
 } from "./color-coordinate-plane-models.ts"
 import {
@@ -119,6 +121,25 @@ test("getPlaneMarkerPosition normalizes selected coordinate axes", () => {
 
   assert.ok(plane)
   assert.deepEqual(getPlaneMarkerPosition(coordinate, plane), { x: 1, y: 1 })
+})
+
+test("coordinate axis bars map ratios onto the missing plane axis", () => {
+  const coordinate = createDefaultColorCoordinate("rgb")
+
+  assert.deepEqual(setCoordinateAxisFromRatio(coordinate, "rgb", "b", 1), {
+    modelId: "rgb",
+    r: 255,
+    g: 96,
+    b: 255,
+  })
+  assert.equal(
+    getCoordinateAxisRatio(
+      { modelId: "rgb", r: 255, g: 0, b: 128 },
+      "rgb",
+      "b"
+    ),
+    128 / 255
+  )
 })
 
 test("createUnwrappedColor maps hue radius and fixed axis into model colors", () => {

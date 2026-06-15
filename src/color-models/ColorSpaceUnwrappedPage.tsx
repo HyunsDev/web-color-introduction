@@ -1,6 +1,7 @@
 import { useState } from "react"
 import type { ElementType } from "react"
 import {
+  BoxIcon,
   CircleDotIcon,
   ConeIcon,
   CylinderIcon,
@@ -10,6 +11,7 @@ import {
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Slider } from "@/components/ui/slider"
+import { ColorSpaceUnwrapped3DCanvas } from "@/color-models/ColorSpaceUnwrapped3DCanvas"
 import { ColorSpaceUnwrappedCanvas } from "@/color-models/ColorSpaceUnwrappedCanvas"
 import {
   formatUnwrappedValue,
@@ -27,6 +29,8 @@ const MODEL_ICONS = {
   oklch: PanelTopIcon,
 } satisfies Record<UnwrappedColorModelId, ElementType>
 
+type UnwrappedViewMode = "flat" | "wrapped"
+
 export function ColorSpaceUnwrappedPage() {
   const [selectedModelId, setSelectedModelId] =
     useState<UnwrappedColorModelId>("oklch")
@@ -34,6 +38,7 @@ export function ColorSpaceUnwrappedPage() {
   const [fixedValue, setFixedValue] = useState<number>(
     selectedModel.fixedDefault
   )
+  const [viewMode, setViewMode] = useState<UnwrappedViewMode>("wrapped")
   const ActiveIcon = MODEL_ICONS[selectedModelId]
 
   return (
@@ -53,9 +58,12 @@ export function ColorSpaceUnwrappedPage() {
               <ActiveIcon className="size-3" />
               {selectedModel.label}
             </Badge>
-            <Badge variant="secondary">Hue {"->"} X</Badge>
             <Badge variant="secondary">
-              {selectedModel.radiusLabel} {"->"} Y
+              Hue {viewMode === "flat" ? "-> X" : "-> angle"}
+            </Badge>
+            <Badge variant="secondary">
+              {selectedModel.radiusLabel}{" "}
+              {viewMode === "flat" ? "-> Y" : "-> radius"}
             </Badge>
           </div>
         </div>
@@ -83,6 +91,30 @@ export function ColorSpaceUnwrappedPage() {
                 </Button>
               )
             })}
+          </div>
+          <div className="grid grid-cols-2 gap-2">
+            <Button
+              type="button"
+              variant={viewMode === "flat" ? "default" : "outline"}
+              className="justify-start gap-2 text-xs"
+              onClick={() => {
+                setViewMode("flat")
+              }}
+            >
+              <PanelTopIcon />
+              2D unfold
+            </Button>
+            <Button
+              type="button"
+              variant={viewMode === "wrapped" ? "default" : "outline"}
+              className="justify-start gap-2 text-xs"
+              onClick={() => {
+                setViewMode("wrapped")
+              }}
+            >
+              <BoxIcon />
+              3D wrap
+            </Button>
           </div>
           <div className="grid gap-1.5">
             <div className="flex items-center justify-between gap-2 text-xs">
@@ -112,27 +144,45 @@ export function ColorSpaceUnwrappedPage() {
       bottomCenter={
         <div className="grid w-full max-w-[min(100%,46rem)] gap-2 rounded-md border border-border bg-background/90 p-3 text-xs shadow-sm backdrop-blur sm:grid-cols-3">
           <div>
-            <code>0deg</code>
-            <p className="mt-1 text-muted-foreground">left seam</p>
+            <code>{viewMode === "flat" ? "0deg" : "0deg / 360deg"}</code>
+            <p className="mt-1 text-muted-foreground">
+              {viewMode === "flat" ? "left seam" : "joined seam"}
+            </p>
           </div>
           <div>
             <code>radius 0</code>
-            <p className="mt-1 text-muted-foreground">duplicated gray axis</p>
+            <p className="mt-1 text-muted-foreground">
+              {viewMode === "flat" ? "duplicated gray axis" : "central axis"}
+            </p>
           </div>
           <div>
-            <code>360deg</code>
-            <p className="mt-1 text-muted-foreground">right seam</p>
+            <code>
+              {viewMode === "flat" ? "360deg" : selectedModel.fixedAxisLabel}
+            </code>
+            <p className="mt-1 text-muted-foreground">
+              {viewMode === "flat"
+                ? "right seam"
+                : formatUnwrappedValue(fixedValue, selectedModel.fixedUnit)}
+            </p>
           </div>
         </div>
       }
       bottomEnd={<PlaygroundTools />}
     >
       <div className="flex size-full items-center justify-center px-4 py-36 sm:px-8">
-        <ColorSpaceUnwrappedCanvas
-          modelId={selectedModelId}
-          fixedValue={fixedValue}
-          className="mt-12 max-w-[min(92vw,52rem)]"
-        />
+        {viewMode === "flat" ? (
+          <ColorSpaceUnwrappedCanvas
+            modelId={selectedModelId}
+            fixedValue={fixedValue}
+            className="mt-12 max-w-[min(92vw,52rem)]"
+          />
+        ) : (
+          <ColorSpaceUnwrapped3DCanvas
+            modelId={selectedModelId}
+            fixedValue={fixedValue}
+            className="mt-12 w-full max-w-[min(92vw,52rem)]"
+          />
+        )}
       </div>
     </PlaygroundStage>
   )

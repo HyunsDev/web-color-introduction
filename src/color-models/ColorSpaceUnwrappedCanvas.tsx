@@ -8,6 +8,7 @@ import {
   UNWRAPPED_COLOR_MODEL_BY_ID,
 } from "@/color-models/color-space-unwrapped-models"
 import type { UnwrappedColorModelId } from "@/color-models/color-space-unwrapped-models"
+import { useTheme } from "@/components/theme-provider"
 import { cn } from "@/lib/utils"
 
 const CANVAS_WIDTH = 720
@@ -16,6 +17,25 @@ const SHEET_TOP = 62
 const SHEET_LEFT = 66
 const SHEET_WIDTH = 588
 const SHEET_HEIGHT = 300
+
+type CanvasPalette = {
+  readonly grid: string
+  readonly label: string
+  readonly stroke: string
+}
+
+const CANVAS_PALETTES = {
+  light: {
+    grid: "rgba(15, 23, 42, 0.28)",
+    label: "rgba(15, 23, 42, 0.84)",
+    stroke: "rgba(15, 23, 42, 0.28)",
+  },
+  dark: {
+    grid: "rgba(248, 250, 252, 0.22)",
+    label: "rgba(248, 250, 252, 0.88)",
+    stroke: "rgba(248, 250, 252, 0.3)",
+  },
+} as const satisfies Record<"dark" | "light", CanvasPalette>
 
 type ColorSpaceUnwrappedCanvasProps = {
   readonly className?: string
@@ -28,7 +48,9 @@ export function ColorSpaceUnwrappedCanvas({
   fixedValue,
   modelId,
 }: ColorSpaceUnwrappedCanvasProps) {
+  const { resolvedTheme } = useTheme()
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
+  const palette = CANVAS_PALETTES[resolvedTheme]
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -38,8 +60,8 @@ export function ColorSpaceUnwrappedCanvas({
       return
     }
 
-    drawUnwrappedSpace(context, modelId, fixedValue)
-  }, [fixedValue, modelId])
+    drawUnwrappedSpace(context, modelId, fixedValue, palette)
+  }, [fixedValue, modelId, palette])
 
   return (
     <canvas
@@ -58,14 +80,15 @@ export function ColorSpaceUnwrappedCanvas({
 function drawUnwrappedSpace(
   context: CanvasRenderingContext2D,
   modelId: UnwrappedColorModelId,
-  fixedValue: number
+  fixedValue: number,
+  palette: CanvasPalette
 ) {
   context.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT)
   drawSheet(context, modelId, fixedValue)
-  drawGrid(context)
-  drawSeamMarkers(context)
-  drawGrayAxis(context, modelId, fixedValue)
-  drawAxisLabels(context)
+  drawGrid(context, palette)
+  drawSeamMarkers(context, palette)
+  drawGrayAxis(context, modelId, fixedValue, palette)
+  drawAxisLabels(context, palette)
 }
 
 function drawSheet(
@@ -95,9 +118,9 @@ function drawSheet(
   context.putImageData(imageData, SHEET_LEFT, SHEET_TOP)
 }
 
-function drawGrid(context: CanvasRenderingContext2D) {
+function drawGrid(context: CanvasRenderingContext2D, palette: CanvasPalette) {
   context.save()
-  context.strokeStyle = "rgba(15, 23, 42, 0.28)"
+  context.strokeStyle = palette.grid
   context.lineWidth = 1
 
   for (let index = 0; index <= 6; index += 1) {
@@ -119,9 +142,12 @@ function drawGrid(context: CanvasRenderingContext2D) {
   context.restore()
 }
 
-function drawSeamMarkers(context: CanvasRenderingContext2D) {
+function drawSeamMarkers(
+  context: CanvasRenderingContext2D,
+  palette: CanvasPalette
+) {
   context.save()
-  context.fillStyle = "rgba(15, 23, 42, 0.88)"
+  context.fillStyle = palette.label
   context.font = "600 13px ui-monospace, SFMono-Regular, Menlo, monospace"
   context.fillText("0deg seam", SHEET_LEFT, SHEET_TOP - 12)
   context.textAlign = "right"
@@ -132,7 +158,8 @@ function drawSeamMarkers(context: CanvasRenderingContext2D) {
 function drawGrayAxis(
   context: CanvasRenderingContext2D,
   modelId: UnwrappedColorModelId,
-  fixedValue: number
+  fixedValue: number,
+  palette: CanvasPalette
 ) {
   const y = SHEET_TOP + SHEET_HEIGHT + 24
   const color = createUnwrappedColor(modelId, 0, 0, fixedValue)
@@ -140,9 +167,9 @@ function drawGrayAxis(
   context.save()
   context.fillStyle = formatHex(color)
   context.fillRect(SHEET_LEFT, y, SHEET_WIDTH, 18)
-  context.strokeStyle = "rgba(15, 23, 42, 0.28)"
+  context.strokeStyle = palette.stroke
   context.strokeRect(SHEET_LEFT, y, SHEET_WIDTH, 18)
-  context.fillStyle = "rgba(15, 23, 42, 0.82)"
+  context.fillStyle = palette.label
   context.font = "600 12px ui-sans-serif, system-ui, sans-serif"
   context.fillText(
     "radius 0: hue values collapse into the same gray axis",
@@ -152,9 +179,12 @@ function drawGrayAxis(
   context.restore()
 }
 
-function drawAxisLabels(context: CanvasRenderingContext2D) {
+function drawAxisLabels(
+  context: CanvasRenderingContext2D,
+  palette: CanvasPalette
+) {
   context.save()
-  context.fillStyle = "rgba(15, 23, 42, 0.82)"
+  context.fillStyle = palette.label
   context.font = "600 12px ui-sans-serif, system-ui, sans-serif"
   context.fillText(
     "Hue -> X",
