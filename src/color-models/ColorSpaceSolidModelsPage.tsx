@@ -12,7 +12,13 @@ import {
 } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
 import { ColorGamutControls } from "@/color-models/ColorGamutControls"
 import {
@@ -38,8 +44,15 @@ import type {
 import { COLOR_SPACE_MODEL_BY_ID } from "@/color-models/color-space-models"
 import { COLOR_SPACE_SOLID_MODELS } from "@/color-models/color-space-solid-models"
 import type {
+  BaseColorSpaceModelId,
   ColorSpaceAxis,
   ColorSpaceModelId,
+  HueCubeBaseModelId,
+  HueCubeModelId,
+} from "@/color-models/color-space-models"
+import {
+  getBaseColorSpaceModelId,
+  isHueCubeModelId,
 } from "@/color-models/color-space-models"
 import { SolidColorSpaceModelCanvas } from "@/color-models/SolidColorSpaceModelCanvas"
 import { cn } from "@/lib/utils"
@@ -66,8 +79,41 @@ const MODEL_ICONS = {
 
 const CIE_REFERENCE_MODEL_IDS = ["xyz", "xyy"] as const
 
+const CUBE_MODEL_BY_BASE_ID = {
+  hsl: "hsl-cube",
+  hsv: "hsv-cube",
+  hwb: "hwb-cube",
+  lch: "lch-cube",
+  oklch: "oklch-cube",
+} as const satisfies Record<HueCubeBaseModelId, HueCubeModelId>
+
+const SOLID_BASE_MODELS = COLOR_SPACE_SOLID_MODELS.filter(
+  (model) => !isHueCubeModelId(model.id)
+)
+
 function isCieReferenceModel(modelId: ColorSpaceModelId) {
   return CIE_REFERENCE_MODEL_IDS.some((item) => item === modelId)
+}
+
+function isSolidBaseModelId(value: string): value is BaseColorSpaceModelId {
+  return SOLID_BASE_MODELS.some((model) => model.id === value)
+}
+
+function getCubeModelId(modelId: BaseColorSpaceModelId) {
+  if (modelId in CUBE_MODEL_BY_BASE_ID) {
+    return CUBE_MODEL_BY_BASE_ID[modelId as HueCubeBaseModelId]
+  }
+
+  return null
+}
+
+function resolveSolidModelId(
+  modelId: BaseColorSpaceModelId,
+  cubeEnabled: boolean
+) {
+  const cubeModelId = getCubeModelId(modelId)
+
+  return cubeEnabled && cubeModelId ? cubeModelId : modelId
 }
 
 function isSolidGamutModeSupported(
@@ -156,14 +202,14 @@ function CoordinateSliceDock({
 function SolidModelsBottomDock({
   axes,
   modelId,
-  modelTabs,
+  modelControls,
   onSliceChange,
   slice,
   sliceEnabled,
 }: {
   readonly axes: readonly ColorSpaceAxis[]
   readonly modelId: ColorSpaceModelId
-  readonly modelTabs: ReactNode
+  readonly modelControls: ReactNode
   readonly onSliceChange: (slice: SolidSliceState) => void
   readonly slice: SolidSliceState
   readonly sliceEnabled: boolean
@@ -177,12 +223,81 @@ function SolidModelsBottomDock({
         sliceEnabled={sliceEnabled}
         onSliceChange={onSliceChange}
       />
-      <div className="grid grid-cols-2 gap-2 rounded-md border border-border bg-background/90 p-3 shadow-sm backdrop-blur sm:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-8">
-        {modelTabs}
-      </div>
+      {modelControls}
       <div className="justify-self-center sm:justify-self-end">
         <PlaygroundTools />
       </div>
+    </div>
+  )
+}
+
+function SolidModelControls({
+  cubeEnabled,
+  cubeSupported,
+  onCubeEnabledChange,
+  onModelSelect,
+  selectedBaseModelId,
+  selectedModelId,
+}: {
+  readonly cubeEnabled: boolean
+  readonly cubeSupported: boolean
+  readonly onCubeEnabledChange: (enabled: boolean) => void
+  readonly onModelSelect: (modelId: BaseColorSpaceModelId) => void
+  readonly selectedBaseModelId: BaseColorSpaceModelId
+  readonly selectedModelId: ColorSpaceModelId
+}) {
+  const ActiveIcon = MODEL_ICONS[selectedModelId]
+
+  return (
+    <div className="grid gap-2 rounded-md border border-border bg-background/90 p-3 shadow-sm backdrop-blur sm:grid-cols-[minmax(12rem,18rem)_auto] sm:items-end">
+      <label className="grid gap-1.5 text-xs">
+        <span className="font-medium text-muted-foreground">Model</span>
+        <Select
+          value={selectedBaseModelId}
+          onValueChange={(value) => {
+            if (isSolidBaseModelId(value)) {
+              onModelSelect(value)
+            }
+          }}
+        >
+          <SelectTrigger
+            className="h-9 w-full justify-between bg-background/75"
+            aria-label="Select solid color space model"
+          >
+            <SelectValue placeholder="Model" />
+          </SelectTrigger>
+          <SelectContent>
+            {SOLID_BASE_MODELS.map((model) => {
+              const ModelIcon = MODEL_ICONS[model.id]
+
+              return (
+                <SelectItem key={model.id} value={model.id}>
+                  <ModelIcon />
+                  {model.name}
+                </SelectItem>
+              )
+            })}
+          </SelectContent>
+        </Select>
+      </label>
+      <label
+        className={cn(
+          "flex h-9 items-center justify-between gap-3 rounded-md border border-border bg-background/75 px-2.5 text-xs",
+          !cubeSupported && "opacity-60"
+        )}
+      >
+        <span className="flex items-center gap-2 font-medium">
+          <ActiveIcon className="size-3.5" />
+          Cube
+        </span>
+        <Switch
+          size="sm"
+          checked={cubeEnabled}
+          disabled={!cubeSupported}
+          onCheckedChange={onCubeEnabledChange}
+          aria-label="Toggle cube coordinate model"
+        />
+      </label>
     </div>
   )
 }
@@ -201,6 +316,10 @@ export function ColorSpaceSolidModelsPage() {
     detectColorGamutCapabilities()
   )
   const selectedModel = COLOR_SPACE_MODEL_BY_ID[selectedModelId]
+  const selectedBaseModelId = getBaseColorSpaceModelId(selectedModel.id)
+  const cubeModelId = getCubeModelId(selectedBaseModelId)
+  const cubeSupported = cubeModelId !== null
+  const cubeEnabled = isHueCubeModelId(selectedModel.id)
   const gamutRendering = useMemo(
     () => resolveColorGamutRendering(selectedGamutId, gamutCapabilities),
     [gamutCapabilities, selectedGamutId]
@@ -236,40 +355,18 @@ export function ColorSpaceSolidModelsPage() {
     slice,
   ])
   const ActiveIcon = MODEL_ICONS[selectedModel.id]
-  const modelTabs = useMemo(
-    () =>
-      COLOR_SPACE_SOLID_MODELS.map((model) => {
-        const ModelIcon = MODEL_ICONS[model.id]
-        const isSelected = model.id === selectedModel.id
 
-        return (
-          <Button
-            key={model.id}
-            type="button"
-            variant={isSelected ? "default" : "outline"}
-            className={cn(
-              "h-9 justify-start gap-2 px-3 text-xs",
-              isSelected && "shadow-sm"
-            )}
-            onClick={() => {
-              setSelectedModelId(model.id)
+  function selectSolidModel(modelId: ColorSpaceModelId) {
+    setSelectedModelId(modelId)
 
-              if (!isSolidGamutModeSupported(model.id, selectedGamutId)) {
-                setSelectedGamutId("srgb")
-              }
+    if (!isSolidGamutModeSupported(modelId, selectedGamutId)) {
+      setSelectedGamutId("srgb")
+    }
 
-              if (isSolidSliceModel(model.id)) {
-                setSlice(createDefaultSolidSliceState(model.id))
-              }
-            }}
-          >
-            <ModelIcon />
-            {model.name}
-          </Button>
-        )
-      }),
-    [selectedGamutId, selectedModel.id]
-  )
+    if (isSolidSliceModel(modelId)) {
+      setSlice(createDefaultSolidSliceState(modelId))
+    }
+  }
 
   return (
     <PlaygroundStage
@@ -323,7 +420,22 @@ export function ColorSpaceSolidModelsPage() {
         <SolidModelsBottomDock
           axes={selectedModel.axes}
           modelId={selectedModel.id}
-          modelTabs={modelTabs}
+          modelControls={
+            <SolidModelControls
+              cubeEnabled={cubeEnabled}
+              cubeSupported={cubeSupported}
+              selectedBaseModelId={selectedBaseModelId}
+              selectedModelId={selectedModel.id}
+              onModelSelect={(modelId) => {
+                selectSolidModel(resolveSolidModelId(modelId, cubeEnabled))
+              }}
+              onCubeEnabledChange={(enabled) => {
+                selectSolidModel(
+                  resolveSolidModelId(selectedBaseModelId, enabled)
+                )
+              }}
+            />
+          }
           slice={slice}
           sliceEnabled={showSlice}
           onSliceChange={setSlice}
